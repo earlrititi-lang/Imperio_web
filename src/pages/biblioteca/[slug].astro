@@ -1,0 +1,46 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("articles");
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<Layout
+  title={`${entry.data.title} | Imperioes`}
+  description={entry.data.seoDescription ?? entry.data.summary}
+>
+  <div class="container">
+    <section class="section content">
+      <div class="meta">
+        <span class="badge">{entry.data.category}</span>
+        <span class="badge">{entry.data.tier}</span>
+        <span>{entry.data.date}</span>
+      </div>
+      <h1>{entry.data.title}</h1>
+      <p class="muted">{entry.data.summary}</p>
+      <div class="section">
+        <Content />
+      </div>
+      {entry.data.tier !== "gratis" && (
+        <div class="notice">
+          <strong>Contenido para miembros.</strong>
+          <p class="muted">
+            Este articulo requiere nivel {entry.data.tier}. Inicia sesion o sube de
+            escalera.
+          </p>
+          <a class="btn btn-primary" href="/precios">Ver precios</a>
+        </div>
+      )}
+    </section>
+  </div>
+</Layout>
+

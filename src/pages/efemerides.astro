@@ -1,0 +1,35 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const entries = await getCollection("articles");
+const list = entries
+  .filter((entry) => entry.data.category === "efemeride")
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<Layout
+  title="Efemerides | Imperioes"
+  description="Efemerides semanales: memoria viva sin ruido."
+>
+  <div class="container">
+    <section class="section">
+      <span class="pill">Efemerides</span>
+      <h1>Memoria activa</h1>
+      <p>Textos breves para situar el presente desde el archivo.</p>
+    </section>
+    <section class="section">
+      <div class="grid">
+        {list.map((entry) => (
+          <article class="card">
+            <p class="muted">{entry.data.date}</p>
+            <h3>{entry.data.title}</h3>
+            <p>{entry.data.summary}</p>
+            <a class="btn btn-ghost" href={`/biblioteca/${entry.slug}`}>Leer</a>
+          </article>
+        ))}
+      </div>
+    </section>
+  </div>
+</Layout>
+

@@ -1,0 +1,84 @@
+---
+import "../styles/global.css";
+import ClientRuntime from "../islands/ClientRuntime.jsx";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props as Props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+
+    <!-- Fuente principal -->
+    <link
+      href="https://db.onlinewebfonts.com/c/35da23d6d7d68a326080792c63a6251b?family=FS+Rosa+Black"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-white text-black font-rosa overflow-x-hidden">
+    <slot />
+    <ClientRuntime client:load />
+  </body>
+</html>
+
+<style is:global>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    font-family: "FS Rosa Black", serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-white-off);
+    color: var(--color-black-pure);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: none;
+  }
+
+  .font-rosa {
+    font-family: "FS Rosa Black", serif;
+  }
+
+  :root {
+    /* NEGROS */
+    --color-black-pure: #000000;
+    --color-black-rich: #0a0a0a;
+
+    /* BLANCOS */
+    --color-white-pure: #ffffff;
+    --color-white-off: #fafafa;
+
+    /* ROJOS ESPAÑOLES */
+    --color-red-spanish: #c1121f; /* Rojo bandera espanola */
+    --color-red-accent: #e63946; /* Rojo vibrante */
+    --color-red-deep: #8b0000; /* Rojo oscuro imperial */
+
+    /* DORADO (Siglo de Oro) */
+    --color-gold: #d4af37;
+    --color-gold-rich: #b8860b;
+
+    /* TRANSPARENCIAS */
+    --white-70: rgba(255, 255, 255, 0.7);
+    --white-40: rgba(255, 255, 255, 0.4);
+    --white-10: rgba(255, 255, 255, 0.1);
+    --black-90: rgba(0, 0, 0, 0.9);
+  }
+</style>

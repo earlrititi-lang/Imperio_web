@@ -1,0 +1,47 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("rutas");
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<Layout
+  title={`${entry.data.title} | Imperioes`}
+  description={entry.data.seoDescription ?? entry.data.summary}
+>
+  <div class="container">
+    <section class="section content">
+      <span class="pill">Ruta</span>
+      <h1>{entry.data.title}</h1>
+      <p class="muted">{entry.data.intro}</p>
+      <div class="section">
+        <Content />
+      </div>
+      {entry.data.items && (
+        <div class="section">
+          <h3>Lecturas sugeridas</h3>
+          <div class="grid">
+            {entry.data.items.map((item) => (
+              <div class="card">
+                <p>{item.title}</p>
+                <a class="btn btn-ghost" href={`/biblioteca/${item.slug}`}>
+                  Leer
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  </div>
+</Layout>
+

@@ -1,0 +1,89 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const articles = await getCollection("articles");
+const sorted = articles.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+const categoryParam = Astro.url.searchParams.get("category");
+const tierParam = Astro.url.searchParams.get("tier");
+const categories = Array.from(new Set(sorted.map((entry) => entry.data.category)));
+const tiers = Array.from(new Set(sorted.map((entry) => entry.data.tier)));
+const categoryFilter = categories.includes(categoryParam ?? "")
+  ? categoryParam
+  : "";
+const tierFilter = tiers.includes(tierParam ?? "") ? tierParam : "";
+const filtered = sorted.filter((entry) => {
+  if (categoryFilter && entry.data.category !== categoryFilter) return false;
+  if (tierFilter && entry.data.tier !== tierFilter) return false;
+  return true;
+});
+---
+
+<Layout
+  title="Biblioteca | Imperioes"
+  description="Biblioteca viva de ensayos, efemerides y piezas conectadas al presente."
+>
+  <div class="container">
+    <section class="section">
+      <span class="pill">Biblioteca</span>
+      <h1>Archivo consultable</h1>
+      <p>
+        Ruta por categorias y niveles. El archivo completo se abre a partir de Piquero.
+      </p>
+      <div class="section">
+        <div class="meta">
+          <strong>Filtrar por categoria</strong>
+          <a class="badge" href="/biblioteca">Todas</a>
+          {categories.map((category) => (
+            <a
+              class="badge"
+              href={`/biblioteca?category=${category}${tierFilter ? `&tier=${tierFilter}` : ""}`}
+            >
+              {category}
+            </a>
+          ))}
+        </div>
+        <div class="meta">
+          <strong>Filtrar por tier</strong>
+          <a class="badge" href="/biblioteca">Todos</a>
+          {tiers.map((tier) => (
+            <a
+              class="badge"
+              href={`/biblioteca?tier=${tier}${categoryFilter ? `&category=${categoryFilter}` : ""}`}
+            >
+              {tier}
+            </a>
+          ))}
+        </div>
+        {(categoryFilter || tierFilter) && (
+          <div class="meta">
+            <span class="muted">
+              Filtro activo: {categoryFilter || "todas"} / {tierFilter || "todos"}
+            </span>
+            <a class="btn btn-ghost" href="/biblioteca">Limpiar</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="grid">
+        {filtered.map((entry) => (
+          <article class="card">
+            <p class="muted">
+              {entry.data.category} - {entry.data.tier} - {entry.data.date}
+            </p>
+            <h3>{entry.data.title}</h3>
+            <p>{entry.data.summary}</p>
+            <a class="btn btn-ghost" href={`/biblioteca/${entry.slug}`}>
+              Leer
+            </a>
+          </article>
+        ))}
+      </div>
+    </section>
+  </div>
+</Layout>
+

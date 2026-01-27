@@ -1,0 +1,21 @@
+---
+const { ctaLabel = "Manifiesto gratis", ctaHref = "/manifiesto" } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="/">Imperioes</a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/manifiesto">Manifiesto</a>
+      <a href="/precios">Precios</a>
+      <a href="/biblioteca">Biblioteca</a>
+      <a href="/rutas">Rutas</a>
+      <a href="/tienda">Tienda</a>
+      <a href="/comunidad">Comunidad</a>
+    </nav>
+    <div class="header-actions">
+      <a class="link-muted" href="/cuenta">Cuenta</a>
+      <a class="btn btn-primary" href={ctaHref}>{ctaLabel}</a>
+    </div>
+  </div>
+</header>
