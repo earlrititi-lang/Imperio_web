@@ -16,7 +16,7 @@ export default {
         }
       },
       fontFamily: {
-        'rosa': ['"FS Rosa Black"', 'serif'],
+        'inter': ['Inter', 'sans-serif'],
       },
       animation: {
         'scroll': 'scroll 2s ease-in-out infinite',

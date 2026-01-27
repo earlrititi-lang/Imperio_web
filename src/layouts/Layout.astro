@@ -16,13 +16,19 @@ const { title } = Astro.props as Props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
 
-    <!-- Fuente principal -->
+    <!-- Fuentes - Replicando la tipografia de studioDSK -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link
       href="https://db.onlinewebfonts.com/c/35da23d6d7d68a326080792c63a6251b?family=FS+Rosa+Black"
       rel="stylesheet"
     />
   </head>
-  <body class="bg-white text-black font-rosa overflow-x-hidden">
+  <body class="bg-white text-black font-inter overflow-x-hidden">
     <slot />
     <ClientRuntime client:load />
   </body>
@@ -41,7 +47,7 @@ const { title } = Astro.props as Props;
   }
 
   body {
-    font-family: "FS Rosa Black", serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: var(--color-white-off);
@@ -53,8 +59,8 @@ const { title } = Astro.props as Props;
     content: none;
   }
 
-  .font-rosa {
-    font-family: "FS Rosa Black", serif;
+  .font-inter {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
   :root {
