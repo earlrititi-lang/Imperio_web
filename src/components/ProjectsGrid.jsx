@@ -1,28 +1,4 @@
-import { useEffect } from "preact/hooks";
-
 export default function ProjectsGrid() {
-  useEffect(() => {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px",
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll(".fade-in-up").forEach((el, index) => {
-      el.style.transitionDelay = `${index * 100}ms`;
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <>
       <section class="projects-section py-32 bg-[var(--color-white-off)]">
@@ -52,6 +28,8 @@ export default function ProjectsGrid() {
                   src="/images/projects/project-1.jpg"
                   alt="Palacio de los Marqueses"
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                   <span class="text-white text-lg font-semibold uppercase tracking-wide">
@@ -75,6 +53,8 @@ export default function ProjectsGrid() {
                   src="/images/projects/project-2.jpg"
                   alt="Casa de la Condesa"
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                   <span class="text-white text-lg font-semibold uppercase tracking-wide">
@@ -98,6 +78,8 @@ export default function ProjectsGrid() {
                   src="/images/projects/project-3.jpg"
                   alt="Convento de San Francisco"
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                   <span class="text-white text-lg font-semibold uppercase tracking-wide">
@@ -121,6 +103,8 @@ export default function ProjectsGrid() {
                   src="/images/projects/project-4.jpg"
                   alt="Plaza de las Cortes"
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                   <span class="text-white text-lg font-semibold uppercase tracking-wide">
@@ -144,6 +128,8 @@ export default function ProjectsGrid() {
                   src="/images/projects/project-5.jpg"
                   alt="Biblioteca Real"
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                   <span class="text-white text-lg font-semibold uppercase tracking-wide">
@@ -167,6 +153,8 @@ export default function ProjectsGrid() {
                   src="/images/projects/project-6.jpg"
                   alt="Hacienda Andaluza"
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                   <span class="text-white text-lg font-semibold uppercase tracking-wide">

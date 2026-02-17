@@ -1,150 +1,145 @@
-import { useEffect } from "preact/hooks";
+﻿import { useEffect } from "preact/hooks";
+import LogoImperio from "./LogoImperio";
+
+const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/preload-6-def.png";
+
+const NAV_ITEMS = [
+  { href: "/sobre-nosotros", label: "Memorial" },
+  { href: "/articulos", label: "Papeles y Tratados" },
+  { href: "/biblioteca", label: "Libreria" },
+  { href: "/foro", label: "Mentidero" },
+  { href: "/tienda", label: "Cas de Mercaderias" },
+  { href: "/contacto", label: "Audiencia" },
+];
+
+// Ajustes rapidos por bloque (posicion y estado visual)
+const LAYER_STATE = {
+  imperio: { x: "0px", y: "0px", opacity: 1 },
+  espanol: { x: "0px", y: "0px", opacity: 1 },
+  latin: { x: "0px", y: "0px", opacity: 1 },
+};
+
+const LAYER_VARS = {
+  "--imperio-x": LAYER_STATE.imperio.x,
+  "--imperio-y": LAYER_STATE.imperio.y,
+  "--imperio-opacity": LAYER_STATE.imperio.opacity,
+  "--espanol-x": LAYER_STATE.espanol.x,
+  "--espanol-y": LAYER_STATE.espanol.y,
+  "--espanol-opacity": LAYER_STATE.espanol.opacity,
+  "--latin-x": LAYER_STATE.latin.x,
+  "--latin-y": LAYER_STATE.latin.y,
+  "--latin-opacity": LAYER_STATE.latin.opacity,
+};
 
 export default function HeroImperio() {
   useEffect(() => {
-    const heroWords = document.querySelectorAll(".hero-word");
-    const subtitle = document.querySelector(".hero-subtitle");
-    const nav = document.querySelector(".hero-nav");
-    const logoSmall = document.querySelector(".hero-logo-small");
-
-    if (logoSmall) {
-      window.setTimeout(() => {
-        logoSmall.style.transition = "opacity 0.8s ease";
-        logoSmall.style.opacity = "1";
-      }, 200);
-    }
-
-    heroWords.forEach((word, index) => {
-      window.setTimeout(() => {
-        word.style.transition =
-          "transform 1.2s cubic-bezier(0.76, 0, 0.24, 1), opacity 1.2s ease";
-        word.style.transform = "translateY(0)";
-        word.style.opacity = "1";
-      }, 600 + index * 200);
-    });
-
-    if (subtitle) {
-      window.setTimeout(() => {
-        subtitle.style.transition = "opacity 1s ease";
-        subtitle.style.opacity = "1";
-      }, 600 + heroWords.length * 200 + 400);
-    }
-
-    if (nav) {
-      window.setTimeout(() => {
-        nav.style.transition = "opacity 1s ease";
-        nav.style.opacity = "1";
-      }, 600 + heroWords.length * 200 + 800);
-    }
+    const heroBackground = document.querySelector(".hero-background");
+    const heroImage = heroBackground?.querySelector("img");
 
     const onScroll = () => {
-      const heroBackground = document.querySelector(".hero-background");
       if (!heroBackground) return;
+      const target = heroImage || heroBackground;
+      if (!document.body.classList.contains("preloader-done")) {
+        target.style.transform = "translateY(0)";
+        return;
+      }
       const scrolled = window.pageYOffset;
-      heroBackground.style.transform = `translateY(${scrolled * 0.5}px)`;
+      target.style.transform = `translateY(${scrolled * 0.5}px)`;
     };
 
+    const setHeroImage = (src) => {
+      if (!heroImage || !src) return;
+      if (heroImage.getAttribute("src") === src) return;
+      const next = new window.Image();
+      next.decoding = "async";
+      next.src = src;
+      next
+        .decode()
+        .catch(() => undefined)
+        .finally(() => {
+          heroImage.src = src;
+        });
+    };
+
+    if (heroImage) {
+      heroImage.src = HERO_IMAGE_DEFAULT_SRC;
+      heroImage.decoding = "async";
+      heroImage.fetchPriority = "high";
+      heroImage.loading = "eager";
+      heroImage.decode().catch(() => undefined);
+    }
+
+    const onLastImage = (event) => {
+      const src = event?.detail?.src;
+      if (src) setHeroImage(src);
+    };
+
+    const onPreloaderDone = () => {
+      onScroll();
+    };
+
+    window.addEventListener("preloader:last-image", onLastImage, { once: true });
+    window.addEventListener("preloader:done", onPreloaderDone, { once: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("preloader:last-image", onLastImage);
+      window.removeEventListener("preloader:done", onPreloaderDone);
     };
   }, []);
 
   return (
     <>
       <section class="hero-imperio relative min-h-screen flex flex-col justify-between overflow-hidden bg-black">
-        <div class="hero-background absolute inset-0 opacity-35">
+        <div class="hero-background absolute inset-0" aria-hidden="true">
           <img
-            src="/images/mapa-historico-bg-1280.jpg"
-            srcSet="/images/mapa-historico-bg-640.jpg 640w, /images/mapa-historico-bg-960.jpg 960w, /images/mapa-historico-bg-1280.jpg 1280w, /images/mapa-historico-bg-1920.jpg 1920w"
-            sizes="100vw"
-            alt="Mapa historico Imperio Espanol"
-            class="w-full h-full object-cover"
-            decoding="async"
+            src="/images/preloader/preload-6-def.png"
+            alt=""
+            class="hero-background__img"
           />
         </div>
 
-        <div class="hero-content flex-1 flex flex-col items-center justify-center relative z-10 px-6">
-          <div class="hero-logo-small mb-12 opacity-0">
-            <img
-              src="/images/logo-white.svg"
-              alt="El Siglo Espanol"
-              class="h-16"
-            />
-          </div>
+        <div class="hero-content hero-imperio__content flex-1 flex flex-col items-center justify-center relative z-10 px-6">
+          <div class="hero-imperio__headline" style={LAYER_VARS}>
+            <h1 class="hero-imperio__title">
+              <LogoImperio
+                width={720}
+                className="hero-imperio__wordmark"
+                title="Imperio Espanol"
+                classes={{
+                  corona: "hero-imperio__corona-part",
+                  imperio: "hero-imperio__imperio-part",
+                  espanol: "hero-imperio__espanol-part",
+                }}
+              />
+            </h1>
 
-          <h1 class="hero-title text-center mb-8">
-            <span class="hero-line block overflow-hidden">
-              <span class="hero-word text-white">EL IMPERIO</span>
-            </span>
-            <span class="hero-line block overflow-hidden">
-              <span class="hero-word text-white">ESPANOL</span>
-            </span>
-          </h1>
-
-          <div class="hero-subtitle max-w-2xl text-center opacity-0">
-            <p class="text-white/70 text-lg md:text-xl leading-relaxed">
-              El Siglo Espanol disena ambientes que conectan personas, lugares y
-              propositos. Desde residencias atemporales hasta proyectos
-              emblematicos del Imperio, nuestro trabajo forja un impacto duradero.
-            </p>
+            <div class="hero-imperio__latin-block" aria-hidden="true">
+              <img
+                src="/images/LATIN1.svg"
+                alt=""
+                class="hero-imperio__latin-image"
+              />
+            </div>
           </div>
         </div>
 
-        <nav class="hero-nav relative z-10 pb-0 opacity-0">
+        <nav class="hero-nav hero-imperio__nav relative z-10 pb-0 opacity-0">
           <div class="hero-nav__surface">
             <div class="container mx-auto px-6">
               <ul class="flex flex-wrap justify-between items-center text-black w-full max-w-6xl mx-auto gap-6 md:gap-0">
-                <li>
-                  <a
-                    href="/sobre-nosotros"
-                    class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    Sobre Nosotros
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/articulos"
-                    class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    Articulos
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/biblioteca"
-                    class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    Biblioteca
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/foro"
-                    class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    Foro
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/tienda"
-                    class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    Tienda
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/contacto"
-                    class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    Contacto
-                  </a>
-                </li>
+                {NAV_ITEMS.map((item) => (
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -157,21 +152,158 @@ export default function HeroImperio() {
           position: relative;
         }
 
-        .hero-background img {
-          filter: brightness(1.1) contrast(1.2);
-        }
-
-        .hero-title {
-          font-size: clamp(4rem, 15vw, 12rem);
-          font-weight: 900;
-          line-height: 0.85;
-          letter-spacing: -0.03em;
-        }
-
-        .hero-word {
-          display: inline-block;
-          transform: translateY(100%);
+        .hero-background {
+          pointer-events: none;
           opacity: 0;
+        }
+
+        body.preloader-handoff .hero-background,
+        body.preloader-done .hero-background {
+          opacity: 1;
+        }
+
+        .hero-background__img {
+          filter: brightness(0.75);
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: fill;
+          object-position: center;
+          will-change: transform;
+        }
+
+        .hero-imperio__headline {
+          --imperio-x: 0px;
+          --imperio-y: 0px;
+          --imperio-opacity: 0.5;
+          --espanol-x: 0px;
+          --espanol-y: 0px;
+          --espanol-opacity: 1;
+          --latin-x: 0px;
+          --latin-y: 0px;
+          --latin-opacity: 1;
+          position: absolute;
+          left: 40%;
+          top: 58%;
+          transform: translate(-10%, -50%);
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1.1rem;
+          z-index: 2;
+        }
+
+        .hero-imperio__title {
+          margin: 0;
+          line-height: 0;
+        }
+
+        .hero-imperio__wordmark {
+          display: inline-block;
+          width: min(70vw, 450px);
+          height: auto;
+          transform: translateY(40px);
+          opacity: 0;
+          transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 1.2s ease;
+        }
+
+        .hero-imperio__corona-part {
+          visibility: hidden;
+          
+        }
+
+        .hero-imperio__imperio-part,
+        .hero-imperio__espanol-part {
+          transform-box: fill-box;
+          transform-origin: center;
+          will-change: transform, opacity, filter;
+        }
+
+        .hero-imperio__imperio-part {
+          opacity: 0;
+          transform: translate(var(--imperio-x), calc(var(--imperio-y) + 28px));
+          transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 1s ease;
+          transition-delay: 220ms;
+        }
+
+        .hero-imperio__espanol-part {
+          opacity: 0;
+          transform: translate(var(--espanol-x), calc(var(--espanol-y) + 130px));
+          filter: url(#logo-noise);
+          transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 1.6s ease,
+            filter 1.2s ease;
+          transition-delay: 520ms;
+        }
+
+        .hero-imperio__latin-block {
+          width: min(82vw, 320px);
+          margin-top: 0.65rem;
+          transform: translate(var(--latin-x), var(--latin-y));
+          opacity: var(--latin-opacity);
+          pointer-events: none;
+        }
+
+        .hero-imperio__latin-image {
+          display: block;
+          width: 100%;
+          height: auto;
+          opacity: 0;
+          -webkit-mask-image: linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 24%,
+            #000 44%,
+            #000 100%
+          );
+          mask-image: linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 24%,
+            #000 44%,
+            #000 100%
+          );
+          -webkit-mask-size: 240% 100%;
+          mask-size: 240% 100%;
+          -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
+          filter: blur(1.2px);
+          will-change: opacity, filter, mask-position, -webkit-mask-position;
+        }
+
+        .hero-imperio__nav {
+          opacity: 0;
+          transition: opacity 0.7s ease;
+        }
+
+        body.preloader-done .hero-imperio__wordmark {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        body.preloader-done .hero-imperio__imperio-part {
+          opacity: var(--imperio-opacity);
+          transform: translate(var(--imperio-x), var(--imperio-y));
+        }
+
+        body.preloader-done .hero-imperio__espanol-part {
+          opacity: var(--espanol-opacity);
+          transform: translate(var(--espanol-x), var(--espanol-y));
+          filter: none;
+        }
+
+        body.preloader-done .hero-imperio__latin-image {
+          animation: latin-reveal-letters 8.6s steps(28, end) 820ms infinite,
+            latin-fade-cycle 8.6s linear 820ms infinite,
+            latin-blur-cycle 8.6s ease-in-out 820ms infinite;
+        }
+
+        body.preloader-done .hero-imperio__nav {
+          opacity: 1;
+          transition-delay: 900ms;
         }
 
         .nav-link {
@@ -208,9 +340,77 @@ export default function HeroImperio() {
           transform: translateY(-50%) translateX(0);
         }
 
+        @keyframes latin-reveal-letters {
+          0% {
+            -webkit-mask-position: 100% 0;
+            mask-position: 100% 0;
+          }
+          56% {
+            -webkit-mask-position: 0% 0;
+            mask-position: 0% 0;
+          }
+          100% {
+            -webkit-mask-position: 0% 0;
+            mask-position: 0% 0;
+          }
+        }
+
+        @keyframes latin-fade-cycle {
+          0% {
+            opacity: 0;
+          }
+          12% {
+            opacity: 1;
+          }
+          66% {
+            opacity: 1;
+          }
+          86% {
+            opacity: 1;
+          }
+          96% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes latin-blur-cycle {
+          0% {
+            filter: blur(12px);
+          }
+          14% {
+            filter: blur(3px);
+          }
+          28% {
+            filter: blur(0);
+          }
+          72% {
+            filter: blur(0);
+          }
+          88% {
+            filter: blur(3px);
+          }
+          100% {
+            filter: blur(12px);
+          }
+        }
+
         @media (max-width: 768px) {
-          .hero-title {
-            font-size: clamp(3rem, 12vw, 6rem);
+          .hero-imperio__headline {
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+          }
+
+          .hero-imperio__latin-block {
+            width: min(90vw, 460px);
+            margin-top: 0.85rem;
+          }
+
+          .hero-imperio__wordmark {
+            width: min(86vw, 520px);
           }
 
           .hero-nav ul {

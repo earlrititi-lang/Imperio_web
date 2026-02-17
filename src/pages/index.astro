@@ -1,6 +1,6 @@
----
+﻿---
 // src/pages/index.astro
-// Página principal completa integrando todos los componentes
+// PÃ¡gina principal completa integrando todos los componentes
 
 import Layout from '../layouts/Layout.astro';
 import Preloader from '../components/Preloader.jsx';
@@ -12,14 +12,14 @@ import ProjectsGrid from '../components/ProjectsGrid.jsx';
 import Footer from '../components/Footer.jsx';
 ---
 
-<Layout title="El Siglo Español - Arquitectura y Diseño">
+<Layout title="El Siglo EspaÃ±ol - Arquitectura y DiseÃ±o">
   <Preloader client:load />
-  <Navigation client:load />
+  <Navigation />
   <HeroImperio client:load />
-  <FastCarousel client:load />
-  <Services client:load />
-  <ProjectsGrid client:load />
-  <Footer client:load />
+  <FastCarousel />
+  <Services />
+  <ProjectsGrid />
+  <Footer />
 </Layout>
 
 <style is:global>
@@ -28,7 +28,7 @@ import Footer from '../components/Footer.jsx';
     scroll-behavior: smooth;
   }
 
-  /* Personalización del scrollbar (opcional, estilo elegante) */
+  /* PersonalizaciÃ³n del scrollbar (opcional, estilo elegante) */
   ::-webkit-scrollbar {
     width: 10px;
   }
@@ -38,11 +38,12 @@ import Footer from '../components/Footer.jsx';
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #000;
+    background: var(--color-red-accent);
     border-radius: 5px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-red-accent);
+    background: var(--color-red-deep);
   }
 </style>
+

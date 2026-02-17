@@ -1,27 +1,4 @@
-import { useEffect } from "preact/hooks";
-
 export default function Services() {
-  useEffect(() => {
-    const observerOptions = {
-      threshold: 0.15,
-      rootMargin: "0px 0px -100px 0px",
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll(".fade-in-up").forEach((el) => {
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <>
       <section class="services-section py-32 bg-white">
@@ -57,6 +34,8 @@ export default function Services() {
                   src="/images/services/consultoria.jpg"
                   alt="Consultoria"
                   class="w-full h-[400px] object-cover hover-scale"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -67,6 +46,8 @@ export default function Services() {
                   src="/images/services/planificacion.jpg"
                   alt="Planificacion"
                   class="w-full h-[400px] object-cover hover-scale"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div class="service-content md:order-2">
@@ -103,6 +84,8 @@ export default function Services() {
                   src="/images/services/arquitectura.jpg"
                   alt="Arquitectura"
                   class="w-full h-[400px] object-cover hover-scale"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -113,6 +96,8 @@ export default function Services() {
                   src="/images/services/interiores.jpg"
                   alt="Interiores"
                   class="w-full h-[400px] object-cover hover-scale"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div class="service-content md:order-2">

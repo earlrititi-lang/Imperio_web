@@ -1,40 +1,4 @@
-import { useEffect } from "preact/hooks";
-
 export default function Navigation() {
-  useEffect(() => {
-    const nav = document.getElementById("main-nav");
-    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const closeMenuBtn = document.getElementById("close-menu");
-
-    const onScroll = () => {
-      if (!nav) return;
-      if (window.scrollY > 50) {
-        nav.classList.add("scrolled");
-      } else {
-        nav.classList.remove("scrolled");
-      }
-    };
-
-    const openMenu = () => {
-      mobileMenu?.classList.remove("translate-x-full");
-    };
-
-    const closeMenu = () => {
-      mobileMenu?.classList.add("translate-x-full");
-    };
-
-    window.addEventListener("scroll", onScroll);
-    mobileMenuBtn?.addEventListener("click", openMenu);
-    closeMenuBtn?.addEventListener("click", closeMenu);
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      mobileMenuBtn?.removeEventListener("click", openMenu);
-      closeMenuBtn?.removeEventListener("click", closeMenu);
-    };
-  }, []);
-
   return (
     <>
       <nav
@@ -103,6 +67,19 @@ export default function Navigation() {
 
         #main-nav.scrolled a:not(:has(img)) {
           color: #000;
+        }
+
+        #main-nav {
+          opacity: 0;
+          transform: translateY(-12px);
+          pointer-events: none;
+          transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        body.preloader-done #main-nav {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
         }
       `}</style>
     </>
