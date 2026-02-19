@@ -8,24 +8,36 @@ export default function Preloader() {
     );
     const imageContainer = document.querySelector(".preloader-images");
 
-    const step = 550;
-    const fadeDuration = 900;
-    const shrinkDuration = 920;
-    const shrinkHold = 460;
-    const expandDuration = 2800;
-    const overlayFade = 650;
-    const holdDuration = 0;
+    const timing = {
+      step: 620, // Tiempo entre cada imagen (1 a 5)
+      fade: 800, // Fade de las imagenes normales
+      shrink: 520, // Duracion del shrink (lo dejamos como estaba)
+      fillMax: 700, // Velocidad del fill final (imagen 6 a pantalla completa)
+      preloadTimeout: 1800, // Arranque forzado maximo mientras cargan imagenes
+    };
+    const step = timing.step;
+    const fadeDuration = timing.fade;
+    const finalFadeDuration = Math.round(timing.fillMax * 0.72);
+    const shrinkDuration = timing.shrink;
+    const shrinkHold = Math.round(timing.step * 0.18);
+    const expandDuration = timing.fillMax;
+    const overlayFade = Math.round(timing.fade * 0.72);
+    const holdDuration = Math.round(timing.fillMax * 0.15);
+    const settleDelay = Math.round(timing.fillMax * 0.2);
     const lastIndex = imageList.length - 1;
-    const shrinkTriggerIndex = Math.max(lastIndex - 1, 0);
+    const shrinkIndex = imageList.findIndex((img) =>
+      img.classList.contains("preloader-img--shrink-trigger")
+    );
+    const shrinkTriggerIndex = shrinkIndex >= 0 ? shrinkIndex : Math.max(lastIndex - 1, 0);
     const shrinkStart = shrinkTriggerIndex * step + fadeDuration;
     const shrinkEnd = shrinkStart + shrinkDuration;
     const lastImageStart = shrinkEnd + shrinkHold;
     const expandStart = lastImageStart + holdDuration;
-    const finalEnd = expandStart + expandDuration + 200;
+    const finalEnd = expandStart + expandDuration + settleDelay;
     const timers = [];
     let done = false;
     let started = false;
-    const doneDelay = 150;
+    const doneDelay = 120;
 
     const finalizePreloader = () => {
       if (done) return;
@@ -69,13 +81,18 @@ export default function Preloader() {
       };
 
       imageList.forEach((img, index) => {
-        if (index !== lastIndex && index > shrinkTriggerIndex) return;
         const start = index === lastIndex ? lastImageStart : index * step;
         timers.push(
           window.setTimeout(() => {
             const animationName =
               index === lastIndex ? "fadeInOnly" : "fadeInScale";
-            img.style.animation = `${animationName} ${fadeDuration}ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards`;
+            const duration =
+              index === lastIndex ? finalFadeDuration : fadeDuration;
+            const easing =
+              index === lastIndex
+                ? "cubic-bezier(0.2, 0.65, 0.2, 1)"
+                : "cubic-bezier(0.2, 0.7, 0.2, 1)";
+            img.style.animation = `${animationName} ${duration}ms ${easing} forwards`;
           }, start)
         );
         if (index === lastIndex) {
@@ -105,22 +122,23 @@ export default function Preloader() {
                 );
               }
               img.classList.add("preloader-img--expand");
+
+              const onExpandEnd = (event) => {
+                if (event.propertyName !== "transform") return;
+                imageContainer?.removeEventListener("transitionend", onExpandEnd);
+                timers.push(window.setTimeout(() => {
+                  finishPreloader();
+                }, doneDelay));
+              };
+              imageContainer?.addEventListener("transitionend", onExpandEnd);
             }, expandStart)
           );
           timers.push(
             window.setTimeout(() => {
               removeOtherImages();
-            }, expandStart + 200)
+            }, expandStart + settleDelay)
           );
 
-          const onExpandEnd = (event) => {
-            if (event.propertyName !== "transform") return;
-            imageContainer?.removeEventListener("transitionend", onExpandEnd);
-            timers.push(window.setTimeout(() => {
-              finishPreloader();
-            }, doneDelay));
-          };
-          imageContainer?.addEventListener("transitionend", onExpandEnd);
         }
       });
 
@@ -142,7 +160,7 @@ export default function Preloader() {
       });
     });
 
-    const preloadTimeout = window.setTimeout(startSequence, 2200);
+    const preloadTimeout = window.setTimeout(startSequence, timing.preloadTimeout);
     Promise.all(preloadPromises).then(() => {
       window.clearTimeout(preloadTimeout);
       startSequence();
@@ -165,7 +183,7 @@ export default function Preloader() {
       >
         <div class="preloader-images relative">
           <img
-            src="/images/preloader/preload1.jpg"
+            src="/images/preloader/preload-1-def.png"
             alt="Cargando 1"
             class="preloader-img absolute opacity-0"
             style={{ "--scale-end": "1" }}
@@ -191,7 +209,7 @@ export default function Preloader() {
           <img
             src="/images/preloader/preload-3-def.png"
             alt="Cargando 5"
-            class="preloader-img absolute opacity-0"
+            class="preloader-img preloader-img--shrink-trigger absolute opacity-0"
             style={{ "--scale-end": "0.94" }}
           />
           <img
@@ -231,8 +249,9 @@ export default function Preloader() {
         .preloader-images {
           --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
           --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+          --ease-expand: cubic-bezier(0.28, 0.08, 0.22, 1);
           --stack-scale: 0.88;
-          --stack-duration: var(--expand-duration, 1.4s);
+          --stack-duration: var(--expand-duration, 180ms);
           --stack-ease: var(--ease-smooth);
           width: 100vw;
           height: 100vh;
@@ -244,14 +263,14 @@ export default function Preloader() {
 
         #preloader.preloader--shrink .preloader-images {
           --stack-scale: 0.66;
-          --stack-duration: var(--shrink-duration, 920ms);
+          --stack-duration: var(--shrink-duration, 120ms);
           --stack-ease: var(--ease-soft);
         }
 
         #preloader.preloader--expand .preloader-images {
           --stack-scale: 1;
-          --stack-duration: var(--expand-duration, 1.4s);
-          --stack-ease: var(--ease-smooth);
+          --stack-duration: var(--expand-duration, 120ms);
+          --stack-ease: var(--ease-expand);
         }
 
         .preloader-img {
@@ -262,17 +281,17 @@ export default function Preloader() {
           transform-origin: center;
           object-fit: fill;
           object-position: center;
-          filter: brightness(0.75);
+          filter: brightness(0.95);
           will-change: transform, opacity;
-          transition: transform var(--img-transform-duration, var(--expand-duration, 1.4s))
+          transition: transform var(--img-transform-duration, var(--expand-duration, 120ms))
               var(--ease-smooth),
-            opacity var(--img-opacity-duration, 1.2s) var(--ease-soft);
+            opacity var(--fade-duration, 120ms) var(--ease-soft);
           z-index: 1;
         }
 
         .preloader-img--final {
           transform: scale(1);
-          transition: opacity 1.2s var(--ease-soft);
+          transition: opacity var(--fade-duration, 120ms) var(--ease-soft);
           will-change: opacity;
         }
 
@@ -294,7 +313,7 @@ export default function Preloader() {
         #preloader.preloader--done {
           opacity: 0;
           pointer-events: none;
-          transition: opacity var(--overlay-fade, 650ms) var(--ease-soft);
+          transition: opacity var(--overlay-fade, 120ms) var(--ease-soft);
         }
       `}</style>
     </>
