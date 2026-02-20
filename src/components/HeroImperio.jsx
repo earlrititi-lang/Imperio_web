@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { href: "/articulos", label: "Papeles y Tratados" },
   { href: "/biblioteca", label: "Libreria" },
   { href: "/foro", label: "Mentidero" },
-  { href: "/tienda", label: "Cas de Mercaderias" },
+  { href: "/tienda", label: "Casa de Mercaderias" },
   { href: "/contacto", label: "Audiencia" },
 ];
 
@@ -30,6 +30,37 @@ const LAYER_VARS = {
   "--latin-y": LAYER_STATE.latin.y,
   "--latin-opacity": LAYER_STATE.latin.opacity,
 };
+
+const LATIN_ANIM = {
+  delayMs: 420, // Retraso inicial del ciclo tras terminar el preloader
+  cycleDurationMs: 15000, // Velocidad global del ciclo (reveal + fade + blur)
+  hiddenPauseMs: 5000, // Tiempo oculto total entre desaparicion completa y nuevo ciclo
+  fadeInEndPct: 8, // Fin de la aparicion inicial
+  blurSoftenPct: 12, // Primer tramo de blur de entrada
+  blurClearPct: 24, // Punto en que el texto queda nitido
+  blurStartPct: 40, // Inicio del blur final
+  blurEndPct: 48, // Fin de subida del blur final
+};
+
+const roundPct = (value) => Number(value.toFixed(2));
+const hiddenPausePct = roundPct(
+  (LATIN_ANIM.hiddenPauseMs / LATIN_ANIM.cycleDurationMs) * 100
+);
+const fadeInEndPct = LATIN_ANIM.fadeInEndPct;
+const fadeEndPct = roundPct(
+  Math.min(
+    99,
+    Math.max(fadeInEndPct + 2, 100 + fadeInEndPct - hiddenPausePct)
+  )
+);
+const revealEndPct = roundPct(Math.max(10, fadeEndPct - 4));
+const revealHoldEndPct = roundPct(Math.max(revealEndPct, fadeEndPct - 2));
+const revealResetPct = roundPct(Math.min(99, fadeEndPct + 1));
+const fadeStartPct = revealEndPct;
+const blurStartPct = LATIN_ANIM.blurStartPct;
+const blurEndPct = LATIN_ANIM.blurEndPct;
+const blurSoftenPct = LATIN_ANIM.blurSoftenPct;
+const blurClearPct = LATIN_ANIM.blurClearPct;
 
 export default function HeroImperio() {
   useEffect(() => {
@@ -276,7 +307,10 @@ export default function HeroImperio() {
 
         .hero-imperio__nav {
           opacity: 0;
-          transition: opacity 0.7s ease;
+          transform: translateY(72px);
+          will-change: transform, opacity;
+          transition: transform 1.15s cubic-bezier(0.2, 0.9, 0.22, 1),
+            opacity 0.85s ease;
         }
 
         body.preloader-done .hero-imperio__wordmark {
@@ -296,13 +330,14 @@ export default function HeroImperio() {
         }
 
         body.preloader-done .hero-imperio__latin-image {
-          animation: latin-reveal-letters 8.6s steps(28, end) 820ms infinite,
-            latin-fade-cycle 8.6s linear 820ms infinite,
-            latin-blur-cycle 8.6s ease-in-out 820ms infinite;
+          animation: latin-reveal-letters ${LATIN_ANIM.cycleDurationMs}ms linear ${LATIN_ANIM.delayMs}ms infinite,
+          latin-fade-cycle ${LATIN_ANIM.cycleDurationMs}ms linear ${LATIN_ANIM.delayMs}ms infinite,
+          latin-blur-cycle ${LATIN_ANIM.cycleDurationMs}ms linear ${LATIN_ANIM.delayMs}ms infinite;
         }
 
         body.preloader-done .hero-imperio__nav {
           opacity: 1;
+          transform: translateY(0);
           transition-delay: 900ms;
         }
 
@@ -345,13 +380,21 @@ export default function HeroImperio() {
             -webkit-mask-position: 100% 0;
             mask-position: 100% 0;
           }
-          56% {
+          ${revealEndPct}% {
             -webkit-mask-position: 0% 0;
             mask-position: 0% 0;
           }
-          100% {
+          ${revealHoldEndPct}% {
             -webkit-mask-position: 0% 0;
             mask-position: 0% 0;
+          }
+          ${revealResetPct}% {
+            -webkit-mask-position: 100% 0;
+            mask-position: 100% 0;
+          }
+          100% {
+            -webkit-mask-position: 100% 0;
+            mask-position: 100% 0;
           }
         }
 
@@ -359,16 +402,13 @@ export default function HeroImperio() {
           0% {
             opacity: 0;
           }
-          12% {
+          ${fadeInEndPct}% {
             opacity: 1;
           }
-          66% {
+          ${fadeStartPct}% {
             opacity: 1;
           }
-          86% {
-            opacity: 1;
-          }
-          96% {
+          ${fadeEndPct}% {
             opacity: 0;
           }
           100% {
@@ -378,22 +418,22 @@ export default function HeroImperio() {
 
         @keyframes latin-blur-cycle {
           0% {
-            filter: blur(12px);
+            filter: blur(10px);
           }
-          14% {
-            filter: blur(3px);
+          ${blurSoftenPct}% {
+            filter: blur(2.5px);
           }
-          28% {
+          ${blurClearPct}% {
             filter: blur(0);
           }
-          72% {
+          ${blurStartPct}% {
             filter: blur(0);
           }
-          88% {
+          ${blurEndPct}% {
             filter: blur(3px);
           }
           100% {
-            filter: blur(12px);
+            filter: blur(10px);
           }
         }
 
