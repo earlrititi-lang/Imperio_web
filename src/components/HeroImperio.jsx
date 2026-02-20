@@ -1,5 +1,6 @@
 ﻿import { useEffect } from "preact/hooks";
 import LogoImperio from "./LogoImperio";
+import LatinLayers from "./LatinLayers";
 
 const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/preload-6-def.png";
 
@@ -31,36 +32,28 @@ const LAYER_VARS = {
   "--latin-opacity": LAYER_STATE.latin.opacity,
 };
 
-const LATIN_ANIM = {
-  delayMs: 420, // Retraso inicial del ciclo tras terminar el preloader
-  cycleDurationMs: 15000, // Velocidad global del ciclo (reveal + fade + blur)
-  hiddenPauseMs: 5000, // Tiempo oculto total entre desaparicion completa y nuevo ciclo
-  fadeInEndPct: 8, // Fin de la aparicion inicial
-  blurSoftenPct: 12, // Primer tramo de blur de entrada
-  blurClearPct: 24, // Punto en que el texto queda nitido
-  blurStartPct: 40, // Inicio del blur final
-  blurEndPct: 48, // Fin de subida del blur final
-};
+const LATIN_LAYER_SEQUENCE = [
+  { id: "Non_sufficit_orbis", label: "Non sufficit orbis" },
+  { id: "Plus_ultra", label: "Plus ultra" },
+  { id: "A_solis_ortu_usque_ad_occasum", label: "A solis ortu usque ad occasum", scale: 2 },
+  { id: "Fiat_justitia_et_pereat_mundus", label: "Fiat justitia et pereat mundus", scale: 2 },
+  { id: "Ante_ferit_quam_flamma_micet", label: "Ante ferit quam flamma micet", scale: 2 },
+  { id: "Nec_spe_nec_metu", label: "Nec spe nec metu", scale: 2 },
+  { id: "Iam_illvstrabit_omnia", label: "Iam illvstrabit omnia", scale: 2 },
+  { id: "Pace_mare_terraqve_composita", label: "Pace mare terraqve composita", scale: 2 },
+  { id: "Fidei_defensor", label: "Fidei defensor", scale: 2 },
+];
 
-const roundPct = (value) => Number(value.toFixed(2));
-const hiddenPausePct = roundPct(
-  (LATIN_ANIM.hiddenPauseMs / LATIN_ANIM.cycleDurationMs) * 100
-);
-const fadeInEndPct = LATIN_ANIM.fadeInEndPct;
-const fadeEndPct = roundPct(
-  Math.min(
-    99,
-    Math.max(fadeInEndPct + 2, 100 + fadeInEndPct - hiddenPausePct)
-  )
-);
-const revealEndPct = roundPct(Math.max(10, fadeEndPct - 4));
-const revealHoldEndPct = roundPct(Math.max(revealEndPct, fadeEndPct - 2));
-const revealResetPct = roundPct(Math.min(99, fadeEndPct + 1));
-const fadeStartPct = revealEndPct;
-const blurStartPct = LATIN_ANIM.blurStartPct;
-const blurEndPct = LATIN_ANIM.blurEndPct;
-const blurSoftenPct = LATIN_ANIM.blurSoftenPct;
-const blurClearPct = LATIN_ANIM.blurClearPct;
+const LATIN_LAYER_ANIM = {
+  startDelayMs: 420, // Espera tras preloader
+  revealMs: 1400, // Barrido de entrada de la frase
+  holdMs: 3000, // Tiempo visible antes de desvanecer
+  fadeMs: 900, // Salida de opacidad
+  blurLeadMs: 580, // El blur final empieza antes del fade
+  staggerMs: 8000, // Distancia temporal entre frases (5s)
+  loopPauseMs: 5000, // Pausa completa al final del ciclo
+  maxBlurPx: 8,
+};
 
 export default function HeroImperio() {
   useEffect(() => {
@@ -148,10 +141,11 @@ export default function HeroImperio() {
             </h1>
 
             <div class="hero-imperio__latin-block" aria-hidden="true">
-              <img
-                src="/images/LATIN1.svg"
-                alt=""
-                class="hero-imperio__latin-image"
+              <LatinLayers
+                src="/images/Letras_latin.svg"
+                className="hero-imperio__latin-layers"
+                layers={LATIN_LAYER_SEQUENCE}
+                animation={LATIN_LAYER_ANIM}
               />
             </div>
           </div>
@@ -278,31 +272,11 @@ export default function HeroImperio() {
           pointer-events: none;
         }
 
-        .hero-imperio__latin-image {
+        .hero-imperio__latin-layers {
           display: block;
           width: 100%;
-          height: auto;
           opacity: 0;
-          -webkit-mask-image: linear-gradient(
-            90deg,
-            transparent 0%,
-            transparent 24%,
-            #000 44%,
-            #000 100%
-          );
-          mask-image: linear-gradient(
-            90deg,
-            transparent 0%,
-            transparent 24%,
-            #000 44%,
-            #000 100%
-          );
-          -webkit-mask-size: 240% 100%;
-          mask-size: 240% 100%;
-          -webkit-mask-position: 100% 0;
-          mask-position: 100% 0;
-          filter: blur(1.2px);
-          will-change: opacity, filter, mask-position, -webkit-mask-position;
+          transition: opacity 0.35s ease;
         }
 
         .hero-imperio__nav {
@@ -329,10 +303,8 @@ export default function HeroImperio() {
           filter: none;
         }
 
-        body.preloader-done .hero-imperio__latin-image {
-          animation: latin-reveal-letters ${LATIN_ANIM.cycleDurationMs}ms linear ${LATIN_ANIM.delayMs}ms infinite,
-          latin-fade-cycle ${LATIN_ANIM.cycleDurationMs}ms linear ${LATIN_ANIM.delayMs}ms infinite,
-          latin-blur-cycle ${LATIN_ANIM.cycleDurationMs}ms linear ${LATIN_ANIM.delayMs}ms infinite;
+        body.preloader-done .hero-imperio__latin-layers {
+          opacity: 1;
         }
 
         body.preloader-done .hero-imperio__nav {
@@ -373,68 +345,6 @@ export default function HeroImperio() {
         .nav-link:hover::after {
           opacity: 1;
           transform: translateY(-50%) translateX(0);
-        }
-
-        @keyframes latin-reveal-letters {
-          0% {
-            -webkit-mask-position: 100% 0;
-            mask-position: 100% 0;
-          }
-          ${revealEndPct}% {
-            -webkit-mask-position: 0% 0;
-            mask-position: 0% 0;
-          }
-          ${revealHoldEndPct}% {
-            -webkit-mask-position: 0% 0;
-            mask-position: 0% 0;
-          }
-          ${revealResetPct}% {
-            -webkit-mask-position: 100% 0;
-            mask-position: 100% 0;
-          }
-          100% {
-            -webkit-mask-position: 100% 0;
-            mask-position: 100% 0;
-          }
-        }
-
-        @keyframes latin-fade-cycle {
-          0% {
-            opacity: 0;
-          }
-          ${fadeInEndPct}% {
-            opacity: 1;
-          }
-          ${fadeStartPct}% {
-            opacity: 1;
-          }
-          ${fadeEndPct}% {
-            opacity: 0;
-          }
-          100% {
-            opacity: 0;
-          }
-        }
-
-        @keyframes latin-blur-cycle {
-          0% {
-            filter: blur(10px);
-          }
-          ${blurSoftenPct}% {
-            filter: blur(2.5px);
-          }
-          ${blurClearPct}% {
-            filter: blur(0);
-          }
-          ${blurStartPct}% {
-            filter: blur(0);
-          }
-          ${blurEndPct}% {
-            filter: blur(3px);
-          }
-          100% {
-            filter: blur(10px);
-          }
         }
 
         @media (max-width: 768px) {
