@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 
 const DEFAULT_LAYERS = [
   { id: "Non_sufficit_orbis", label: "Non sufficit orbis" },
@@ -23,10 +23,11 @@ const DEFAULT_LAYERS = [
 
 const DEFAULT_ANIMATION = {
   startDelayMs: 420, // Espera tras preloader antes de arrancar el primer ciclo
-  revealMs: 1400, // Tiempo de barrido de izquierda a derecha
-  holdMs: 1200, // Tiempo visible sin perder opacidad
-  fadeMs: 900, // Tiempo de desvanecido final
-  blurLeadMs: 280, // Cuanto antes de fade empieza el blur
+  revealMs: 1400, // Barrido de entrada izquierda -> derecha
+  glyphInMs: 340, // Duracion de transicion blur/fade-in por glifo
+  holdMs: 2200, // Tiempo totalmente visible (sin blur)
+  outSweepMs: 1400, // Barrido de salida izquierda -> derecha
+  glyphOutMs: 360, // Duracion de transicion blur/fade-out por glifo
   staggerMs: 760, // Separacion entre inicio de cada frase
   loopPauseMs: 5000, // Pausa final antes de reiniciar todo el ciclo
   maxBlurPx: 8,
@@ -46,42 +47,44 @@ export default function LatinLayers({
   className = "",
 }) {
   const [svgMarkup, setSvgMarkup] = useState("");
+  const [glyphAnimationCss, setGlyphAnimationCss] = useState("");
+  const wrapperRef = useRef(null);
 
   const activeLayers = useMemo(
     () => (Array.isArray(layers) ? layers.filter((layer) => layer?.id) : []),
     [layers]
   );
+  const anim = useMemo(
+    () => ({ ...DEFAULT_ANIMATION, ...(animation || {}) }),
+    [animation]
+  );
 
   const timeline = useMemo(() => {
     const layerCount = Math.max(1, activeLayers.length);
+    const glyphInMs = Math.max(
+      120,
+      toNumber(anim.glyphInMs, Math.round(anim.revealMs * 0.24))
+    );
+    const glyphOutMs = Math.max(
+      120,
+      toNumber(anim.glyphOutMs, toNumber(anim.fadeMs, 360))
+    );
+    const outSweepMs = Math.max(120, toNumber(anim.outSweepMs, anim.revealMs));
     const phraseWindowMs =
-      animation.revealMs + animation.holdMs + animation.fadeMs;
+      anim.revealMs + glyphInMs + anim.holdMs + outSweepMs + glyphOutMs;
     const cycleDurationMs =
       phraseWindowMs +
-      (layerCount - 1) * animation.staggerMs +
-      animation.loopPauseMs;
-
-    const revealEndPct = roundPct((animation.revealMs / cycleDurationMs) * 100);
-    const holdEndPct = roundPct(
-      ((animation.revealMs + animation.holdMs) / cycleDurationMs) * 100
-    );
-    const blurStartMs = Math.max(
-      animation.revealMs,
-      animation.revealMs + animation.holdMs - animation.blurLeadMs
-    );
-    const blurStartPct = roundPct((blurStartMs / cycleDurationMs) * 100);
-    const fadeEndPct = roundPct((phraseWindowMs / cycleDurationMs) * 100);
-    const resetPct = roundPct(Math.min(99.5, fadeEndPct + 0.5));
+      (layerCount - 1) * anim.staggerMs +
+      anim.loopPauseMs;
 
     return {
       cycleDurationMs,
-      revealEndPct,
-      holdEndPct,
-      blurStartPct,
-      fadeEndPct,
-      resetPct,
+      phraseWindowMs,
+      glyphInMs,
+      outSweepMs,
+      glyphOutMs,
     };
-  }, [activeLayers.length, animation]);
+  }, [activeLayers.length, anim]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -142,8 +145,9 @@ export default function LatinLayers({
           }
 
           const extraDelayMs = Number(layerConfig.extraDelayMs || 0);
+          const manualShiftX = toNumber(layerConfig.shiftX, 0);
           const layerDelayMs =
-            layerConfig.index * animation.staggerMs + extraDelayMs;
+            layerConfig.index * anim.staggerMs + extraDelayMs;
           const rowRect = group.querySelector("rect");
           const rowY = toNumber(rowRect?.getAttribute("y"), baseY);
           const rowHeight = Math.max(
@@ -160,11 +164,27 @@ export default function LatinLayers({
           const nextStyle = [
             existingStyle?.trim()?.replace(/;$/, ""),
             `--layer-delay-ms:${layerDelayMs}ms`,
+            `--layer-offset-x:${roundValue(manualShiftX, 4)}px`,
             `--layer-offset-y:${layerOffsetY}px`,
             `--layer-scale:${layerScale}`,
           ]
             .filter(Boolean)
             .join(";");
+
+          const glyphNodes = Array.from(group.querySelectorAll("path"));
+          glyphNodes.forEach((glyphNode, glyphIndex) => {
+            const glyphClass = glyphNode.getAttribute("class") || "";
+            glyphNode.setAttribute(
+              "class",
+              [
+                glyphClass,
+                "latin-glyph",
+                `latin-glyph--l${layerConfig.index}-g${glyphIndex}`,
+              ]
+                .filter(Boolean)
+                .join(" ")
+            );
+          });
 
           group.setAttribute("style", nextStyle);
           group.setAttribute(
@@ -178,6 +198,7 @@ export default function LatinLayers({
         setSvgMarkup(root.outerHTML);
       } catch {
         setSvgMarkup("");
+        setGlyphAnimationCss("");
       }
     };
 
@@ -185,7 +206,112 @@ export default function LatinLayers({
     return () => {
       isCancelled = true;
     };
-  }, [src, activeLayers, animation.staggerMs]);
+  }, [src, activeLayers, anim.staggerMs]);
+
+  useEffect(() => {
+    if (!svgMarkup || !wrapperRef.current) return;
+
+    const root = wrapperRef.current.querySelector("svg.latin-layers__svg");
+    if (!root) return;
+
+    const enabledLayers = activeLayers.filter((layer) => layer.enabled !== false);
+    if (!enabledLayers.length) return;
+
+    const baseId = enabledLayers[0].id;
+    const baseGroup = root.querySelector(`g[data-layer-id="${baseId}"]`);
+    if (!baseGroup || typeof baseGroup.getBBox !== "function") return;
+
+    let baseCenterX = 0;
+    try {
+      const baseBBox = baseGroup.getBBox();
+      baseCenterX = baseBBox.x + baseBBox.width / 2;
+    } catch {
+      return;
+    }
+
+    const clampPct = (value) => Math.min(100, Math.max(0, roundPct(value)));
+    const cssRules = [];
+
+    enabledLayers.forEach((layer, layerIndex) => {
+      const mappedIndex = Math.max(
+        0,
+        activeLayers.findIndex((entry) => entry.id === layer.id)
+      );
+      const group = root.querySelector(`g[data-layer-id="${layer.id}"]`);
+      if (!group || typeof group.getBBox !== "function") return;
+
+      const manualShiftX = toNumber(layer.shiftX, 0);
+      const extraDelayMs = toNumber(layer.extraDelayMs, 0);
+      let groupBox = null;
+      let centerDeltaX = 0;
+
+      try {
+        groupBox = group.getBBox();
+        centerDeltaX = baseCenterX - (groupBox.x + groupBox.width / 2);
+      } catch {
+        groupBox = null;
+      }
+
+      group.style.setProperty(
+        "--layer-offset-x",
+        `${roundValue(centerDeltaX + manualShiftX, 4)}px`
+      );
+
+      if (!groupBox) return;
+
+      const layerStartMs = layerIndex * anim.staggerMs + extraDelayMs;
+      const outBaseMs =
+        layerStartMs + anim.revealMs + timeline.glyphInMs + anim.holdMs;
+      const glyphNodes = Array.from(group.querySelectorAll("path.latin-glyph"));
+      const groupWidth = Math.max(1, groupBox.width);
+      const groupLeft = groupBox.x;
+
+      glyphNodes.forEach((glyphNode, glyphIndex) => {
+        if (typeof glyphNode.getBBox !== "function") return;
+
+        let glyphBox = null;
+        try {
+          glyphBox = glyphNode.getBBox();
+        } catch {
+          glyphBox = null;
+        }
+        if (!glyphBox) return;
+
+        const glyphCenterX = glyphBox.x + glyphBox.width / 2;
+        const xNorm = Math.min(
+          1,
+          Math.max(0, (glyphCenterX - groupLeft) / groupWidth)
+        );
+
+        const inStartMs = layerStartMs + xNorm * anim.revealMs;
+        const inEndMs = inStartMs + timeline.glyphInMs;
+        const outStartMs = outBaseMs + xNorm * timeline.outSweepMs;
+        const outEndMs = outStartMs + timeline.glyphOutMs;
+
+        const inStartPct = clampPct((inStartMs / timeline.cycleDurationMs) * 100);
+        const inEndPct = clampPct((inEndMs / timeline.cycleDurationMs) * 100);
+        const outStartPct = clampPct(
+          (outStartMs / timeline.cycleDurationMs) * 100
+        );
+        const outEndPct = clampPct((outEndMs / timeline.cycleDurationMs) * 100);
+        const safeInEndPct = Math.max(inEndPct, inStartPct + 0.01);
+        const safeOutStartPct = Math.max(outStartPct, safeInEndPct + 0.01);
+        const safeOutEndPct = Math.max(outEndPct, safeOutStartPct + 0.01);
+
+        const glyphClass = `latin-glyph--l${mappedIndex}-g${glyphIndex}`;
+        const keyframeName = `latin-glyph-cycle-l${mappedIndex}-g${glyphIndex}`;
+
+        cssRules.push(
+          `.latin-layers--ready .${glyphClass}{animation:${keyframeName} var(--latin-cycle-ms) linear infinite both;animation-delay:var(--latin-start-delay-ms);}`
+        );
+        cssRules.push(
+          `@keyframes ${keyframeName}{0%,${inStartPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}${safeInEndPct}%{opacity:1;filter:blur(0);}${safeOutStartPct}%{opacity:1;filter:blur(0);}${safeOutEndPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}100%{opacity:0;filter:blur(var(--latin-max-blur-px));}}`
+        );
+      });
+    });
+
+    setGlyphAnimationCss(cssRules.join("\n"));
+  }, [svgMarkup, activeLayers, anim, timeline]);
 
   const wrapperClassName = useMemo(
     () =>
@@ -197,11 +323,12 @@ export default function LatinLayers({
 
   return (
     <div
+      ref={wrapperRef}
       class={wrapperClassName}
       style={{
-        "--latin-start-delay-ms": `${animation.startDelayMs}ms`,
+        "--latin-start-delay-ms": `${anim.startDelayMs}ms`,
         "--latin-cycle-ms": `${timeline.cycleDurationMs}ms`,
-        "--latin-max-blur-px": `${animation.maxBlurPx}px`,
+        "--latin-max-blur-px": `${anim.maxBlurPx}px`,
       }}
       aria-hidden="true"
     >
@@ -231,14 +358,12 @@ export default function LatinLayers({
         }
 
         .latin-phrase-layer {
-          opacity: 0;
-          clip-path: inset(0 100% 0 0);
           transform-box: fill-box;
-          transform-origin: left top;
-          transform: translateY(var(--layer-offset-y, 0px))
+          transform-origin: center top;
+          transform: translateX(var(--layer-offset-x, 0px))
+            translateY(var(--layer-offset-y, 0px))
             scale(var(--layer-scale, 1));
-          filter: blur(var(--latin-max-blur-px));
-          will-change: opacity, filter, clip-path, transform;
+          will-change: transform;
         }
 
         .latin-phrase-layer--off {
@@ -246,49 +371,21 @@ export default function LatinLayers({
           display: none;
         }
 
-        body.preloader-done .latin-layers--ready .latin-phrase-layer:not(.latin-phrase-layer--off) {
-          animation: latin-layer-cycle var(--latin-cycle-ms) linear infinite both;
-          animation-delay: calc(var(--latin-start-delay-ms) + var(--layer-delay-ms, 0ms));
+        .latin-glyph {
+          opacity: 0;
+          filter: blur(var(--latin-max-blur-px));
+          will-change: opacity, filter;
         }
 
-        @keyframes latin-layer-cycle {
-          0% {
-            opacity: 0;
-            clip-path: inset(0 100% 0 0);
-            filter: blur(var(--latin-max-blur-px));
-          }
-          ${timeline.revealEndPct}% {
-            opacity: 1;
-            clip-path: inset(0 0 0 0);
-            filter: blur(0);
-          }
-          ${timeline.blurStartPct}% {
-            opacity: 1;
-            clip-path: inset(0 0 0 0);
-            filter: blur(0);
-          }
-          ${timeline.holdEndPct}% {
-            opacity: 1;
-            clip-path: inset(0 0 0 0);
-            filter: blur(calc(var(--latin-max-blur-px) * 0.65));
-          }
-          ${timeline.fadeEndPct}% {
-            opacity: 0;
-            clip-path: inset(0 0 0 0);
-            filter: blur(var(--latin-max-blur-px));
-          }
-          ${timeline.resetPct}% {
-            opacity: 0;
-            clip-path: inset(0 100% 0 0);
-            filter: blur(var(--latin-max-blur-px));
-          }
-          100% {
-            opacity: 0;
-            clip-path: inset(0 100% 0 0);
-            filter: blur(var(--latin-max-blur-px));
-          }
+        .latin-layers--ready .latin-glyph {
+          animation-play-state: paused;
+        }
+
+        body.preloader-done .latin-layers--ready .latin-glyph {
+          animation-play-state: running;
         }
       `}</style>
+      {glyphAnimationCss && <style>{glyphAnimationCss}</style>}
     </div>
   );
 }

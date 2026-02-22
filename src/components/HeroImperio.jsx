@@ -33,24 +33,25 @@ const LAYER_VARS = {
 };
 
 const LATIN_LAYER_SEQUENCE = [
-  { id: "Non_sufficit_orbis", label: "Non sufficit orbis" },
-  { id: "Plus_ultra", label: "Plus ultra" },
-  { id: "A_solis_ortu_usque_ad_occasum", label: "A solis ortu usque ad occasum", scale: 2 },
-  { id: "Fiat_justitia_et_pereat_mundus", label: "Fiat justitia et pereat mundus", scale: 2 },
-  { id: "Ante_ferit_quam_flamma_micet", label: "Ante ferit quam flamma micet", scale: 2 },
-  { id: "Nec_spe_nec_metu", label: "Nec spe nec metu", scale: 2 },
-  { id: "Iam_illvstrabit_omnia", label: "Iam illvstrabit omnia", scale: 2 },
-  { id: "Pace_mare_terraqve_composita", label: "Pace mare terraqve composita", scale: 2 },
-  { id: "Fidei_defensor", label: "Fidei defensor", scale: 2 },
+  { id: "Non_sufficit_orbis", label: "Non sufficit orbis", shiftX: 13 },
+  { id: "Plus_ultra", label: "Plus ultra", shiftX: 138 },
+  { id: "A_solis_ortu_usque_ad_occasum", label: "A solis ortu usque ad occasum", scale: 2, shiftX: 100 },
+  { id: "Fiat_justitia_et_pereat_mundus", label: "Fiat justitia et pereat mundus", scale: 2, shiftX: 118 },
+  { id: "Ante_ferit_quam_flamma_micet", label: "Ante ferit quam flamma micet", scale: 2, shiftX: 120 },
+  { id: "Nec_spe_nec_metu", label: "Nec spe nec metu", scale: 2, shiftX: 328 },
+  { id: "Iam_illvstrabit_omnia", label: "Iam illvstrabit omnia", scale: 2, shiftX: 275 },
+  { id: "Pace_mare_terraqve_composita", label: "Pace mare terraqve composita", scale: 2, shiftX: 110 },
+  { id: "Fidei_defensor", label: "Fidei defensor", scale: 2, shiftX: 385 },
 ];
 
 const LATIN_LAYER_ANIM = {
   startDelayMs: 420, // Espera tras preloader
-  revealMs: 1400, // Barrido de entrada de la frase
-  holdMs: 3000, // Tiempo visible antes de desvanecer
-  fadeMs: 900, // Salida de opacidad
-  blurLeadMs: 580, // El blur final empieza antes del fade
-  staggerMs: 8000, // Distancia temporal entre frases (5s)
+  revealMs: 1400, // Barrido de entrada izquierda -> derecha
+  glyphInMs: 360, // Blur/Fade-in de cada glifo
+  holdMs: 4200, // Tiempo visible a opacidad completa y sin blur
+  outSweepMs: 1400, // Barrido de salida izquierda -> derecha
+  glyphOutMs: 420, // Blur/Fade-out de cada glifo
+  staggerMs: 8000, // Distancia temporal entre frases (8s)
   loopPauseMs: 5000, // Pausa completa al final del ciclo
   maxBlurPx: 8,
 };
@@ -198,6 +199,7 @@ export default function HeroImperio() {
         }
 
         .hero-imperio__headline {
+          --wordmark-w: min(70vw, 450px);
           --imperio-x: 0px;
           --imperio-y: 0px;
           --imperio-opacity: 0.5;
@@ -222,11 +224,14 @@ export default function HeroImperio() {
         .hero-imperio__title {
           margin: 0;
           line-height: 0;
+          width: var(--wordmark-w);
+          display: flex;
+          justify-content: center;
         }
 
         .hero-imperio__wordmark {
           display: inline-block;
-          width: min(70vw, 450px);
+          width: 100%;
           height: auto;
           transform: translateY(40px);
           opacity: 0;
@@ -265,11 +270,14 @@ export default function HeroImperio() {
         }
 
         .hero-imperio__latin-block {
-          width: min(82vw, 320px);
+          width: var(--wordmark-w);
           margin-top: 0.65rem;
           transform: translate(var(--latin-x), var(--latin-y));
           opacity: var(--latin-opacity);
           pointer-events: none;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
 
         .hero-imperio__latin-layers {
@@ -349,18 +357,14 @@ export default function HeroImperio() {
 
         @media (max-width: 768px) {
           .hero-imperio__headline {
+            --wordmark-w: min(86vw, 520px);
             left: 50%;
             top: 58%;
             transform: translate(-50%, -50%);
           }
 
           .hero-imperio__latin-block {
-            width: min(90vw, 460px);
             margin-top: 0.85rem;
-          }
-
-          .hero-imperio__wordmark {
-            width: min(86vw, 520px);
           }
 
           .hero-nav ul {
