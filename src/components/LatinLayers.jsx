@@ -25,9 +25,13 @@ const DEFAULT_ANIMATION = {
   startDelayMs: 420, // Espera tras preloader antes de arrancar el primer ciclo
   revealMs: 1400, // Barrido de entrada izquierda -> derecha
   glyphInMs: 340, // Duracion de transicion blur/fade-in por glifo
+  inFadeDelayRatio: 0.62, // % de la fase de entrada reservado solo a blur
+  inBlurEndRatio: 0.52, // Punto dentro de entrada donde termina el blur-in
+  inPreviewOpacity: 0.18, // Opacidad baja para que se perciba el blur-in antes del fade principal
   holdMs: 2200, // Tiempo totalmente visible (sin blur)
   outSweepMs: 1400, // Barrido de salida izquierda -> derecha
   glyphOutMs: 360, // Duracion de transicion blur/fade-out por glifo
+  outFadeDelayRatio: 0.62, // % de la fase de salida reservado solo a blur
   staggerMs: 760, // Separacion entre inicio de cada frase
   loopPauseMs: 5000, // Pausa final antes de reiniciar todo el ciclo
   maxBlurPx: 8,
@@ -262,6 +266,22 @@ export default function LatinLayers({
       const layerStartMs = layerIndex * anim.staggerMs + extraDelayMs;
       const outBaseMs =
         layerStartMs + anim.revealMs + timeline.glyphInMs + anim.holdMs;
+      const inDelayRatio = Math.min(
+        0.9,
+        Math.max(0, toNumber(anim.inFadeDelayRatio, 0.62))
+      );
+      const inBlurEndRatio = Math.min(
+        0.9,
+        Math.max(0.05, toNumber(anim.inBlurEndRatio, 0.52))
+      );
+      const inPreviewOpacity = Math.min(
+        0.5,
+        Math.max(0.05, toNumber(anim.inPreviewOpacity, 0.18))
+      );
+      const outDelayRatio = Math.min(
+        0.9,
+        Math.max(0, toNumber(anim.outFadeDelayRatio, 0.62))
+      );
       const glyphNodes = Array.from(group.querySelectorAll("path.latin-glyph"));
       const groupWidth = Math.max(1, groupBox.width);
       const groupLeft = groupBox.x;
@@ -297,6 +317,27 @@ export default function LatinLayers({
         const safeInEndPct = Math.max(inEndPct, inStartPct + 0.01);
         const safeOutStartPct = Math.max(outStartPct, safeInEndPct + 0.01);
         const safeOutEndPct = Math.max(outEndPct, safeOutStartPct + 0.01);
+        const inFadeStartPct = clampPct(
+          inStartPct + (safeInEndPct - inStartPct) * inDelayRatio
+        );
+        const inBlurEndPct = clampPct(
+          inStartPct + (safeInEndPct - inStartPct) * inBlurEndRatio
+        );
+        const outFadeStartPct = clampPct(
+          safeOutStartPct + (safeOutEndPct - safeOutStartPct) * outDelayRatio
+        );
+        const safeInFadeStartPct = Math.max(
+          inStartPct + 0.01,
+          Math.min(safeInEndPct - 0.01, inFadeStartPct)
+        );
+        const safeInBlurEndPct = Math.max(
+          inStartPct + 0.01,
+          Math.min(safeInFadeStartPct - 0.01, inBlurEndPct)
+        );
+        const safeOutFadeStartPct = Math.max(
+          safeOutStartPct + 0.01,
+          Math.min(safeOutEndPct - 0.01, outFadeStartPct)
+        );
 
         const glyphClass = `latin-glyph--l${mappedIndex}-g${glyphIndex}`;
         const keyframeName = `latin-glyph-cycle-l${mappedIndex}-g${glyphIndex}`;
@@ -305,7 +346,7 @@ export default function LatinLayers({
           `.latin-layers--ready .${glyphClass}{animation:${keyframeName} var(--latin-cycle-ms) linear infinite both;animation-delay:var(--latin-start-delay-ms);}`
         );
         cssRules.push(
-          `@keyframes ${keyframeName}{0%,${inStartPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}${safeInEndPct}%{opacity:1;filter:blur(0);}${safeOutStartPct}%{opacity:1;filter:blur(0);}${safeOutEndPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}100%{opacity:0;filter:blur(var(--latin-max-blur-px));}}`
+          `@keyframes ${keyframeName}{0%,${inStartPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}${safeInBlurEndPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInFadeStartPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInEndPct}%{opacity:1;filter:blur(0);}${safeOutStartPct}%{opacity:1;filter:blur(0);}${safeOutFadeStartPct}%{opacity:1;filter:blur(var(--latin-max-blur-px));}${safeOutEndPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}100%{opacity:0;filter:blur(var(--latin-max-blur-px));}}`
         );
       });
     });

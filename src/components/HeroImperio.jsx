@@ -47,12 +47,16 @@ const LATIN_LAYER_SEQUENCE = [
 const LATIN_LAYER_ANIM = {
   startDelayMs: 420, // Espera tras preloader
   revealMs: 1400, // Barrido de entrada izquierda -> derecha
-  glyphInMs: 360, // Blur/Fade-in de cada glifo
-  holdMs: 4200, // Tiempo visible a opacidad completa y sin blur
+  glyphInMs: 2000, // Blur/Fade-in de cada glifo (mucho mas largo)
+  inFadeDelayRatio: 0.7, // Delay del fade-in ~x2 frente al ajuste anterior
+  inBlurEndRatio: 0.9, // Mantiene el blur-in hasta justo antes del fade-in
+  inPreviewOpacity: 0.24, // Opacidad parcial para apreciar el blur-in
+  holdMs: 4000, // Tiempo visible a opacidad completa y sin blur
   outSweepMs: 1400, // Barrido de salida izquierda -> derecha
-  glyphOutMs: 420, // Blur/Fade-out de cada glifo
+  glyphOutMs: 2000, // Blur/Fade-out de cada glifo (mucho mas largo)
+  outFadeDelayRatio: 0.9, // Delay del fade-out ~x2 frente al ajuste anterior
   staggerMs: 8000, // Distancia temporal entre frases (8s)
-  loopPauseMs: 5000, // Pausa completa al final del ciclo
+  loopPauseMs: 0, // Pausa completa al final del ciclo
   maxBlurPx: 8,
 };
 
