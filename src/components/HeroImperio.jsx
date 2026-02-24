@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 const LAYER_STATE = {
   imperio: { x: "0px", y: "0px", opacity: 1 },
   espanol: { x: "0px", y: "0px", opacity: 1 },
-  latin: { x: "0px", y: "0px", opacity: 1 },
+  latin: { x: "0px", y: "0px", opacity: 0.9 },
 };
 
 const LAYER_VARS = {
@@ -48,16 +48,17 @@ const LATIN_LAYER_ANIM = {
   startDelayMs: 420, // Espera tras preloader
   revealMs: 1400, // Barrido de entrada izquierda -> derecha
   glyphInMs: 2000, // Blur/Fade-in de cada glifo (mucho mas largo)
-  inFadeDelayRatio: 0.7, // Delay del fade-in ~x2 frente al ajuste anterior
-  inBlurEndRatio: 0.9, // Mantiene el blur-in hasta justo antes del fade-in
-  inPreviewOpacity: 0.24, // Opacidad parcial para apreciar el blur-in
+  inFadeDelayRatio: 0.84, // Retrasa el fade-in para priorizar blur-in
+  inPreviewLeadRatio: 0.08, // Hace visible pronto el path con blur alto
+  inBlurEndRatio: 0.78, // Blur-in largo, termina antes del fade principal
+  inPreviewOpacity: 0.62, // Opacidad de previsualizacion para percibir claramente el blur
   holdMs: 4000, // Tiempo visible a opacidad completa y sin blur
   outSweepMs: 1400, // Barrido de salida izquierda -> derecha
   glyphOutMs: 2000, // Blur/Fade-out de cada glifo (mucho mas largo)
   outFadeDelayRatio: 0.9, // Delay del fade-out ~x2 frente al ajuste anterior
   staggerMs: 8000, // Distancia temporal entre frases (8s)
   loopPauseMs: 0, // Pausa completa al final del ciclo
-  maxBlurPx: 8,
+  maxBlurPx: 10,
 };
 
 export default function HeroImperio() {
@@ -158,7 +159,7 @@ export default function HeroImperio() {
 
         <nav class="hero-nav hero-imperio__nav relative z-10 pb-0 opacity-0">
           <div class="hero-nav__surface">
-            <div class="container mx-auto px-6">
+            <div class="home-shell">
               <ul class="flex flex-wrap justify-between items-center text-black w-full max-w-6xl mx-auto gap-6 md:gap-0">
                 {NAV_ITEMS.map((item) => (
                   <li key={item.href}>

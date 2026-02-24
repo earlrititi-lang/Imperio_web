@@ -15,6 +15,7 @@ export default function ClientRuntime() {
     const mobileMenuBtn = document.getElementById("mobile-menu-btn");
     const mobileMenu = document.getElementById("mobile-menu");
     const closeMenuBtn = document.getElementById("close-menu");
+    const mobileBreakpoint = window.matchMedia("(min-width: 768px)");
     let ticking = false;
 
     const updateNav = () => {
@@ -31,18 +32,43 @@ export default function ClientRuntime() {
       });
     };
 
+    const setMenuOpen = (isOpen) => {
+      mobileMenu?.classList.toggle("translate-x-full", !isOpen);
+      mobileMenu?.setAttribute("aria-hidden", String(!isOpen));
+      mobileMenuBtn?.setAttribute("aria-expanded", String(isOpen));
+      document.body.style.overflow = isOpen ? "hidden" : "auto";
+      if (isOpen) {
+        closeMenuBtn?.focus();
+      }
+    };
+
     const openMenu = () => {
-      mobileMenu?.classList.remove("translate-x-full");
+      setMenuOpen(true);
     };
 
     const closeMenu = () => {
-      mobileMenu?.classList.add("translate-x-full");
+      setMenuOpen(false);
+    };
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    };
+
+    const onResizeChange = (event) => {
+      if (event.matches) {
+        closeMenu();
+      }
     };
 
     updateNav();
+    closeMenu();
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("keydown", onKeyDown);
     mobileMenuBtn?.addEventListener("click", openMenu);
     closeMenuBtn?.addEventListener("click", closeMenu);
+    mobileBreakpoint.addEventListener("change", onResizeChange);
 
     const revealObserver = new IntersectionObserver(
       (entries) => {
@@ -95,9 +121,12 @@ export default function ClientRuntime() {
     }
 
     return () => {
+      document.body.style.overflow = "auto";
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("keydown", onKeyDown);
       mobileMenuBtn?.removeEventListener("click", openMenu);
       closeMenuBtn?.removeEventListener("click", closeMenu);
+      mobileBreakpoint.removeEventListener("change", onResizeChange);
       revealObserver.disconnect();
       carouselObserver?.disconnect();
     };

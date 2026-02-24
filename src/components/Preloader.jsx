@@ -183,37 +183,43 @@ export default function Preloader() {
       >
         <div class="preloader-images relative">
           <img
-            src="/images/preloader/preload-1-def.png"
+            src="/images/preloader/Preload_1_def_upscaled_2x.png"
             alt="Cargando 1"
             class="preloader-img absolute opacity-0"
             style={{ "--scale-end": "1" }}
           />
           <img
-            src="/images/preloader/preload-2-def.png"
+            src="/images/preloader/Preload_2_def_upscaled_2x.png"
             alt="Cargando 2"
             class="preloader-img absolute opacity-0"
-            style={{ "--scale-end": "0.985" }}
+            style={{ "--scale-end": "0.988" }}
           />
           <img
-            src="/images/preloader/preload-5-def.png"
+            src="/images/preloader/Preload_3_def_upscaled_2x.png"
             alt="Cargando 3"
             class="preloader-img absolute opacity-0"
-            style={{ "--scale-end": "0.97" }}
+            style={{ "--scale-end": "0.976" }}
           />
           <img
-            src="/images/preloader/preload-4-def.png"
+            src="/images/preloader/Preload_Archivo.png"
+            alt="Cargando archivo"
+            class="preloader-img absolute opacity-0"
+            style={{ "--scale-end": "0.964" }}
+          />
+          <img
+            src="/images/preloader/Preload_4_def_upscaled_2x.png"
             alt="Cargando 4"
             class="preloader-img absolute opacity-0"
-            style={{ "--scale-end": "0.955" }}
+            style={{ "--scale-end": "0.952" }}
           />
           <img
-            src="/images/preloader/preload-3-def.png"
+            src="/images/preloader/Preload_5_def_upscaled_2x.png"
             alt="Cargando 5"
             class="preloader-img preloader-img--shrink-trigger absolute opacity-0"
             style={{ "--scale-end": "0.94" }}
           />
           <img
-            src="/images/preloader/preload-6-def.png"
+            src="/images/preloader/Preload_6_def_upscaled_2x.png"
             alt="Cargando 6"
             class="preloader-img preloader-img--final absolute opacity-0"
             style={{ "--scale-end": "1" }}

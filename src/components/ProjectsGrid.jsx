@@ -1,8 +1,8 @@
 export default function ProjectsGrid() {
   return (
     <>
-      <section class="projects-section py-32 bg-[var(--color-white-off)]">
-        <div class="container mx-auto px-6">
+      <section class="projects-section home-section bg-[var(--color-white-off)]">
+        <div class="home-shell">
           <div class="section-header mb-16 flex flex-col md:flex-row justify-between items-end gap-6">
             <h2 class="text-5xl md:text-7xl font-bold">Proyectos</h2>
             <a

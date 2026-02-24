@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
-    <footer class="footer bg-black text-white py-16">
-      <div class="container mx-auto px-6">
+    <footer class="footer home-section home-section--tight bg-black text-white">
+      <div class="home-shell">
         <div class="grid md:grid-cols-4 gap-12 mb-12">
           <div>
             <h3 class="text-sm uppercase tracking-wide font-semibold mb-6">
@@ -13,6 +13,7 @@ export default function Footer() {
               <a
                 href="https://maps.google.com"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="text-white/70 hover:text-white transition-colors text-sm"
               >
                 Calle Mayor, 1
@@ -26,6 +27,7 @@ export default function Footer() {
               <a
                 href="https://maps.google.com"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="text-white/70 hover:text-white transition-colors text-sm"
               >
                 Plaza del Triunfo, 5
@@ -137,6 +139,7 @@ export default function Footer() {
               <a
                 href="https://instagram.com"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
                 aria-label="Instagram"
               >
@@ -148,6 +151,7 @@ export default function Footer() {
               <a
                 href="https://linkedin.com"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
                 aria-label="LinkedIn"
               >
@@ -159,6 +163,7 @@ export default function Footer() {
               <a
                 href="https://facebook.com"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
                 aria-label="Facebook"
               >

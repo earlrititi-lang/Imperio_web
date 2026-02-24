@@ -1,8 +1,8 @@
 export default function Services() {
   return (
     <>
-      <section class="services-section py-32 bg-white">
-        <div class="container mx-auto px-6">
+      <section class="services-section home-section bg-white">
+        <div class="home-shell">
           <div class="section-header mb-20 text-center fade-in-up">
             <h2 class="text-5xl md:text-7xl font-bold mb-6">
               Plataforma de Diseno-Fundamental

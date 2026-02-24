@@ -1,13 +1,7 @@
-<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#F7F2EA"/>
-  <rect x="96" y="96" width="1008" height="438" rx="28" stroke="#D6C9B6" stroke-width="2"/>
-  <text x="140" y="240" fill="#161310" font-size="64" font-family="Cormorant Garamond, Times New Roman, serif" letter-spacing="6">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" fill="none" viewBox="0 0 1200 630"><path fill="#f7f2ea" d="M0 0h1200v630H0z"/><rect width="1008" height="438" x="96" y="96" stroke="#d6c9b6" stroke-width="2" rx="28"/><text x="140" y="240" fill="#161310" font-family="Cormorant Garamond, Times New Roman, serif" font-size="64" letter-spacing="6">
     IMPERIOES
-  </text>
-  <text x="140" y="320" fill="#3B332E" font-size="30" font-family="Work Sans, Helvetica Neue, Arial, sans-serif">
+  </text><text x="140" y="320" fill="#3b332e" font-family="Work Sans, Helvetica Neue, Arial, sans-serif" font-size="30">
     Archivo vivo: ensayos, efemerides, presente.
-  </text>
-  <text x="140" y="400" fill="#8E2F1C" font-size="22" font-family="Work Sans, Helvetica Neue, Arial, sans-serif" letter-spacing="2">
+  </text><text x="140" y="400" fill="#8e2f1c" font-family="Work Sans, Helvetica Neue, Arial, sans-serif" font-size="22" letter-spacing="2">
     manifiesto - biblioteca - comunidad
-  </text>
-</svg>
+  </text></svg>

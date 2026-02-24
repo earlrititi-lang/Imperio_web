@@ -1,7 +1,7 @@
 export default function FastCarousel() {
   return (
     <>
-      <section class="fast-carousel-section py-0 overflow-hidden bg-black text-white">
+      <section class="fast-carousel-section home-section--tight overflow-hidden bg-black text-white">
         <div class="carousel-track flex">
         </div>
       </section>

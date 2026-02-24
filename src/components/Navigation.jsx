@@ -3,17 +3,19 @@ export default function Navigation() {
     <>
       <nav
         id="main-nav"
+        aria-label="Navegacion principal"
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       >
-        <div class="w-full px-[300px] py-5 md:px-[420px] md:py-6 flex items-center justify-between">
+        <div class="main-nav__inner">
           <a
             href="/"
-            class="text-2xl font-bold tracking-tight hover:text-[var(--color-red-accent)] transition-colors"
+            aria-label="Ir al inicio"
+            class="main-nav__brand text-2xl font-bold tracking-tight hover:text-[var(--color-red-accent)] transition-colors"
           >
             <img
               src="/images/logo-redv2.png"
               alt="El Siglo Espanol"
-              class="h-12"
+              class="main-nav__logo"
             />
           </a>
 
@@ -21,8 +23,11 @@ export default function Navigation() {
 
           <button
             id="mobile-menu-btn"
+            type="button"
             class="menu-button w-12 h-10 flex items-center justify-center"
             aria-label="Abrir menu"
+            aria-controls="mobile-menu"
+            aria-expanded="false"
           >
             <svg class="menu-icon" viewBox="0 0 32 20" aria-hidden="true">
               <line x1="2" y1="6" x2="30" y2="6" />
@@ -33,10 +38,13 @@ export default function Navigation() {
 
         <div
           id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-hidden="true"
           class="fixed inset-0 bg-black text-white transform translate-x-full transition-transform duration-500 md:hidden"
         >
           <div class="container mx-auto px-6 py-6">
-            <button id="close-menu" class="ml-auto block text-4xl">
+            <button id="close-menu" type="button" class="ml-auto block text-4xl" aria-label="Cerrar menu">
               &times;
             </button>
             <ul class="mt-16 space-y-6 text-3xl font-bold"></ul>
@@ -45,6 +53,34 @@ export default function Navigation() {
       </nav>
 
       <style>{`
+        .main-nav__inner {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-inline: var(--home-nav-logo-x, 16px);
+          padding-block: var(--home-nav-logo-y, 12px);
+        }
+
+        .main-nav__brand {
+          display: inline-flex;
+          align-items: center;
+          margin: 0;
+        }
+
+        .main-nav__logo {
+          width: auto;
+          height: 3rem;
+          opacity: var(--home-nav-logo-opacity, 1);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .main-nav__brand:hover .main-nav__logo,
+        .main-nav__brand:focus-visible .main-nav__logo {
+          opacity: 0.92;
+          transform: translateY(-1px);
+        }
+
         .menu-button {
           border: 1px solid transparent;
           background: transparent;
@@ -80,6 +116,12 @@ export default function Navigation() {
           opacity: 1;
           transform: translateY(0);
           pointer-events: auto;
+        }
+
+        @media (min-width: 768px) {
+          .main-nav__logo {
+            height: 3.25rem;
+          }
         }
       `}</style>
     </>

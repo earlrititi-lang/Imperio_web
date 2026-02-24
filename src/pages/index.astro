@@ -13,21 +13,18 @@ import Footer from '../components/Footer.jsx';
 ---
 
 <Layout title="El Siglo EspaÃ±ol - Arquitectura y DiseÃ±o">
-  <Preloader client:load />
-  <Navigation />
-  <HeroImperio client:load />
-  <FastCarousel />
-  <Services />
-  <ProjectsGrid />
-  <Footer />
+  <div class="home-page">
+    <Preloader client:load />
+    <Navigation />
+    <HeroImperio client:load />
+    <FastCarousel />
+    <Services />
+    <ProjectsGrid />
+    <Footer />
+  </div>
 </Layout>
 
 <style is:global>
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
-
   /* PersonalizaciÃ³n del scrollbar (opcional, estilo elegante) */
   ::-webkit-scrollbar {
     width: 10px;

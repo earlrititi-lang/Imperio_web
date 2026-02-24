@@ -26,6 +26,7 @@ const DEFAULT_ANIMATION = {
   revealMs: 1400, // Barrido de entrada izquierda -> derecha
   glyphInMs: 340, // Duracion de transicion blur/fade-in por glifo
   inFadeDelayRatio: 0.62, // % de la fase de entrada reservado solo a blur
+  inPreviewLeadRatio: 0.12, // Momento temprano en que se activa visibilidad del blur-in
   inBlurEndRatio: 0.52, // Punto dentro de entrada donde termina el blur-in
   inPreviewOpacity: 0.18, // Opacidad baja para que se perciba el blur-in antes del fade principal
   holdMs: 2200, // Tiempo totalmente visible (sin blur)
@@ -270,6 +271,10 @@ export default function LatinLayers({
         0.9,
         Math.max(0, toNumber(anim.inFadeDelayRatio, 0.62))
       );
+      const inPreviewLeadRatio = Math.min(
+        0.45,
+        Math.max(0.02, toNumber(anim.inPreviewLeadRatio, 0.12))
+      );
       const inBlurEndRatio = Math.min(
         0.9,
         Math.max(0.05, toNumber(anim.inBlurEndRatio, 0.52))
@@ -323,6 +328,9 @@ export default function LatinLayers({
         const inBlurEndPct = clampPct(
           inStartPct + (safeInEndPct - inStartPct) * inBlurEndRatio
         );
+        const inPreviewOnPct = clampPct(
+          inStartPct + (safeInEndPct - inStartPct) * inPreviewLeadRatio
+        );
         const outFadeStartPct = clampPct(
           safeOutStartPct + (safeOutEndPct - safeOutStartPct) * outDelayRatio
         );
@@ -333,6 +341,10 @@ export default function LatinLayers({
         const safeInBlurEndPct = Math.max(
           inStartPct + 0.01,
           Math.min(safeInFadeStartPct - 0.01, inBlurEndPct)
+        );
+        const safeInPreviewOnPct = Math.max(
+          inStartPct + 0.01,
+          Math.min(safeInBlurEndPct - 0.01, inPreviewOnPct)
         );
         const safeOutFadeStartPct = Math.max(
           safeOutStartPct + 0.01,
@@ -346,7 +358,7 @@ export default function LatinLayers({
           `.latin-layers--ready .${glyphClass}{animation:${keyframeName} var(--latin-cycle-ms) linear infinite both;animation-delay:var(--latin-start-delay-ms);}`
         );
         cssRules.push(
-          `@keyframes ${keyframeName}{0%,${inStartPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}${safeInBlurEndPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInFadeStartPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInEndPct}%{opacity:1;filter:blur(0);}${safeOutStartPct}%{opacity:1;filter:blur(0);}${safeOutFadeStartPct}%{opacity:1;filter:blur(var(--latin-max-blur-px));}${safeOutEndPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}100%{opacity:0;filter:blur(var(--latin-max-blur-px));}}`
+          `@keyframes ${keyframeName}{0%,${inStartPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}${safeInPreviewOnPct}%{opacity:${inPreviewOpacity};filter:blur(var(--latin-max-blur-px));}${safeInBlurEndPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInFadeStartPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInEndPct}%{opacity:1;filter:blur(0);}${safeOutStartPct}%{opacity:1;filter:blur(0);}${safeOutFadeStartPct}%{opacity:1;filter:blur(var(--latin-max-blur-px));}${safeOutEndPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}100%{opacity:0;filter:blur(var(--latin-max-blur-px));}}`
         );
       });
     });
