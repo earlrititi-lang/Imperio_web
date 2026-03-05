@@ -6,6 +6,10 @@ export default function Navigation() {
         aria-label="Navegacion principal"
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       >
+        <div class="main-nav__fx" aria-hidden="true">
+          <canvas id="main-nav-fx-canvas" class="main-nav__fx-canvas" />
+        </div>
+
         <div class="main-nav__inner">
           <a
             href="/"
@@ -54,12 +58,30 @@ export default function Navigation() {
 
       <style>{`
         .main-nav__inner {
+          position: relative;
+          z-index: 1;
           width: 100%;
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding-inline: var(--home-nav-logo-x, 16px);
           padding-block: var(--home-nav-logo-y, 12px);
+        }
+
+        .main-nav__fx {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          overflow: hidden;
+          pointer-events: none;
+        }
+
+        .main-nav__fx-canvas {
+          display: block;
+          width: 100%;
+          height: 100%;
+          opacity: calc(0.35 + var(--nav-progress, 0) * 0.95);
+          transform: translateZ(0);
         }
 
         .main-nav__brand {
@@ -95,21 +117,17 @@ export default function Navigation() {
           stroke-linecap: round;
         }
 
-        #main-nav.scrolled {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        #main-nav.scrolled a:not(:has(img)) {
-          color: #000;
-        }
-
         #main-nav {
+          --nav-progress: 0;
+          --nav-base-alpha: 0.08;
+          background: rgba(255, 255, 255, calc(var(--nav-base-alpha) + var(--nav-progress) * 0.08));
+          box-shadow: 0 2px 20px rgba(0, 0, 0, calc(var(--nav-progress) * 0.14));
+          backdrop-filter: blur(calc(var(--nav-progress) * 11px));
+          -webkit-backdrop-filter: blur(calc(var(--nav-progress) * 11px));
           opacity: 0;
           transform: translateY(-12px);
           pointer-events: none;
-          transition: opacity 0.4s ease, transform 0.4s ease;
+          transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.2s linear;
         }
 
         body.preloader-done #main-nav {

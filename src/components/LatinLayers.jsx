@@ -96,7 +96,7 @@ export default function LatinLayers({
 
     const loadSvg = async () => {
       try {
-        const response = await fetch(src, { cache: "force-cache" });
+        const response = await fetch(src, { cache: "no-cache" });
         if (!response.ok) return;
         const rawSvg = await response.text();
         if (isCancelled) return;
@@ -431,10 +431,6 @@ export default function LatinLayers({
         }
 
         .latin-layers--ready .latin-glyph {
-          animation-play-state: paused;
-        }
-
-        body.preloader-done .latin-layers--ready .latin-glyph {
           animation-play-state: running;
         }
       `}</style>

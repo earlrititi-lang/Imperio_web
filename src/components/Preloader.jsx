@@ -9,10 +9,10 @@ export default function Preloader() {
     const imageContainer = document.querySelector(".preloader-images");
 
     const timing = {
-      step: 620, // Tiempo entre cada imagen (1 a 5)
+      step: 550, // Tiempo entre cada imagen (1 a 5)
       fade: 800, // Fade de las imagenes normales
       shrink: 520, // Duracion del shrink (lo dejamos como estaba)
-      fillMax: 700, // Velocidad del fill final (imagen 6 a pantalla completa)
+      fillMax: 500, // Velocidad del fill final (imagen 6 a pantalla completa)
       preloadTimeout: 1800, // Arranque forzado maximo mientras cargan imagenes
     };
     const step = timing.step;

@@ -288,7 +288,7 @@ export default function HeroImperio() {
         .hero-imperio__latin-layers {
           display: block;
           width: 100%;
-          opacity: 0;
+          opacity: 1;
           transition: opacity 0.35s ease;
         }
 
