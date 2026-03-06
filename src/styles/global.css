@@ -32,6 +32,13 @@
   --home-gutter-desktop: 32px;
   --home-section-space-mobile: clamp(4rem, 10vw, 6.5rem);
   --home-section-space-desktop: clamp(5rem, 8vw, 8rem);
+  --scrollbar-track-top: #4b5058;
+  --scrollbar-track-mid: #323840;
+  --scrollbar-track-bottom: #232931;
+  --scrollbar-track-edge: #1a1f25;
+  --scrollbar-thumb-red-top: #ff6464;
+  --scrollbar-thumb-red-mid: #ef3737;
+  --scrollbar-thumb-red-bottom: #bf1212;
 }
 
 *,
@@ -46,6 +53,64 @@ body {
   color: var(--ink);
   background: var(--color-white-off);
   min-height: 100vh;
+  scrollbar-width: auto;
+  scrollbar-color: #d11a1a #2b3138;
+}
+
+/* Scrollbar vertical derecha, replicando el acabado de la referencia */
+::-webkit-scrollbar {
+  width: 18px;
+  height: 18px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(
+    180deg,
+    var(--scrollbar-track-top) 0%,
+    var(--scrollbar-track-mid) 46%,
+    var(--scrollbar-track-bottom) 100%
+  );
+  border-radius: 999px;
+  border: 1px solid var(--scrollbar-track-edge);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 4px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0) 38%),
+    linear-gradient(
+      180deg,
+      var(--scrollbar-thumb-red-top) 0%,
+      var(--scrollbar-thumb-red-mid) 52%,
+      var(--scrollbar-thumb-red-bottom) 100%
+    );
+  background-clip: padding-box, padding-box;
+  box-shadow:
+    0 0 0 1px rgba(120, 0, 0, 0.35),
+    0 0 8px rgba(255, 56, 56, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.24),
+    inset 0 -1px 1px rgba(98, 0, 0, 0.44);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(180deg, #ff7070 0%, #f33e3e 54%, #ce1616 100%);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 36%),
+    linear-gradient(180deg, #ef4a4a 0%, #d81f1f 50%, #a60d0d 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track-bottom);
 }
 
 body::before {

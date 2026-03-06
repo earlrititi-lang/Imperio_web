@@ -38,6 +38,13 @@ export default function ClientRuntime() {
     const NAV_FILL_SCROLL_FACTOR = 0.72;
     const NAV_FILL_MIN_PX = 120;
     const NAV_FILL_MAX_PX = 320;
+    const MENU_ICON_ANIM_MS = 667;
+    const MENU_SPRITE_FRAME_COUNT = 20;
+    const MENU_SPRITE_FRAME_PX = 34;
+    const MENU_SPRITE_TRACK_PX = MENU_SPRITE_FRAME_COUNT * MENU_SPRITE_FRAME_PX;
+    const MENU_SPRITE_OPEN_URL = "/images/menu-anim/menu-open-sprite.png?v=20260306-5";
+    const MENU_SPRITE_FIRST_FRAME = 0;
+    const MENU_SPRITE_LAST_FRAME = MENU_SPRITE_FRAME_COUNT - 1;
     const clamp01 = (value) => Math.min(1, Math.max(0, value));
     const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
     let navFillEndScroll = NAV_FALLBACK_SCROLL_PX;
@@ -47,8 +54,10 @@ export default function ClientRuntime() {
     let navFxWidth = 0;
     let navFxHeight = 0;
     let navFxRafId = 0;
+    let menuSpriteRafId = 0;
     let grainPatternA = null;
     let grainPatternB = null;
+    const menuSpriteEl = mobileMenuBtn?.querySelector(".menu-sprite");
 
     const resizeNavFxCanvas = () => {
       if (!nav || !navFxCanvas || !navFxCtx) return;
@@ -278,10 +287,68 @@ export default function ClientRuntime() {
       });
     };
 
-    const setMenuOpen = (isOpen) => {
+    const setMenuSpriteFrame = (frame) => {
+      if (!menuSpriteEl) return;
+      const clampedFrame = Math.max(
+        MENU_SPRITE_FIRST_FRAME,
+        Math.min(MENU_SPRITE_LAST_FRAME, frame)
+      );
+      menuSpriteEl.style.backgroundPosition = `-${clampedFrame * MENU_SPRITE_FRAME_PX}px 0`;
+    };
+
+    const initMenuSprite = () => {
+      if (!menuSpriteEl) return;
+      menuSpriteEl.style.backgroundImage = `url("${MENU_SPRITE_OPEN_URL}")`;
+      menuSpriteEl.style.backgroundSize = `${MENU_SPRITE_TRACK_PX}px 34px`;
+      menuSpriteEl.style.backgroundRepeat = "no-repeat";
+      menuSpriteEl.style.backgroundPosition = "0 0";
+    };
+
+    const triggerMenuIconAnimation = (isOpen) => {
+      if (!mobileMenuBtn || !menuSpriteEl) return;
+      if (menuSpriteRafId) {
+        window.cancelAnimationFrame(menuSpriteRafId);
+      }
+
+      const startFrame = isOpen ? MENU_SPRITE_FIRST_FRAME : MENU_SPRITE_LAST_FRAME;
+      const endFrame = isOpen ? MENU_SPRITE_LAST_FRAME : MENU_SPRITE_FIRST_FRAME;
+      const totalFrames = Math.abs(endFrame - startFrame);
+
+      setMenuSpriteFrame(startFrame);
+
+      const start = performance.now();
+      const tick = (now) => {
+        const elapsed = now - start;
+        const progress = Math.min(1, elapsed / MENU_ICON_ANIM_MS);
+        const traveled = Math.round(progress * totalFrames);
+        const frame = isOpen ? startFrame + traveled : startFrame - traveled;
+        setMenuSpriteFrame(frame);
+
+        if (progress < 1) {
+          menuSpriteRafId = window.requestAnimationFrame(tick);
+          return;
+        }
+
+        setMenuSpriteFrame(endFrame);
+        menuSpriteRafId = 0;
+      };
+      menuSpriteRafId = window.requestAnimationFrame(tick);
+    };
+
+    const setMenuOpen = (isOpen, options = {}) => {
+      const { animate = true } = options;
       mobileMenu?.classList.toggle("translate-x-full", !isOpen);
       mobileMenu?.setAttribute("aria-hidden", String(!isOpen));
       mobileMenuBtn?.setAttribute("aria-expanded", String(isOpen));
+      mobileMenuBtn?.setAttribute(
+        "aria-label",
+        isOpen ? "Cerrar menu" : "Abrir menu"
+      );
+      if (animate) {
+        triggerMenuIconAnimation(isOpen);
+      } else {
+        setMenuSpriteFrame(isOpen ? MENU_SPRITE_LAST_FRAME : MENU_SPRITE_FIRST_FRAME);
+      }
       document.body.style.overflow = isOpen ? "hidden" : "auto";
       if (isOpen) {
         closeMenuBtn?.focus();
@@ -289,7 +356,8 @@ export default function ClientRuntime() {
     };
 
     const openMenu = () => {
-      setMenuOpen(true);
+      const isOpen = mobileMenuBtn?.getAttribute("aria-expanded") === "true";
+      setMenuOpen(!isOpen);
     };
 
     const closeMenu = () => {
@@ -304,7 +372,7 @@ export default function ClientRuntime() {
 
     const onResizeChange = (event) => {
       if (event.matches) {
-        closeMenu();
+        setMenuOpen(false, { animate: false });
       }
       resizeNavFxCanvas();
       recomputeNavFillEnd();
@@ -320,7 +388,8 @@ export default function ClientRuntime() {
     resizeNavFxCanvas();
     recomputeNavFillEnd();
     updateNav();
-    closeMenu();
+    initMenuSprite();
+    setMenuOpen(false, { animate: false });
     if (!reducedMotion && navFxCtx) {
       navFxRafId = window.requestAnimationFrame(navFxTick);
     }
@@ -385,6 +454,9 @@ export default function ClientRuntime() {
       document.body.style.overflow = "auto";
       if (navFxRafId) {
         window.cancelAnimationFrame(navFxRafId);
+      }
+      if (menuSpriteRafId) {
+        window.cancelAnimationFrame(menuSpriteRafId);
       }
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);

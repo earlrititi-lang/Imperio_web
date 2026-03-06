@@ -28,15 +28,19 @@ export default function Navigation() {
           <button
             id="mobile-menu-btn"
             type="button"
-            class="menu-button w-12 h-10 flex items-center justify-center"
+            class="menu-button"
             aria-label="Abrir menu"
             aria-controls="mobile-menu"
             aria-expanded="false"
           >
-            <svg class="menu-icon" viewBox="0 0 32 20" aria-hidden="true">
-              <line x1="2" y1="6" x2="30" y2="6" />
-              <line x1="2" y1="14" x2="30" y2="14" />
-            </svg>
+            <span class="menu-button__icon" aria-hidden="true">
+              <span class="menu-fallback">
+                <span class="menu-fallback__line menu-fallback__line--top"></span>
+                <span class="menu-fallback__line menu-fallback__line--middle"></span>
+                <span class="menu-fallback__line menu-fallback__line--bottom"></span>
+              </span>
+              <span class="menu-sprite"></span>
+            </span>
           </button>
         </div>
 
@@ -107,14 +111,97 @@ export default function Navigation() {
           border: 1px solid transparent;
           background: transparent;
           padding: 0;
+          width: 48px;
+          height: 44px;
+          color: #000;
+          -webkit-tap-highlight-color: transparent;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          --menu-icon-duration: 666.667ms;
         }
 
-        .menu-icon {
+        .menu-button__icon {
+          position: relative;
           width: 34px;
-          height: 22px;
-          stroke: #000000;
-          stroke-width: 2.2;
-          stroke-linecap: round;
+          height: 34px;
+          display: block;
+        }
+
+        .menu-fallback,
+        .menu-sprite {
+          position: absolute;
+          inset: 0;
+        }
+
+        .menu-fallback {
+          z-index: 0;
+        }
+
+        .has-islands .menu-fallback {
+          display: none;
+        }
+
+        .menu-fallback__line {
+          position: absolute;
+          left: 3px;
+          width: 28px;
+          height: 4px;
+          border-radius: 999px;
+          background: currentColor;
+          transition: transform 0.15s linear, opacity 0.12s linear, top 0.15s linear;
+        }
+
+        .menu-fallback__line--top {
+          top: 7px;
+        }
+
+        .menu-fallback__line--middle {
+          top: 15px;
+        }
+
+        .menu-fallback__line--bottom {
+          top: 23px;
+        }
+
+        .menu-button.is-open .menu-fallback__line--top {
+          top: 15px;
+          transform: rotate(45deg);
+        }
+
+        .menu-button.is-open .menu-fallback__line--middle {
+          opacity: 0;
+        }
+
+        .menu-button.is-open .menu-fallback__line--bottom {
+          top: 15px;
+          transform: rotate(-45deg);
+        }
+
+        .menu-sprite {
+          z-index: 1;
+          display: block;
+          width: 34px;
+          height: 34px;
+          background-repeat: no-repeat;
+          filter: brightness(0);
+          will-change: background-position;
+          transform: translateZ(0);
+          backface-visibility: hidden;
+        }
+
+        .menu-button.is-animating .menu-fallback {
+          opacity: 0;
+        }
+
+        .menu-button:hover {
+          opacity: 1;
+        }
+
+        .menu-button:focus-visible {
+          outline: 2px solid rgba(0, 0, 0, 0.35);
+          outline-offset: 4px;
+          border-radius: 8px;
         }
 
         #main-nav {
