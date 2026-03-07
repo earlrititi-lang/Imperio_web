@@ -19,6 +19,12 @@ export default function ClientRuntime() {
     const heroNav = document.querySelector(".hero-imperio__nav");
     const navFxCanvas = document.getElementById("main-nav-fx-canvas");
     const navFxCtx = navFxCanvas?.getContext("2d");
+    const customScrollbar = document.getElementById("imperio-scrollbar");
+    const customScrollbarTrack = document.getElementById("imperio-scrollbar-track");
+    const customScrollbarThumb = document.getElementById("imperio-scrollbar-thumb");
+    const menuIconTopLine = mobileMenuBtn?.querySelector(".menu-icon__line--top");
+    const menuIconMiddleLine = mobileMenuBtn?.querySelector(".menu-icon__line--middle");
+    const menuIconBottomLine = mobileMenuBtn?.querySelector(".menu-icon__line--bottom");
 
     // Main controls for nav white-fill FX.
     const NAV_FX = {
@@ -38,13 +44,8 @@ export default function ClientRuntime() {
     const NAV_FILL_SCROLL_FACTOR = 0.72;
     const NAV_FILL_MIN_PX = 120;
     const NAV_FILL_MAX_PX = 320;
-    const MENU_ICON_ANIM_MS = 667;
-    const MENU_SPRITE_FRAME_COUNT = 20;
-    const MENU_SPRITE_FRAME_PX = 34;
-    const MENU_SPRITE_TRACK_PX = MENU_SPRITE_FRAME_COUNT * MENU_SPRITE_FRAME_PX;
-    const MENU_SPRITE_OPEN_URL = "/images/menu-anim/menu-open-sprite.png?v=20260306-5";
-    const MENU_SPRITE_FIRST_FRAME = 0;
-    const MENU_SPRITE_LAST_FRAME = MENU_SPRITE_FRAME_COUNT - 1;
+    const MENU_OPEN_ANIM_MS = 760;
+    const MENU_CLOSE_ANIM_MS = 760;
     const clamp01 = (value) => Math.min(1, Math.max(0, value));
     const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
     let navFillEndScroll = NAV_FALLBACK_SCROLL_PX;
@@ -54,10 +55,16 @@ export default function ClientRuntime() {
     let navFxWidth = 0;
     let navFxHeight = 0;
     let navFxRafId = 0;
-    let menuSpriteRafId = 0;
+    let menuIconAnimRafId = 0;
     let grainPatternA = null;
     let grainPatternB = null;
-    const menuSpriteEl = mobileMenuBtn?.querySelector(".menu-sprite");
+    let customScrollbarThumbHeight = 34;
+    let customScrollbarDragOffsetY = 0;
+    let customScrollbarDragging = false;
+    const CUSTOM_SCROLLBAR_END_GAP_PX = 4;
+    const CUSTOM_SCROLLBAR_MIN_THUMB_PX = 34;
+    const CUSTOM_SCROLLBAR_DEFAULT_TOP_PX = 14;
+    const CUSTOM_SCROLLBAR_NAV_GAP_PX = 6;
 
     const resizeNavFxCanvas = () => {
       if (!nav || !navFxCanvas || !navFxCtx) return;
@@ -283,56 +290,273 @@ export default function ClientRuntime() {
       ticking = true;
       window.requestAnimationFrame(() => {
         updateNav();
+        updateCustomScrollbar();
         ticking = false;
       });
     };
 
-    const setMenuSpriteFrame = (frame) => {
-      if (!menuSpriteEl) return;
-      const clampedFrame = Math.max(
-        MENU_SPRITE_FIRST_FRAME,
-        Math.min(MENU_SPRITE_LAST_FRAME, frame)
-      );
-      menuSpriteEl.style.backgroundPosition = `-${clampedFrame * MENU_SPRITE_FRAME_PX}px 0`;
+    const getRootScrollMetrics = () => {
+      const root = document.documentElement;
+      const viewportHeight = window.innerHeight;
+      const scrollHeight = Math.max(root.scrollHeight, document.body.scrollHeight);
+      const maxScroll = Math.max(0, scrollHeight - viewportHeight);
+      return { viewportHeight, scrollHeight, maxScroll };
     };
 
-    const initMenuSprite = () => {
-      if (!menuSpriteEl) return;
-      menuSpriteEl.style.backgroundImage = `url("${MENU_SPRITE_OPEN_URL}")`;
-      menuSpriteEl.style.backgroundSize = `${MENU_SPRITE_TRACK_PX}px 34px`;
-      menuSpriteEl.style.backgroundRepeat = "no-repeat";
-      menuSpriteEl.style.backgroundPosition = "0 0";
-    };
-
-    const triggerMenuIconAnimation = (isOpen) => {
-      if (!mobileMenuBtn || !menuSpriteEl) return;
-      if (menuSpriteRafId) {
-        window.cancelAnimationFrame(menuSpriteRafId);
+    const updateCustomScrollbarOffset = () => {
+      if (!customScrollbar) return;
+      if (!nav) {
+        customScrollbar.style.top = `${CUSTOM_SCROLLBAR_DEFAULT_TOP_PX}px`;
+        return;
       }
 
-      const startFrame = isOpen ? MENU_SPRITE_FIRST_FRAME : MENU_SPRITE_LAST_FRAME;
-      const endFrame = isOpen ? MENU_SPRITE_LAST_FRAME : MENU_SPRITE_FIRST_FRAME;
-      const totalFrames = Math.abs(endFrame - startFrame);
+      const navRect = nav.getBoundingClientRect();
+      const navBottom = Math.max(0, navRect.bottom);
+      const topOffset = Math.max(
+        CUSTOM_SCROLLBAR_DEFAULT_TOP_PX,
+        Math.round(navBottom + CUSTOM_SCROLLBAR_NAV_GAP_PX)
+      );
+      customScrollbar.style.top = `${topOffset}px`;
+    };
 
-      setMenuSpriteFrame(startFrame);
+    const updateCustomScrollbar = () => {
+      if (!customScrollbar || !customScrollbarTrack || !customScrollbarThumb) return;
+      updateCustomScrollbarOffset();
+      const { viewportHeight, scrollHeight, maxScroll } = getRootScrollMetrics();
+      if (maxScroll <= 0) {
+        customScrollbar.classList.add("hidden");
+        return;
+      }
 
+      customScrollbar.classList.remove("hidden");
+      const trackRect = customScrollbarTrack.getBoundingClientRect();
+      const trackInnerHeight = Math.max(
+        1,
+        trackRect.height - CUSTOM_SCROLLBAR_END_GAP_PX * 2
+      );
+      const proportionalHeight = Math.round(
+        (viewportHeight / Math.max(1, scrollHeight)) * trackInnerHeight
+      );
+      customScrollbarThumbHeight = Math.max(
+        CUSTOM_SCROLLBAR_MIN_THUMB_PX,
+        Math.min(trackInnerHeight, proportionalHeight)
+      );
+
+      const thumbTravel = Math.max(0, trackInnerHeight - customScrollbarThumbHeight);
+      const scrollProgress = window.scrollY / maxScroll;
+      const thumbTop =
+        CUSTOM_SCROLLBAR_END_GAP_PX + Math.round(thumbTravel * scrollProgress);
+
+      customScrollbarThumb.style.height = `${customScrollbarThumbHeight}px`;
+      customScrollbarThumb.style.top = `${thumbTop}px`;
+    };
+
+    const scrollFromCustomScrollbar = (clientY, centerThumb = false) => {
+      if (!customScrollbarTrack || !customScrollbarThumb) return;
+      const { maxScroll } = getRootScrollMetrics();
+      if (maxScroll <= 0) return;
+
+      const trackRect = customScrollbarTrack.getBoundingClientRect();
+      const trackInnerHeight = Math.max(
+        1,
+        trackRect.height - CUSTOM_SCROLLBAR_END_GAP_PX * 2
+      );
+      const thumbTravel = Math.max(0, trackInnerHeight - customScrollbarThumbHeight);
+      if (thumbTravel <= 0) return;
+
+      const offset = centerThumb
+        ? customScrollbarThumbHeight / 2
+        : customScrollbarDragOffsetY;
+      const rawOffset =
+        clientY - trackRect.top - CUSTOM_SCROLLBAR_END_GAP_PX - offset;
+      const clampedOffset = Math.max(0, Math.min(thumbTravel, rawOffset));
+      const scrollProgress = clampedOffset / thumbTravel;
+      window.scrollTo({ top: scrollProgress * maxScroll, behavior: "auto" });
+    };
+
+    const onCustomThumbPointerDown = (event) => {
+      if (!customScrollbar || !customScrollbarThumb) return;
+      event.preventDefault();
+      customScrollbarDragging = true;
+      customScrollbar.classList.add("is-dragging");
+      const thumbRect = customScrollbarThumb.getBoundingClientRect();
+      customScrollbarDragOffsetY = event.clientY - thumbRect.top;
+      customScrollbarThumb.setPointerCapture?.(event.pointerId);
+    };
+
+    const onCustomPointerMove = (event) => {
+      if (!customScrollbarDragging) return;
+      event.preventDefault();
+      scrollFromCustomScrollbar(event.clientY);
+    };
+
+    const onCustomPointerEnd = (event) => {
+      if (!customScrollbarDragging) return;
+      customScrollbarDragging = false;
+      customScrollbar?.classList.remove("is-dragging");
+      customScrollbarThumb?.releasePointerCapture?.(event.pointerId);
+    };
+
+    const MENU_POSE_OPEN = [
+      {
+        progress: 0,
+        top: { x: 3, y: 9, width: 14, angle: 0, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: 0, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 17, y: 23, width: 14, angle: 0, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.12,
+        top: { x: 3, y: 9, width: 14, angle: 2, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -34, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 17, y: 23, width: 14, angle: 2, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.24,
+        top: { x: 3, y: 9, width: 14, angle: 8, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -86, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 17, y: 23, width: 14, angle: 8, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.4,
+        top: { x: 4, y: 8, width: 14, angle: 20, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -168, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 16, y: 24, width: 14, angle: 20, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.58,
+        top: { x: 5, y: 8, width: 14, angle: 31, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -246, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 15, y: 24, width: 14, angle: 31, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.76,
+        top: { x: 6, y: 7, width: 14, angle: 40, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -308, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 14, y: 25, width: 14, angle: 40, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 1,
+        top: { x: 7, y: 6, width: 14, angle: 45, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -405, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 13, y: 26, width: 14, angle: 45, opacity: 1, origin: "100% 50%" },
+      },
+    ];
+
+    const MENU_POSE_CLOSE = [
+      {
+        progress: 0,
+        top: { x: 7, y: 6, width: 14, angle: 45, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -405, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 13, y: 26, width: 14, angle: 45, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.16,
+        top: { x: 6, y: 7, width: 14, angle: 40, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -350, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 14, y: 25, width: 14, angle: 40, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.34,
+        top: { x: 5, y: 8, width: 14, angle: 30, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -270, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 15, y: 24, width: 14, angle: 30, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.56,
+        top: { x: 4, y: 8, width: 14, angle: 18, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -174, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 16, y: 24, width: 14, angle: 18, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 0.8,
+        top: { x: 3, y: 9, width: 14, angle: 7, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: -64, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 17, y: 23, width: 14, angle: 7, opacity: 1, origin: "100% 50%" },
+      },
+      {
+        progress: 1,
+        top: { x: 3, y: 9, width: 14, angle: 0, opacity: 1, origin: "0% 50%" },
+        middle: { x: 3, y: 16, width: 28, angle: 0, opacity: 1, origin: "50% 50%" },
+        bottom: { x: 17, y: 23, width: 14, angle: 0, opacity: 1, origin: "100% 50%" },
+      },
+    ];
+
+    const lerp = (from, to, t) => from + (to - from) * t;
+
+    const interpolateLinePose = (from, to, t) => ({
+      x: lerp(from.x, to.x, t),
+      y: lerp(from.y, to.y, t),
+      width: lerp(from.width, to.width, t),
+      angle: lerp(from.angle, to.angle, t),
+      opacity: lerp(from.opacity, to.opacity, t),
+      origin: to.origin ?? from.origin ?? "50% 50%",
+    });
+
+    const getMenuPoseAt = (frames, progress) => {
+      if (progress <= frames[0].progress) return frames[0];
+      for (let i = 1; i < frames.length; i += 1) {
+        const prev = frames[i - 1];
+        const next = frames[i];
+        if (progress <= next.progress) {
+          const localT =
+            (progress - prev.progress) / Math.max(0.0001, next.progress - prev.progress);
+          return {
+            top: interpolateLinePose(prev.top, next.top, localT),
+            middle: interpolateLinePose(prev.middle, next.middle, localT),
+            bottom: interpolateLinePose(prev.bottom, next.bottom, localT),
+          };
+        }
+      }
+      return frames[frames.length - 1];
+    };
+
+    const applyLinePose = (element, pose) => {
+      if (!element) return;
+      element.style.left = `${pose.x}px`;
+      element.style.width = `${pose.width}px`;
+      element.style.opacity = String(pose.opacity);
+      element.style.transformOrigin = pose.origin ?? "50% 50%";
+      element.style.transform = `translate3d(0, ${pose.y}px, 0) rotate(${pose.angle}deg)`;
+    };
+
+    const applyMenuPose = (pose) => {
+      applyLinePose(menuIconTopLine, pose.top);
+      applyLinePose(menuIconMiddleLine, pose.middle);
+      applyLinePose(menuIconBottomLine, pose.bottom);
+    };
+
+    const setMenuButtonVisualState = (isOpen, animate = true) => {
+      if (!mobileMenuBtn) return;
+      mobileMenuBtn.classList.remove("is-opening", "is-closing");
+      if (menuIconAnimRafId) {
+        window.cancelAnimationFrame(menuIconAnimRafId);
+        menuIconAnimRafId = 0;
+      }
+      if (!animate) {
+        mobileMenuBtn.classList.toggle("is-active", isOpen);
+        applyMenuPose(
+          isOpen
+            ? MENU_POSE_OPEN[MENU_POSE_OPEN.length - 1]
+            : MENU_POSE_CLOSE[MENU_POSE_CLOSE.length - 1]
+        );
+        return;
+      }
+      const keyframes = isOpen ? MENU_POSE_OPEN : MENU_POSE_CLOSE;
+      const duration = isOpen ? MENU_OPEN_ANIM_MS : MENU_CLOSE_ANIM_MS;
       const start = performance.now();
+      mobileMenuBtn.classList.add(isOpen ? "is-opening" : "is-closing");
+      mobileMenuBtn.classList.toggle("is-active", isOpen);
       const tick = (now) => {
-        const elapsed = now - start;
-        const progress = Math.min(1, elapsed / MENU_ICON_ANIM_MS);
-        const traveled = Math.round(progress * totalFrames);
-        const frame = isOpen ? startFrame + traveled : startFrame - traveled;
-        setMenuSpriteFrame(frame);
-
+        const progress = Math.min(1, (now - start) / duration);
+        applyMenuPose(getMenuPoseAt(keyframes, progress));
         if (progress < 1) {
-          menuSpriteRafId = window.requestAnimationFrame(tick);
+          menuIconAnimRafId = window.requestAnimationFrame(tick);
           return;
         }
-
-        setMenuSpriteFrame(endFrame);
-        menuSpriteRafId = 0;
+        mobileMenuBtn.classList.remove("is-opening", "is-closing");
+        menuIconAnimRafId = 0;
       };
-      menuSpriteRafId = window.requestAnimationFrame(tick);
+      menuIconAnimRafId = window.requestAnimationFrame(tick);
     };
 
     const setMenuOpen = (isOpen, options = {}) => {
@@ -340,16 +564,17 @@ export default function ClientRuntime() {
       mobileMenu?.classList.toggle("translate-x-full", !isOpen);
       mobileMenu?.setAttribute("aria-hidden", String(!isOpen));
       mobileMenuBtn?.setAttribute("aria-expanded", String(isOpen));
+      setMenuButtonVisualState(isOpen, animate);
       mobileMenuBtn?.setAttribute(
         "aria-label",
         isOpen ? "Cerrar menu" : "Abrir menu"
       );
-      if (animate) {
-        triggerMenuIconAnimation(isOpen);
-      } else {
-        setMenuSpriteFrame(isOpen ? MENU_SPRITE_LAST_FRAME : MENU_SPRITE_FIRST_FRAME);
-      }
       document.body.style.overflow = isOpen ? "hidden" : "auto";
+      if (isOpen) {
+        customScrollbar?.classList.add("hidden");
+      } else {
+        updateCustomScrollbar();
+      }
       if (isOpen) {
         closeMenuBtn?.focus();
       }
@@ -377,18 +602,21 @@ export default function ClientRuntime() {
       resizeNavFxCanvas();
       recomputeNavFillEnd();
       updateNav();
+      updateCustomScrollbar();
     };
 
     const onResize = () => {
       resizeNavFxCanvas();
       recomputeNavFillEnd();
       updateNav();
+      updateCustomScrollbar();
     };
 
     resizeNavFxCanvas();
     recomputeNavFillEnd();
     updateNav();
-    initMenuSprite();
+    updateCustomScrollbar();
+    applyMenuPose(MENU_POSE_CLOSE[MENU_POSE_CLOSE.length - 1]);
     setMenuOpen(false, { animate: false });
     if (!reducedMotion && navFxCtx) {
       navFxRafId = window.requestAnimationFrame(navFxTick);
@@ -396,9 +624,15 @@ export default function ClientRuntime() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize, { passive: true });
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("pointermove", onCustomPointerMove, {
+      passive: false,
+    });
+    window.addEventListener("pointerup", onCustomPointerEnd);
+    window.addEventListener("pointercancel", onCustomPointerEnd);
     mobileMenuBtn?.addEventListener("click", openMenu);
     closeMenuBtn?.addEventListener("click", closeMenu);
     mobileBreakpoint.addEventListener("change", onResizeChange);
+    customScrollbarThumb?.addEventListener("pointerdown", onCustomThumbPointerDown);
 
     const revealObserver = new IntersectionObserver(
       (entries) => {
@@ -455,15 +689,22 @@ export default function ClientRuntime() {
       if (navFxRafId) {
         window.cancelAnimationFrame(navFxRafId);
       }
-      if (menuSpriteRafId) {
-        window.cancelAnimationFrame(menuSpriteRafId);
+      if (menuIconAnimRafId) {
+        window.cancelAnimationFrame(menuIconAnimRafId);
       }
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("pointermove", onCustomPointerMove);
+      window.removeEventListener("pointerup", onCustomPointerEnd);
+      window.removeEventListener("pointercancel", onCustomPointerEnd);
       mobileMenuBtn?.removeEventListener("click", openMenu);
       closeMenuBtn?.removeEventListener("click", closeMenu);
       mobileBreakpoint.removeEventListener("change", onResizeChange);
+      customScrollbarThumb?.removeEventListener(
+        "pointerdown",
+        onCustomThumbPointerDown
+      );
       revealObserver.disconnect();
       carouselObserver?.disconnect();
     };

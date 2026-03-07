@@ -33,13 +33,10 @@ export default function Navigation() {
             aria-controls="mobile-menu"
             aria-expanded="false"
           >
-            <span class="menu-button__icon" aria-hidden="true">
-              <span class="menu-fallback">
-                <span class="menu-fallback__line menu-fallback__line--top"></span>
-                <span class="menu-fallback__line menu-fallback__line--middle"></span>
-                <span class="menu-fallback__line menu-fallback__line--bottom"></span>
-              </span>
-              <span class="menu-sprite"></span>
+            <span class="menu-icon" aria-hidden="true">
+              <span class="menu-icon__line menu-icon__line--top"></span>
+              <span class="menu-icon__line menu-icon__line--middle"></span>
+              <span class="menu-icon__line menu-icon__line--bottom"></span>
             </span>
           </button>
         </div>
@@ -113,85 +110,53 @@ export default function Navigation() {
           padding: 0;
           width: 48px;
           height: 44px;
-          color: #000;
+          color: #fff;
           -webkit-tap-highlight-color: transparent;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          --menu-icon-duration: 666.667ms;
+          mix-blend-mode: difference;
         }
 
-        .menu-button__icon {
+        .menu-icon {
           position: relative;
           width: 34px;
           height: 34px;
           display: block;
         }
 
-        .menu-fallback,
-        .menu-sprite {
-          position: absolute;
-          inset: 0;
-        }
-
-        .menu-fallback {
-          z-index: 0;
-        }
-
-        .has-islands .menu-fallback {
-          display: none;
-        }
-
-        .menu-fallback__line {
+        .menu-icon__line {
           position: absolute;
           left: 3px;
           width: 28px;
-          height: 4px;
-          border-radius: 999px;
+          height: 2px;
           background: currentColor;
-          transition: transform 0.15s linear, opacity 0.12s linear, top 0.15s linear;
-        }
-
-        .menu-fallback__line--top {
-          top: 7px;
-        }
-
-        .menu-fallback__line--middle {
-          top: 15px;
-        }
-
-        .menu-fallback__line--bottom {
-          top: 23px;
-        }
-
-        .menu-button.is-open .menu-fallback__line--top {
-          top: 15px;
-          transform: rotate(45deg);
-        }
-
-        .menu-button.is-open .menu-fallback__line--middle {
-          opacity: 0;
-        }
-
-        .menu-button.is-open .menu-fallback__line--bottom {
-          top: 15px;
-          transform: rotate(-45deg);
-        }
-
-        .menu-sprite {
-          z-index: 1;
+          border-radius: 999px;
           display: block;
-          width: 34px;
-          height: 34px;
-          background-repeat: no-repeat;
-          filter: brightness(0);
-          will-change: background-position;
-          transform: translateZ(0);
-          backface-visibility: hidden;
+          transform-origin: 50% 50%;
+          will-change: transform, opacity;
         }
 
-        .menu-button.is-animating .menu-fallback {
-          opacity: 0;
+        .menu-icon__line--top {
+          left: 3px;
+          width: 14px;
+          transform-origin: 0% 50%;
+          transform: translateY(9px) rotate(0deg);
+        }
+
+        .menu-icon__line--middle {
+          left: 3px;
+          width: 28px;
+          transform-origin: 50% 50%;
+          transform: translateY(16px) rotate(0deg);
+          opacity: 1;
+        }
+
+        .menu-icon__line--bottom {
+          left: 17px;
+          width: 14px;
+          transform-origin: 100% 50%;
+          transform: translateY(23px) rotate(0deg);
         }
 
         .menu-button:hover {
