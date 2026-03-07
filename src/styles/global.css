@@ -32,13 +32,14 @@
   --home-gutter-desktop: 32px;
   --home-section-space-mobile: clamp(4rem, 10vw, 6.5rem);
   --home-section-space-desktop: clamp(5rem, 8vw, 8rem);
-  --scrollbar-track-top: #4b5058;
-  --scrollbar-track-mid: #323840;
-  --scrollbar-track-bottom: #232931;
-  --scrollbar-track-edge: #1a1f25;
-  --scrollbar-thumb-red-top: #ff6464;
-  --scrollbar-thumb-red-mid: #ef3737;
-  --scrollbar-thumb-red-bottom: #bf1212;
+  --custom-scrollbar-track-top: #ecf1f6;
+  --custom-scrollbar-track-mid: #d8e0e8;
+  --custom-scrollbar-track-bottom: #bcc7d2;
+  --custom-scrollbar-track-edge: #f3f7fb;
+  --custom-scrollbar-thumb-top: #ff7575;
+  --custom-scrollbar-thumb-mid: #f03c3c;
+  --custom-scrollbar-thumb-bottom: #b80f0f;
+  --custom-scrollbar-thumb-glow: rgba(255, 43, 43, 0.52);
 }
 
 *,
@@ -53,64 +54,96 @@ body {
   color: var(--ink);
   background: var(--color-white-off);
   min-height: 100vh;
-  scrollbar-width: auto;
-  scrollbar-color: #d11a1a #2b3138;
 }
 
-/* Scrollbar vertical derecha, replicando el acabado de la referencia */
-::-webkit-scrollbar {
-  width: 18px;
-  height: 18px;
+/* Hide native root scrollbar so the custom rail is exact and consistent. */
+html,
+body {
+  scrollbar-width: none;
 }
 
-::-webkit-scrollbar-track {
-  background: linear-gradient(
-    180deg,
-    var(--scrollbar-track-top) 0%,
-    var(--scrollbar-track-mid) 46%,
-    var(--scrollbar-track-bottom) 100%
-  );
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+#imperio-scrollbar {
+  position: fixed;
+  right: 6px;
+  top: 14px;
+  bottom: 14px;
+  width: 8px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+#imperio-scrollbar-track {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   border-radius: 999px;
-  border: 1px solid var(--scrollbar-track-edge);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.12),
-    inset 0 -2px 3px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  pointer-events: auto;
 }
 
-::-webkit-scrollbar-thumb {
+#imperio-scrollbar-track::before {
+  content: none;
+  pointer-events: none;
+}
+
+#imperio-scrollbar-thumb {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 1;
+  width: 3px;
+  min-height: 34px;
   border-radius: 999px;
-  border: 4px solid transparent;
+  transform: translateX(-50%);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0) 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 38%),
     linear-gradient(
       180deg,
-      var(--scrollbar-thumb-red-top) 0%,
-      var(--scrollbar-thumb-red-mid) 52%,
-      var(--scrollbar-thumb-red-bottom) 100%
+      var(--custom-scrollbar-thumb-top) 0%,
+      var(--custom-scrollbar-thumb-mid) 56%,
+      var(--custom-scrollbar-thumb-bottom) 100%
     );
-  background-clip: padding-box, padding-box;
   box-shadow:
-    0 0 0 1px rgba(120, 0, 0, 0.35),
-    0 0 8px rgba(255, 56, 56, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.24),
-    inset 0 -1px 1px rgba(98, 0, 0, 0.44);
+    0 0 0 1px rgba(116, 0, 0, 0.42),
+    0 0 3px var(--custom-scrollbar-thumb-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(80, 0, 0, 0.56);
+  pointer-events: auto;
 }
 
-::-webkit-scrollbar-thumb:hover {
+#imperio-scrollbar-thumb:hover {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0) 40%),
-    linear-gradient(180deg, #ff7070 0%, #f33e3e 54%, #ce1616 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(180deg, #ff8080 0%, #f64c4c 56%, #ca1515 100%);
 }
 
-::-webkit-scrollbar-thumb:active {
+#imperio-scrollbar-thumb:active,
+#imperio-scrollbar.is-dragging #imperio-scrollbar-thumb {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 36%),
-    linear-gradient(180deg, #ef4a4a 0%, #d81f1f 50%, #a60d0d 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 36%),
+    linear-gradient(180deg, #f05555 0%, #d52424 52%, #a40d0d 100%);
 }
 
-::-webkit-scrollbar-corner {
-  background: var(--scrollbar-track-bottom);
+#imperio-scrollbar.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+html.reduced-motion #imperio-scrollbar-thumb {
+  transition: none;
+}
+
+@media (pointer: coarse) {
+  #imperio-scrollbar {
+    display: none;
+  }
 }
 
 body::before {

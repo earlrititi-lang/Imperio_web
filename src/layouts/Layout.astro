@@ -30,6 +30,11 @@ const { title } = Astro.props as Props;
   </head>
   <body class="bg-white text-black font-inter overflow-x-hidden">
     <slot />
+    <div id="imperio-scrollbar" aria-hidden="true">
+      <div id="imperio-scrollbar-track">
+        <div id="imperio-scrollbar-thumb"></div>
+      </div>
+    </div>
     <ClientRuntime client:load />
   </body>
 </html>
@@ -43,7 +48,6 @@ const { title } = Astro.props as Props;
 
   html {
     scroll-behavior: smooth;
-    scrollbar-gutter: stable;
   }
 
   body {
