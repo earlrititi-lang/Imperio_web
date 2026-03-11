@@ -49,6 +49,7 @@ export default function ClientRuntime() {
     const NAV_FILL_SCROLL_FACTOR = 1;
     const NAV_FILL_MIN_PX = 120;
     const NAV_FILL_MAX_PX = 520;
+    const HERO_OVERLAY_DOCK_OFFSET_Y = 1;
     const MENU_OPEN_ANIM_MS = 760;
     const MENU_CLOSE_ANIM_MS = 760;
     const clamp01 = (value) => Math.min(1, Math.max(0, value));
@@ -171,17 +172,16 @@ export default function ClientRuntime() {
 
     const syncHeroOverlayPosition = () => {
       if (!heroSection || !heroNav || !mobileBreakpoint.matches) return;
-      const navRect = toRectObject(
+      const linksWrapRect = toRectObject(
+        mainNavLinksWrap?.getBoundingClientRect?.() ??
         mainNavInner?.getBoundingClientRect?.() ??
         nav?.getBoundingClientRect?.() ??
         heroNav.getBoundingClientRect()
       );
-      const linksWrapRect = toRectObject(
-        mainNavLinksWrap?.getBoundingClientRect?.() ?? navRect
-      );
-      if (!navRect || navRect.height <= 0 || navRect.width <= 0) return;
+      if (!linksWrapRect || linksWrapRect.height <= 0 || linksWrapRect.width <= 0) return;
       heroOverlayDockX = linksWrapRect.left + linksWrapRect.width / 2;
-      heroOverlayDockY = navRect.top + navRect.height / 2;
+      heroOverlayDockY =
+        linksWrapRect.top + linksWrapRect.height / 2 + HERO_OVERLAY_DOCK_OFFSET_Y;
     };
 
     const releaseHeroOverlay = () => {
