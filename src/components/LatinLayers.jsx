@@ -121,17 +121,18 @@ export default function LatinLayers({
         const layerMap = new Map(
           activeLayers.map((layer, index) => [layer.id, { ...layer, index }])
         );
-        const firstEnabledLayer = activeLayers.find(
-          (layer) => layer?.id && layer.enabled !== false
-        );
-        const firstGroup = firstEnabledLayer
-          ? root.querySelector(`g[id="${firstEnabledLayer.id}"]`)
+        const verticalReferenceLayer =
+          activeLayers.find(
+            (layer) => layer?.id === "Plus_ultra" && layer.enabled !== false
+          ) ||
+          activeLayers.find((layer) => layer?.id && layer.enabled !== false);
+        const referenceGroup = verticalReferenceLayer
+          ? root.querySelector(`g[id="${verticalReferenceLayer.id}"]`)
           : null;
-        const firstRect = firstGroup?.querySelector("rect");
-        const baseY = toNumber(firstRect?.getAttribute("y"), 0);
+        const referenceRect = referenceGroup?.querySelector("rect");
         const baseHeight = Math.max(
           1,
-          toNumber(firstRect?.getAttribute("height"), 1)
+          toNumber(referenceRect?.getAttribute("height"), 1)
         );
 
         root.querySelectorAll("g[id]").forEach((group) => {
@@ -151,15 +152,14 @@ export default function LatinLayers({
 
           const extraDelayMs = Number(layerConfig.extraDelayMs || 0);
           const manualShiftX = toNumber(layerConfig.shiftX, 0);
+          const manualShiftY = toNumber(layerConfig.shiftY, 0);
           const layerDelayMs =
             layerConfig.index * anim.staggerMs + extraDelayMs;
           const rowRect = group.querySelector("rect");
-          const rowY = toNumber(rowRect?.getAttribute("y"), baseY);
           const rowHeight = Math.max(
             1,
             toNumber(rowRect?.getAttribute("height"), baseHeight)
           );
-          const layerOffsetY = roundValue(baseY - rowY, 4);
           const manualScale = Math.max(0.1, toNumber(layerConfig.scale, 1));
           const layerScale = roundValue(
             (baseHeight / rowHeight) * manualScale,
@@ -170,13 +170,24 @@ export default function LatinLayers({
             existingStyle?.trim()?.replace(/;$/, ""),
             `--layer-delay-ms:${layerDelayMs}ms`,
             `--layer-offset-x:${roundValue(manualShiftX, 4)}px`,
-            `--layer-offset-y:${layerOffsetY}px`,
+            `--layer-offset-y:${roundValue(manualShiftY, 4)}px`,
             `--layer-scale:${layerScale}`,
           ]
             .filter(Boolean)
             .join(";");
 
-          const glyphNodes = Array.from(group.querySelectorAll("path"));
+          let contentGroup = group.querySelector(":scope > g.latin-phrase-layer__content");
+          if (!contentGroup) {
+            contentGroup = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+            contentGroup.setAttribute("class", "latin-phrase-layer__content");
+            const directGlyphNodes = Array.from(group.querySelectorAll(":scope > path"));
+            directGlyphNodes.forEach((glyphNode) => {
+              contentGroup.appendChild(glyphNode);
+            });
+            group.appendChild(contentGroup);
+          }
+
+          const glyphNodes = Array.from(contentGroup.querySelectorAll("path"));
           glyphNodes.forEach((glyphNode, glyphIndex) => {
             const glyphClass = glyphNode.getAttribute("class") || "";
             glyphNode.setAttribute(
@@ -222,17 +233,63 @@ export default function LatinLayers({
     const enabledLayers = activeLayers.filter((layer) => layer.enabled !== false);
     if (!enabledLayers.length) return;
 
-    const baseId = enabledLayers[0].id;
-    const baseGroup = root.querySelector(`g[data-layer-id="${baseId}"]`);
-    if (!baseGroup || typeof baseGroup.getBBox !== "function") return;
-
-    let baseCenterX = 0;
+    let targetCenterX = 0;
     try {
-      const baseBBox = baseGroup.getBBox();
-      baseCenterX = baseBBox.x + baseBBox.width / 2;
+      const viewBox = root.viewBox?.baseVal;
+      if (viewBox && Number.isFinite(viewBox.width) && viewBox.width > 0) {
+        targetCenterX = viewBox.x + viewBox.width / 2;
+      } else {
+        const rootBox = root.getBBox();
+        targetCenterX = rootBox.x + rootBox.width / 2;
+      }
     } catch {
       return;
     }
+
+    const getGlyphBounds = (group) => {
+      const glyphNodes = Array.from(
+        group.querySelectorAll("path.latin-glyph, path")
+      );
+      let minX = Number.POSITIVE_INFINITY;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let maxY = Number.NEGATIVE_INFINITY;
+
+      glyphNodes.forEach((glyphNode) => {
+        if (typeof glyphNode.getBBox !== "function") return;
+        try {
+          const box = glyphNode.getBBox();
+          if (!Number.isFinite(box.width) || !Number.isFinite(box.height)) return;
+          minX = Math.min(minX, box.x);
+          minY = Math.min(minY, box.y);
+          maxX = Math.max(maxX, box.x + box.width);
+          maxY = Math.max(maxY, box.y + box.height);
+        } catch {
+          // Ignore malformed glyph bounds and continue with the rest.
+        }
+      });
+
+      if (!Number.isFinite(minX) || !Number.isFinite(maxX)) return null;
+
+      return {
+        x: minX,
+        y: minY,
+        width: Math.max(1, maxX - minX),
+        height: Math.max(1, maxY - minY),
+      };
+    };
+
+    const verticalReferenceLayer =
+      enabledLayers.find(
+        (layer) => layer?.id === "Plus_ultra" && layer.enabled !== false
+      ) || enabledLayers[0];
+    const verticalReferenceGroup = verticalReferenceLayer
+      ? root.querySelector(`g[data-layer-id="${verticalReferenceLayer.id}"]`)
+      : null;
+    const verticalReferenceBounds = verticalReferenceGroup
+      ? getGlyphBounds(verticalReferenceGroup)
+      : null;
+    const targetTopY = verticalReferenceBounds?.y ?? 0;
 
     const clampPct = (value) => Math.min(100, Math.max(0, roundPct(value)));
     const cssRules = [];
@@ -246,20 +303,25 @@ export default function LatinLayers({
       if (!group || typeof group.getBBox !== "function") return;
 
       const manualShiftX = toNumber(layer.shiftX, 0);
+      const manualShiftY = toNumber(layer.shiftY, 0);
       const extraDelayMs = toNumber(layer.extraDelayMs, 0);
       let groupBox = null;
       let centerDeltaX = 0;
+      let topDeltaY = 0;
 
-      try {
-        groupBox = group.getBBox();
-        centerDeltaX = baseCenterX - (groupBox.x + groupBox.width / 2);
-      } catch {
-        groupBox = null;
+      groupBox = getGlyphBounds(group);
+      if (groupBox) {
+        centerDeltaX = targetCenterX - (groupBox.x + groupBox.width / 2);
+        topDeltaY = targetTopY - groupBox.y;
       }
 
       group.style.setProperty(
         "--layer-offset-x",
         `${roundValue(centerDeltaX + manualShiftX, 4)}px`
+      );
+      group.style.setProperty(
+        "--layer-offset-y",
+        `${roundValue(topDeltaY + manualShiftY, 4)}px`
       );
 
       if (!groupBox) return;
@@ -411,11 +473,15 @@ export default function LatinLayers({
         }
 
         .latin-phrase-layer {
+          transform: translateX(var(--layer-offset-x, 0px))
+            translateY(var(--layer-offset-y, 0px));
+          will-change: transform;
+        }
+
+        .latin-phrase-layer__content {
           transform-box: fill-box;
           transform-origin: center top;
-          transform: translateX(var(--layer-offset-x, 0px))
-            translateY(var(--layer-offset-y, 0px))
-            scale(var(--layer-scale, 1));
+          transform: scale(var(--layer-scale, 1));
           will-change: transform;
         }
 
