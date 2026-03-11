@@ -16,7 +16,12 @@ export default function ClientRuntime() {
     const mobileMenu = document.getElementById("mobile-menu");
     const closeMenuBtn = document.getElementById("close-menu");
     const mobileBreakpoint = window.matchMedia("(min-width: 768px)");
+    const heroSection = document.querySelector(".hero-imperio");
     const heroNav = document.querySelector(".hero-imperio__nav");
+    const heroNavSurface = heroNav?.querySelector(".hero-nav__surface");
+    const heroNavLinksWrap = heroNav?.querySelector(".hero-nav__links-wrap");
+    const mainNavInner = nav?.querySelector(".main-nav__inner");
+    const mainNavLinksWrap = nav?.querySelector(".main-nav__links-wrap");
     const navFxCanvas = document.getElementById("main-nav-fx-canvas");
     const navFxCtx = navFxCanvas?.getContext("2d");
     const customScrollbar = document.getElementById("imperio-scrollbar");
@@ -41,9 +46,9 @@ export default function ClientRuntime() {
     };
 
     const NAV_FALLBACK_SCROLL_PX = 220;
-    const NAV_FILL_SCROLL_FACTOR = 0.72;
+    const NAV_FILL_SCROLL_FACTOR = 1;
     const NAV_FILL_MIN_PX = 120;
-    const NAV_FILL_MAX_PX = 320;
+    const NAV_FILL_MAX_PX = 520;
     const MENU_OPEN_ANIM_MS = 760;
     const MENU_CLOSE_ANIM_MS = 760;
     const clamp01 = (value) => Math.min(1, Math.max(0, value));
@@ -61,10 +66,195 @@ export default function ClientRuntime() {
     let customScrollbarThumbHeight = 34;
     let customScrollbarDragOffsetY = 0;
     let customScrollbarDragging = false;
+    let navFloatingLocked = false;
+    let navFloatingLockX = 0;
+    let navFloatingLockY = 0;
+    let heroOverlayCaptured = false;
+    let heroOverlayCaptureX = 0;
+    let heroOverlayCaptureY = 0;
+    let heroOverlayCaptureScroll = 0;
+    let heroOverlayDockX = 0;
+    let heroOverlayDockY = 0;
+    let heroOverlayMergeDistance = 1;
     const CUSTOM_SCROLLBAR_END_GAP_PX = 4;
     const CUSTOM_SCROLLBAR_MIN_THUMB_PX = 34;
     const CUSTOM_SCROLLBAR_DEFAULT_TOP_PX = 14;
     const CUSTOM_SCROLLBAR_NAV_GAP_PX = 6;
+
+    const resetNavMergeState = () => {
+      if (!nav) return;
+      nav.style.setProperty("--nav-links-progress", "0");
+      nav.style.setProperty("--nav-docked-opacity", "0");
+      nav.style.setProperty("--nav-floating-opacity", "0");
+      nav.style.setProperty("--nav-floating-x", "50vw");
+      nav.style.setProperty("--nav-floating-y", "-200px");
+      heroNav?.style.setProperty("--hero-links-opacity", "1");
+      nav.classList.remove("main-nav--merged", "main-nav--bridging");
+    };
+
+    const toRectObject = (rect) => ({
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+    });
+
+    const getGlyphRect = (element) => {
+      if (!element) return null;
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const textRects = Array.from(range.getClientRects()).filter(
+        (rect) => rect.width > 0 && rect.height > 0
+      );
+      if (textRects.length === 0) {
+        const fallbackRect = element.getBoundingClientRect();
+        return fallbackRect.width > 0 && fallbackRect.height > 0
+          ? toRectObject(fallbackRect)
+          : null;
+      }
+
+      const union = textRects.reduce(
+        (acc, rect) => ({
+          top: Math.min(acc.top, rect.top),
+          right: Math.max(acc.right, rect.right),
+          bottom: Math.max(acc.bottom, rect.bottom),
+          left: Math.min(acc.left, rect.left),
+        }),
+        {
+          top: Number.POSITIVE_INFINITY,
+          right: Number.NEGATIVE_INFINITY,
+          bottom: Number.NEGATIVE_INFINITY,
+          left: Number.POSITIVE_INFINITY,
+        }
+      );
+
+      return {
+        top: union.top,
+        right: union.right,
+        bottom: union.bottom,
+        left: union.left,
+        width: union.right - union.left,
+        height: union.bottom - union.top,
+      };
+    };
+
+    const getGlyphClusterRect = (root) => {
+      if (!root) return null;
+      const glyphs = Array.from(root.querySelectorAll(".nav-link"));
+      if (glyphs.length === 0) {
+        const fallbackRect = root.getBoundingClientRect();
+        return fallbackRect.width > 0 && fallbackRect.height > 0
+          ? toRectObject(fallbackRect)
+          : null;
+      }
+
+      let clusterRect = null;
+      glyphs.forEach((glyph) => {
+        const rect = getGlyphRect(glyph);
+        if (!rect) return;
+        if (!clusterRect) {
+          clusterRect = { ...rect };
+          return;
+        }
+        clusterRect.top = Math.min(clusterRect.top, rect.top);
+        clusterRect.right = Math.max(clusterRect.right, rect.right);
+        clusterRect.bottom = Math.max(clusterRect.bottom, rect.bottom);
+        clusterRect.left = Math.min(clusterRect.left, rect.left);
+        clusterRect.width = clusterRect.right - clusterRect.left;
+        clusterRect.height = clusterRect.bottom - clusterRect.top;
+      });
+
+      return clusterRect;
+    };
+
+    const syncHeroOverlayPosition = () => {
+      if (!heroSection || !heroNav || !mobileBreakpoint.matches) return;
+      const navRect = toRectObject(
+        mainNavInner?.getBoundingClientRect?.() ??
+        nav?.getBoundingClientRect?.() ??
+        heroNav.getBoundingClientRect()
+      );
+      const linksWrapRect = toRectObject(
+        mainNavLinksWrap?.getBoundingClientRect?.() ?? navRect
+      );
+      if (!navRect || navRect.height <= 0 || navRect.width <= 0) return;
+      heroOverlayDockX = linksWrapRect.left + linksWrapRect.width / 2;
+      heroOverlayDockY = navRect.top + navRect.height / 2;
+    };
+
+    const releaseHeroOverlay = () => {
+      heroOverlayCaptured = false;
+      heroSection?.classList.remove("hero-imperio--nav-captured");
+    };
+
+    const captureHeroOverlay = (sourceRect) => {
+      if (!heroSection) return;
+      heroOverlayCaptured = true;
+      heroOverlayCaptureX = sourceRect.left + sourceRect.width / 2;
+      heroOverlayCaptureY = sourceRect.top + sourceRect.height / 2;
+      heroOverlayCaptureScroll = window.scrollY;
+      heroOverlayMergeDistance = Math.max(1, heroOverlayCaptureY - heroOverlayDockY);
+      heroSection.style.setProperty(
+        "--hero-overlay-left",
+        `${heroOverlayCaptureX.toFixed(2)}px`
+      );
+      heroSection.style.setProperty(
+        "--hero-overlay-top",
+        `${heroOverlayCaptureY.toFixed(2)}px`
+      );
+      heroSection.classList.add("hero-imperio--nav-captured");
+    };
+
+    const updateHeroOverlayPosition = (sourceRect) => {
+      if (!heroSection) return;
+      if (!mobileBreakpoint.matches) {
+        releaseHeroOverlay();
+        return;
+      }
+      const liveSourceRect =
+        sourceRect ??
+        getGlyphClusterRect(heroNavLinksWrap) ??
+        getGlyphClusterRect(heroNavSurface) ??
+        null;
+      const navRect = nav?.getBoundingClientRect();
+      if (!navRect || !liveSourceRect) {
+        releaseHeroOverlay();
+        return;
+      }
+
+      if (!heroOverlayCaptured) {
+        if (navRect.bottom >= liveSourceRect.top) {
+          captureHeroOverlay(liveSourceRect);
+        } else {
+          releaseHeroOverlay();
+        }
+        return;
+      }
+
+      if (window.scrollY <= heroOverlayCaptureScroll && navRect.bottom < liveSourceRect.top) {
+        releaseHeroOverlay();
+        return;
+      }
+
+      const rawProgress = clamp01(
+        (window.scrollY - heroOverlayCaptureScroll) / heroOverlayMergeDistance
+      );
+      const progress = easeOutCubic(rawProgress);
+      const currentX =
+        heroOverlayCaptureX + (heroOverlayDockX - heroOverlayCaptureX) * progress;
+      const currentY =
+        heroOverlayCaptureY + (heroOverlayDockY - heroOverlayCaptureY) * progress;
+      heroSection.style.setProperty(
+        "--hero-overlay-left",
+        `${currentX.toFixed(2)}px`
+      );
+      heroSection.style.setProperty(
+        "--hero-overlay-top",
+        `${currentY.toFixed(2)}px`
+      );
+    };
 
     const resizeNavFxCanvas = () => {
       if (!nav || !navFxCanvas || !navFxCtx) return;
@@ -250,16 +440,31 @@ export default function ClientRuntime() {
         navProgress = navTargetProgress;
       }
       nav?.style.setProperty("--nav-progress", navProgress.toFixed(3));
+      updateMenuButtonTone();
       drawNavFx(timestampMs);
       navFxRafId = window.requestAnimationFrame(navFxTick);
     };
 
+    const updateMenuButtonTone = () => {
+      if (!nav || !mobileMenuBtn) return;
+      const navRect = nav.getBoundingClientRect();
+      const buttonRect = mobileMenuBtn.getBoundingClientRect();
+      const navHeight = Math.max(1, navRect.height);
+      const fillFrontY = navRect.top + navHeight * navProgress;
+      const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+      nav.classList.toggle("main-nav--hamburger-dark", fillFrontY >= buttonCenterY);
+    };
+
     const recomputeNavFillEnd = () => {
       if (!nav) return;
-      const navHeight = nav.getBoundingClientRect().height || 64;
-      if (heroNav) {
-        const heroNavTopAbs = heroNav.getBoundingClientRect().top + window.scrollY;
-        const computed = (heroNavTopAbs - navHeight) * NAV_FILL_SCROLL_FACTOR;
+      const navRect = nav.getBoundingClientRect();
+      const sourceRect =
+        getGlyphClusterRect(heroNavLinksWrap) ??
+        getGlyphClusterRect(heroNavSurface) ??
+        null;
+      if (sourceRect) {
+        const gapToLettersPx = Math.max(0, sourceRect.top - navRect.bottom);
+        const computed = gapToLettersPx * NAV_FILL_SCROLL_FACTOR;
         navFillEndScroll = Math.min(
           NAV_FILL_MAX_PX,
           Math.max(NAV_FILL_MIN_PX, computed)
@@ -271,14 +476,15 @@ export default function ClientRuntime() {
 
     const updateNav = () => {
       if (!nav) return;
-      const rawProgress = clamp01(
-        (window.scrollY + 24) / Math.max(1, navFillEndScroll)
-      );
+      const rawProgress = clamp01(window.scrollY / Math.max(1, navFillEndScroll));
       const progress = easeOutCubic(rawProgress);
       navTargetProgress = progress;
+      updateNavMergeState();
+      updateHeroOverlayPosition();
       if (reducedMotion || !navFxCtx) {
         navProgress = navTargetProgress;
         nav.style.setProperty("--nav-progress", navProgress.toFixed(3));
+        updateMenuButtonTone();
         if (navFxCtx) {
           drawNavFx(0);
         }
@@ -293,6 +499,33 @@ export default function ClientRuntime() {
         updateCustomScrollbar();
         ticking = false;
       });
+    };
+
+    const updateNavMergeState = () => {
+      if (!nav || !heroNav || !mobileBreakpoint.matches) {
+        resetNavMergeState();
+        return;
+      }
+      const navRect = nav.getBoundingClientRect();
+      const sourceRect =
+        getGlyphClusterRect(heroNavLinksWrap) ??
+        getGlyphClusterRect(heroNavSurface) ??
+        null;
+      if (!sourceRect || sourceRect.height <= 0) {
+        resetNavMergeState();
+        return;
+      }
+
+      const hasContact = navRect.bottom >= sourceRect.top;
+
+      nav.style.setProperty("--nav-links-progress", navTargetProgress.toFixed(3));
+      nav.style.setProperty("--nav-docked-opacity", "0");
+      nav.style.setProperty("--nav-floating-opacity", "0");
+      nav.style.setProperty("--nav-floating-x", "50vw");
+      nav.style.setProperty("--nav-floating-y", "-200px");
+      heroNav.style.setProperty("--hero-links-opacity", "1");
+      nav.classList.toggle("main-nav--bridging", hasContact || navTargetProgress > 0);
+      nav.classList.remove("main-nav--merged");
     };
 
     const getRootScrollMetrics = () => {
@@ -599,6 +832,7 @@ export default function ClientRuntime() {
       if (event.matches) {
         setMenuOpen(false, { animate: false });
       }
+      syncHeroOverlayPosition();
       resizeNavFxCanvas();
       recomputeNavFillEnd();
       updateNav();
@@ -606,15 +840,18 @@ export default function ClientRuntime() {
     };
 
     const onResize = () => {
+      syncHeroOverlayPosition();
       resizeNavFxCanvas();
       recomputeNavFillEnd();
       updateNav();
       updateCustomScrollbar();
     };
 
+    syncHeroOverlayPosition();
     resizeNavFxCanvas();
     recomputeNavFillEnd();
     updateNav();
+    updateMenuButtonTone();
     updateCustomScrollbar();
     applyMenuPose(MENU_POSE_CLOSE[MENU_POSE_CLOSE.length - 1]);
     setMenuOpen(false, { animate: false });

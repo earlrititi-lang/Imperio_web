@@ -1,17 +1,9 @@
-﻿import { useEffect } from "preact/hooks";
+import { useEffect } from "preact/hooks";
 import LogoImperio from "./LogoImperio";
 import LatinLayers from "./LatinLayers";
+import { NAV_ITEMS } from "../config/navigation";
 
 const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/preload-6-def.png";
-
-const NAV_ITEMS = [
-  { href: "/sobre-nosotros", label: "Memorial" },
-  { href: "/articulos", label: "Papeles y Tratados" },
-  { href: "/biblioteca", label: "Libreria" },
-  { href: "/foro", label: "Mentidero" },
-  { href: "/tienda", label: "Casa de Mercaderias" },
-  { href: "/contacto", label: "Audiencia" },
-];
 
 // Ajustes rapidos por bloque (posicion y estado visual)
 const LAYER_STATE = {
@@ -33,15 +25,15 @@ const LAYER_VARS = {
 };
 
 const LATIN_LAYER_SEQUENCE = [
-  { id: "Non_sufficit_orbis", label: "Non sufficit orbis", shiftX: 13 },
-  { id: "Plus_ultra", label: "Plus ultra", shiftX: 138 },
-  { id: "A_solis_ortu_usque_ad_occasum", label: "A solis ortu usque ad occasum", scale: 2, shiftX: 100 },
-  { id: "Fiat_justitia_et_pereat_mundus", label: "Fiat justitia et pereat mundus", scale: 2, shiftX: 118 },
-  { id: "Ante_ferit_quam_flamma_micet", label: "Ante ferit quam flamma micet", scale: 2, shiftX: 120 },
-  { id: "Nec_spe_nec_metu", label: "Nec spe nec metu", scale: 2, shiftX: 328 },
-  { id: "Iam_illvstrabit_omnia", label: "Iam illvstrabit omnia", scale: 2, shiftX: 275 },
-  { id: "Pace_mare_terraqve_composita", label: "Pace mare terraqve composita", scale: 2, shiftX: 110 },
-  { id: "Fidei_defensor", label: "Fidei defensor", scale: 2, shiftX: 385 },
+  { id: "Non_sufficit_orbis", label: "Non sufficit orbis" },
+  { id: "Plus_ultra", label: "Plus ultra" },
+  { id: "A_solis_ortu_usque_ad_occasum", label: "A solis ortu usque ad occasum", scale: 2 },
+  { id: "Fiat_justitia_et_pereat_mundus", label: "Fiat justitia et pereat mundus", scale: 2 },
+  { id: "Ante_ferit_quam_flamma_micet", label: "Ante ferit quam flamma micet", scale: 2 },
+  { id: "Nec_spe_nec_metu", label: "Nec spe nec metu", scale: 2 },
+  { id: "Iam_illvstrabit_omnia", label: "Iam illvstrabit omnia", scale: 2 },
+  { id: "Pace_mare_terraqve_composita", label: "Pace mare terraqve composita", scale: 2 },
+  { id: "Fidei_defensor", label: "Fidei defensor", scale: 2 },
 ];
 
 const LATIN_LAYER_ANIM = {
@@ -56,7 +48,7 @@ const LATIN_LAYER_ANIM = {
   outSweepMs: 1400, // Barrido de salida izquierda -> derecha
   glyphOutMs: 2000, // Blur/Fade-out de cada glifo (mucho mas largo)
   outFadeDelayRatio: 0.9, // Delay del fade-out ~x2 frente al ajuste anterior
-  staggerMs: 8000, // Distancia temporal entre frases (8s)
+  staggerMs: 10000, // Distancia temporal entre frases (10s)
   loopPauseMs: 0, // Pausa completa al final del ciclo
   maxBlurPx: 10,
 };
@@ -159,22 +151,40 @@ export default function HeroImperio() {
 
         <nav class="hero-nav hero-imperio__nav relative z-10 pb-0 opacity-0">
           <div class="hero-nav__surface">
-            <div class="home-shell">
-              <ul class="flex flex-wrap justify-between items-center text-black w-full max-w-6xl mx-auto gap-6 md:gap-0">
-                {NAV_ITEMS.map((item) => (
-                  <li key={item.href}>
-                    <a
-                      href={item.href}
-                      class="nav-link text-sm md:text-base font-medium uppercase tracking-wider hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+            <div class="home-shell hero-nav__shell">
+              <div class="hero-nav__links-wrap">
+                <ul class="hero-nav__links-list nav-links-cluster text-black text-sm md:text-base font-medium uppercase tracking-wider">
+                  {NAV_ITEMS.map((item) => (
+                    <li key={item.href}>
+                      <a
+                        href={item.href}
+                        class="nav-link hover:text-[var(--color-red-accent)] transition-colors duration-300"
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </nav>
+        <div class="hero-nav__overlay hidden md:block">
+          <div class="hero-nav__overlay-wrap">
+            <ul class="hero-nav__overlay-list nav-links-cluster text-black text-sm md:text-base font-medium uppercase tracking-wider">
+              {NAV_ITEMS.map((item) => (
+                <li key={`overlay-${item.href}`}>
+                  <a
+                    href={item.href}
+                    class="nav-link hover:text-[var(--color-red-accent)] transition-colors duration-300"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       <style>{`
@@ -215,9 +225,9 @@ export default function HeroImperio() {
           --latin-y: 0px;
           --latin-opacity: 1;
           position: absolute;
-          left: 40%;
+          left: 50%;
           top: 58%;
-          transform: translate(-10%, -50%);
+          transform: translate(-50%, -50%);
           text-align: center;
           display: flex;
           flex-direction: column;
@@ -298,6 +308,69 @@ export default function HeroImperio() {
           will-change: transform, opacity;
           transition: transform 1.15s cubic-bezier(0.2, 0.9, 0.22, 1),
             opacity 0.85s ease;
+        }
+
+        .hero-nav__surface {
+          position: relative;
+          background: var(--color-white-pure);
+          padding: 0;
+          z-index: 0;
+        }
+
+        .hero-nav__shell {
+          position: relative;
+          min-height: var(--nav-links-band-height);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .hero-nav__links-wrap {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        .hero-nav__overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 70;
+          pointer-events: none;
+          opacity: 0;
+        }
+
+        .hero-nav__overlay-wrap {
+          position: fixed;
+          left: var(--hero-overlay-left, 50vw);
+          top: var(--hero-overlay-top, calc(100vh - (var(--nav-links-band-height, 72px) / 2)));
+          width: max-content;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
+        }
+
+        .hero-nav__overlay-list {
+          color: #111;
+        }
+
+        .hero-nav__links-list {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+        }
+
+        .hero-imperio--nav-captured .hero-nav__overlay {
+          opacity: 1;
+        }
+
+        .hero-imperio--nav-captured .hero-nav__overlay-wrap {
+          pointer-events: auto;
+        }
+
+        .hero-imperio--nav-captured .hero-nav__links-list {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
         }
 
         body.preloader-done .hero-imperio__wordmark {
@@ -381,11 +454,10 @@ export default function HeroImperio() {
           }
         }
 
-        .hero-nav__surface {
-          background: var(--color-white-pure);
-          padding: 20px 0 24px;
-        }
       `}</style>
     </>
   );
 }
+
+
+
