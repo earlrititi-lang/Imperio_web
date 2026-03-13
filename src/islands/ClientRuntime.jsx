@@ -22,8 +22,6 @@ export default function ClientRuntime() {
     const heroNavLinksWrap = heroNav?.querySelector(".hero-nav__links-wrap");
     const mainNavInner = nav?.querySelector(".main-nav__inner");
     const mainNavLinksWrap = nav?.querySelector(".main-nav__links-wrap");
-    const navFxCanvas = document.getElementById("main-nav-fx-canvas");
-    const navFxCtx = navFxCanvas?.getContext("2d");
     const customScrollbar = document.getElementById("imperio-scrollbar");
     const customScrollbarTrack = document.getElementById("imperio-scrollbar-track");
     const customScrollbarThumb = document.getElementById("imperio-scrollbar-thumb");
@@ -31,39 +29,29 @@ export default function ClientRuntime() {
     const menuIconMiddleLine = mobileMenuBtn?.querySelector(".menu-icon__line--middle");
     const menuIconBottomLine = mobileMenuBtn?.querySelector(".menu-icon__line--bottom");
 
-    // Main controls for nav white-fill FX.
-    const NAV_FX = {
-      progressSmoothing: 0.14, // smooths scroll jumps into cinematic motion
-      edgeBlurPx: 68, // primary blur for the moving white front
-      edgeBandPx: 64, // vertical thickness of the front glow
-      edgePulsePx: 4, // subtle breathing so it does not look static
-      grainTilePx: 128, // resolution of the repeated noise texture
-      grainAlpha: 0.2, // global noise intensity
-      grainDensityA: 0.16, // density of coarse grain texture
-      grainDensityB: 0.32, // density of fine grain texture
-      grainDriftX: 14, // horizontal drift of grain layers
-      grainDriftY: 36, // vertical drift of grain layers
-    };
-
+    // Para los alumnos:
+    // Esta animacion solo usa un linear-gradient.
+    // Medimos la distancia entre el navbar y la barra de letras.
+    // Esa distancia se convierte en un progreso de 0 a 1.
+    // Con ese progreso aumentamos:
+    // - la extension del gradiente
+    // - y la opacidad del blanco
+    // hasta terminar en un blanco plano.
+    const NAV_PROGRESS_SMOOTHING = 0.14;
     const NAV_FALLBACK_SCROLL_PX = 220;
-    const NAV_FILL_SCROLL_FACTOR = 1;
-    const NAV_FILL_MIN_PX = 120;
-    const NAV_FILL_MAX_PX = 520;
+    const NAV_MIN_TRIGGER_DISTANCE_PX = 120;
+    const NAV_MAX_TRIGGER_DISTANCE_PX = 520;
     const HERO_OVERLAY_DOCK_OFFSET_Y = 1;
     const MENU_OPEN_ANIM_MS = 760;
     const MENU_CLOSE_ANIM_MS = 760;
     const clamp01 = (value) => Math.min(1, Math.max(0, value));
     const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
-    let navFillEndScroll = NAV_FALLBACK_SCROLL_PX;
+    let navStartDistance = NAV_FALLBACK_SCROLL_PX;
     let navTargetProgress = 0;
     let navProgress = 0;
     let ticking = false;
-    let navFxWidth = 0;
-    let navFxHeight = 0;
     let navFxRafId = 0;
     let menuIconAnimRafId = 0;
-    let grainPatternA = null;
-    let grainPatternB = null;
     let customScrollbarThumbHeight = 34;
     let customScrollbarDragOffsetY = 0;
     let customScrollbarDragging = false;
@@ -170,6 +158,13 @@ export default function ClientRuntime() {
       return clusterRect;
     };
 
+    // Devuelve el bloque que contiene las letras del hero.
+    // Lo usamos como "objetivo" para saber cuanto le falta al navbar.
+    const getNavLettersRect = () =>
+      getGlyphClusterRect(heroNavLinksWrap) ??
+      getGlyphClusterRect(heroNavSurface) ??
+      null;
+
     const syncHeroOverlayPosition = () => {
       if (!heroSection || !heroNav || !mobileBreakpoint.matches) return;
       const linksWrapRect = toRectObject(
@@ -256,192 +251,44 @@ export default function ClientRuntime() {
       );
     };
 
-    const resizeNavFxCanvas = () => {
-      if (!nav || !navFxCanvas || !navFxCtx) return;
-      const rect = nav.getBoundingClientRect();
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const width = Math.max(1, Math.round(rect.width));
-      const height = Math.max(1, Math.round(rect.height));
-      navFxWidth = width;
-      navFxHeight = height;
-      navFxCanvas.width = Math.round(width * dpr);
-      navFxCanvas.height = Math.round(height * dpr);
-      navFxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      navFxCanvas.style.width = `${width}px`;
-      navFxCanvas.style.height = `${height}px`;
-      refreshGrainPatterns();
-    };
+    const updateNavGradient = () => {
+      if (!nav) return;
 
-    const seededNoise = (x, y, seed) => {
-      const value =
-        Math.sin((x * 127.1 + y * 311.7 + seed * 74.7) * 0.0174533) *
-        43758.5453;
-      return value - Math.floor(value);
-    };
+      // Con progress = 0:
+      // el gradiente es suave y con sensacion de cristal.
+      // Con progress = 1:
+      // el gradiente ocupa todo el navbar y arriba/abajo son blancos,
+      // asi que visualmente termina en blanco plano.
+      const fluidProgress =
+        navProgress * navProgress * (3 - 2 * navProgress);
+      const gradientStop = 8 + 92 * fluidProgress;
+      const topAlpha = 0.16 + 0.84 * fluidProgress;
+      const bottomAlpha = Math.min(1, fluidProgress * fluidProgress);
 
-    const createGrainPattern = (tileSize, density, seed) => {
-      if (!navFxCtx) return null;
-      const patternCanvas = document.createElement("canvas");
-      patternCanvas.width = tileSize;
-      patternCanvas.height = tileSize;
-      const patternCtx = patternCanvas.getContext("2d");
-      if (!patternCtx) return null;
-
-      const imageData = patternCtx.createImageData(tileSize, tileSize);
-      const data = imageData.data;
-      for (let y = 0; y < tileSize; y += 1) {
-        for (let x = 0; x < tileSize; x += 1) {
-          const i = (y * tileSize + x) * 4;
-          const n = seededNoise(x, y, seed);
-          const alpha = n > 1 - density ? Math.round((0.2 + n * 0.8) * 255) : 0;
-          data[i] = 255;
-          data[i + 1] = 255;
-          data[i + 2] = 255;
-          data[i + 3] = alpha;
-        }
-      }
-      patternCtx.putImageData(imageData, 0, 0);
-      return navFxCtx.createPattern(patternCanvas, "repeat");
-    };
-
-    const refreshGrainPatterns = () => {
-      grainPatternA = createGrainPattern(
-        NAV_FX.grainTilePx,
-        NAV_FX.grainDensityA,
-        11
+      nav.style.setProperty("--nav-gradient-stop", `${gradientStop.toFixed(2)}%`);
+      nav.style.setProperty("--nav-gradient-top-alpha", topAlpha.toFixed(3));
+      nav.style.setProperty("--nav-gradient-bottom-alpha", bottomAlpha.toFixed(3));
+      nav.style.setProperty("--nav-glass-alpha", (0.12 + fluidProgress * 0.24).toFixed(3));
+      nav.style.setProperty(
+        "--nav-glass-line-alpha",
+        (0.22 + fluidProgress * 0.3).toFixed(3)
       );
-      grainPatternB = createGrainPattern(
-        NAV_FX.grainTilePx,
-        NAV_FX.grainDensityB,
-        29
+      nav.style.setProperty(
+        "--nav-glass-shadow-alpha",
+        (0.08 + fluidProgress * 0.14).toFixed(3)
       );
     };
 
-    const drawNavFx = (timestampMs = 0) => {
-      if (!navFxCtx || navFxWidth <= 0 || navFxHeight <= 0) return;
-
-      const ctx = navFxCtx;
-      const t = timestampMs * 0.001;
-      const w = navFxWidth;
-      const h = navFxHeight;
-      const fillY = h * navProgress;
-
-      ctx.clearRect(0, 0, w, h);
-      if (fillY <= 0.5) return;
-
-      const baseAlpha = Math.min(1, 0.2 + navProgress * 0.84);
-      ctx.fillStyle = `rgba(255, 255, 255, ${baseAlpha.toFixed(3)})`;
-      ctx.fillRect(0, 0, w, fillY);
-
-      // Primary cinematic front glow.
-      ctx.save();
-      ctx.globalCompositeOperation = "screen";
-      ctx.filter = `blur(${NAV_FX.edgeBlurPx}px)`;
-      const bandWave = Math.sin(t * 0.55) * NAV_FX.edgePulsePx;
-      const bandTop = fillY - NAV_FX.edgeBandPx + bandWave;
-      const bandBottom = fillY + NAV_FX.edgeBandPx * 1.3 + bandWave;
-      const bandGrad = ctx.createLinearGradient(0, bandTop, 0, bandBottom);
-      bandGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
-      bandGrad.addColorStop(
-        0.2,
-        `rgba(255, 255, 255, ${(0.28 + navProgress * 0.22).toFixed(3)})`
-      );
-      bandGrad.addColorStop(
-        0.5,
-        `rgba(255, 255, 255, ${(0.72 + navProgress * 0.22).toFixed(3)})`
-      );
-      bandGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = bandGrad;
-      ctx.fillRect(
-        0,
-        bandTop - NAV_FX.edgeBlurPx,
-        w,
-        bandBottom - bandTop + NAV_FX.edgeBlurPx * 2
-      );
-      ctx.restore();
-
-      // Secondary wide bloom to remove hard transition perception.
-      ctx.save();
-      ctx.globalCompositeOperation = "screen";
-      ctx.filter = `blur(${Math.round(NAV_FX.edgeBlurPx * 1.7)}px)`;
-      const bloomTop = fillY - NAV_FX.edgeBandPx * 1.35;
-      const bloomBottom = fillY + NAV_FX.edgeBandPx * 1.7;
-      const bloomGrad = ctx.createLinearGradient(0, bloomTop, 0, bloomBottom);
-      bloomGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
-      bloomGrad.addColorStop(
-        0.48,
-        `rgba(255, 255, 255, ${(0.36 + navProgress * 0.24).toFixed(3)})`
-      );
-      bloomGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = bloomGrad;
-      ctx.fillRect(
-        0,
-        bloomTop - NAV_FX.edgeBlurPx,
-        w,
-        bloomBottom - bloomTop + NAV_FX.edgeBlurPx * 2
-      );
-      ctx.restore();
-
-      // Stable layered grain (sand-like), clipped to filled area.
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(0, 0, w, fillY);
-      ctx.clip();
-
-      if (grainPatternA) {
-        const tile = NAV_FX.grainTilePx;
-        const offsetXA = (t * NAV_FX.grainDriftX) % tile;
-        const offsetYA = (t * NAV_FX.grainDriftY) % tile;
-        ctx.globalAlpha = NAV_FX.grainAlpha * (0.46 + navProgress * 0.54);
-        ctx.save();
-        ctx.translate(offsetXA, offsetYA);
-        ctx.fillStyle = grainPatternA;
-        ctx.fillRect(-tile, -tile, w + tile * 2, fillY + tile * 2);
-        ctx.restore();
-      }
-
-      if (grainPatternB) {
-        const tile = NAV_FX.grainTilePx;
-        const offsetXB = (-t * NAV_FX.grainDriftX * 0.6) % tile;
-        const offsetYB = (t * NAV_FX.grainDriftY * 0.4) % tile;
-        ctx.globalAlpha = NAV_FX.grainAlpha * (0.3 + navProgress * 0.5);
-        ctx.save();
-        ctx.translate(offsetXB, offsetYB);
-        ctx.fillStyle = grainPatternB;
-        ctx.fillRect(-tile, -tile, w + tile * 2, fillY + tile * 2);
-        ctx.restore();
-      }
-
-      // Slightly denser grain near moving edge for depth.
-      if (grainPatternB) {
-        const edgeHeight = NAV_FX.edgeBandPx * 1.35;
-        const edgeStart = Math.max(0, fillY - edgeHeight * 0.5);
-        const edgeEnd = Math.min(h, fillY + edgeHeight);
-        ctx.beginPath();
-        ctx.rect(0, edgeStart, w, Math.max(1, edgeEnd - edgeStart));
-        ctx.clip();
-        ctx.globalAlpha = NAV_FX.grainAlpha * (0.65 + navProgress * 0.35);
-        ctx.fillStyle = grainPatternB;
-        ctx.fillRect(
-          -NAV_FX.grainTilePx,
-          edgeStart - NAV_FX.grainTilePx,
-          w + NAV_FX.grainTilePx * 2,
-          edgeEnd - edgeStart + NAV_FX.grainTilePx * 2
-        );
-      }
-      ctx.restore();
-    };
-
-    const navFxTick = (timestampMs) => {
+    const navFxTick = () => {
       const delta = navTargetProgress - navProgress;
       if (Math.abs(delta) > 0.0004) {
-        navProgress += delta * NAV_FX.progressSmoothing;
+        navProgress += delta * NAV_PROGRESS_SMOOTHING;
       } else {
         navProgress = navTargetProgress;
       }
       nav?.style.setProperty("--nav-progress", navProgress.toFixed(3));
+      updateNavGradient();
       updateMenuButtonTone();
-      drawNavFx(timestampMs);
       navFxRafId = window.requestAnimationFrame(navFxTick);
     };
 
@@ -455,39 +302,40 @@ export default function ClientRuntime() {
       nav.classList.toggle("main-nav--hamburger-dark", fillFrontY >= buttonCenterY);
     };
 
-    const recomputeNavFillEnd = () => {
+    const recomputeNavStartDistance = () => {
       if (!nav) return;
       const navRect = nav.getBoundingClientRect();
-      const sourceRect =
-        getGlyphClusterRect(heroNavLinksWrap) ??
-        getGlyphClusterRect(heroNavSurface) ??
-        null;
+      const sourceRect = getNavLettersRect();
       if (sourceRect) {
-        const gapToLettersPx = Math.max(0, sourceRect.top - navRect.bottom);
-        const computed = gapToLettersPx * NAV_FILL_SCROLL_FACTOR;
-        navFillEndScroll = Math.min(
-          NAV_FILL_MAX_PX,
-          Math.max(NAV_FILL_MIN_PX, computed)
+        const initialGap = Math.max(0, sourceRect.top - navRect.bottom);
+        navStartDistance = Math.min(
+          NAV_MAX_TRIGGER_DISTANCE_PX,
+          Math.max(NAV_MIN_TRIGGER_DISTANCE_PX, initialGap)
         );
         return;
       }
-      navFillEndScroll = NAV_FALLBACK_SCROLL_PX;
+      navStartDistance = NAV_FALLBACK_SCROLL_PX;
     };
 
     const updateNav = () => {
       if (!nav) return;
-      const rawProgress = clamp01(window.scrollY / Math.max(1, navFillEndScroll));
+      const navRect = nav.getBoundingClientRect();
+      const sourceRect = getNavLettersRect();
+
+      // Si encontramos la barra de letras, usamos la distancia real en pantalla.
+      // Si no, usamos el scroll como plan B.
+      const rawProgress = sourceRect
+        ? 1 - clamp01(Math.max(0, sourceRect.top - navRect.bottom) / Math.max(1, navStartDistance))
+        : clamp01(window.scrollY / NAV_FALLBACK_SCROLL_PX);
       const progress = easeOutCubic(rawProgress);
       navTargetProgress = progress;
       updateNavMergeState();
       updateHeroOverlayPosition();
-      if (reducedMotion || !navFxCtx) {
+      if (reducedMotion) {
         navProgress = navTargetProgress;
         nav.style.setProperty("--nav-progress", navProgress.toFixed(3));
+        updateNavGradient();
         updateMenuButtonTone();
-        if (navFxCtx) {
-          drawNavFx(0);
-        }
       }
     };
 
@@ -507,10 +355,7 @@ export default function ClientRuntime() {
         return;
       }
       const navRect = nav.getBoundingClientRect();
-      const sourceRect =
-        getGlyphClusterRect(heroNavLinksWrap) ??
-        getGlyphClusterRect(heroNavSurface) ??
-        null;
+      const sourceRect = getNavLettersRect();
       if (!sourceRect || sourceRect.height <= 0) {
         resetNavMergeState();
         return;
@@ -803,9 +648,7 @@ export default function ClientRuntime() {
         isOpen ? "Cerrar menu" : "Abrir menu"
       );
       document.body.style.overflow = isOpen ? "hidden" : "auto";
-      if (isOpen) {
-        customScrollbar?.classList.add("hidden");
-      } else {
+      if (!isOpen) {
         updateCustomScrollbar();
       }
       if (isOpen) {
@@ -833,29 +676,26 @@ export default function ClientRuntime() {
         setMenuOpen(false, { animate: false });
       }
       syncHeroOverlayPosition();
-      resizeNavFxCanvas();
-      recomputeNavFillEnd();
+      recomputeNavStartDistance();
       updateNav();
       updateCustomScrollbar();
     };
 
     const onResize = () => {
       syncHeroOverlayPosition();
-      resizeNavFxCanvas();
-      recomputeNavFillEnd();
+      recomputeNavStartDistance();
       updateNav();
       updateCustomScrollbar();
     };
 
     syncHeroOverlayPosition();
-    resizeNavFxCanvas();
-    recomputeNavFillEnd();
+    recomputeNavStartDistance();
     updateNav();
     updateMenuButtonTone();
     updateCustomScrollbar();
     applyMenuPose(MENU_POSE_CLOSE[MENU_POSE_CLOSE.length - 1]);
     setMenuOpen(false, { animate: false });
-    if (!reducedMotion && navFxCtx) {
+    if (!reducedMotion) {
       navFxRafId = window.requestAnimationFrame(navFxTick);
     }
     window.addEventListener("scroll", onScroll, { passive: true });

@@ -9,9 +9,7 @@ export default function Navigation() {
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       >
         <div class="main-nav__fx" aria-hidden="true">
-          <canvas id="main-nav-fx-canvas" class="main-nav__fx-canvas" />
         </div>
-        <div class="main-nav__merge-sheet" aria-hidden="true"></div>
         <div class="main-nav__floating-links-layer hidden md:block" aria-hidden="true">
           <div class="main-nav__floating-links-wrap">
             <ul class="main-nav__floating-links nav-links-cluster text-sm font-medium tracking-wide uppercase">
@@ -111,34 +109,54 @@ export default function Navigation() {
           z-index: 0;
           overflow: hidden;
           pointer-events: none;
-        }
-
-        .main-nav__fx-canvas {
-          display: block;
-          width: 100%;
-          height: 100%;
-          opacity: calc(0.35 + var(--nav-progress, 0) * 0.95);
-          transform: translateZ(0);
+          /* Para los alumnos:
+             Este fondo siempre es un linear-gradient vertical.
+             Solo cambiamos tres variables desde JS:
+             1. la opacidad del blanco arriba,
+             2. la opacidad del blanco abajo,
+             3. y hasta dónde "baja" el gradiente. */
+          background:
+            linear-gradient(
+              135deg,
+              rgba(255, 255, 255, calc(var(--nav-glass-alpha, 0.12) * 0.95)) 0%,
+              rgba(255, 255, 255, 0) 42%
+            ),
+            radial-gradient(
+              circle at 18% 0%,
+              rgba(255, 255, 255, var(--nav-glass-line-alpha, 0.22)) 0%,
+              rgba(255, 255, 255, 0) 58%
+            ),
+            rgba(255, 255, 255, var(--nav-gradient-top-alpha, 0.15));
+          background: -webkit-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, var(--nav-gradient-top-alpha, 0.15)) 0%,
+            rgba(255, 255, 255, var(--nav-gradient-bottom-alpha, 0))
+              var(--nav-gradient-stop, 5%),
+            rgba(255, 255, 255, var(--nav-gradient-bottom-alpha, 0)) 100%
+          );
+          background: -moz-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, var(--nav-gradient-top-alpha, 0.15)) 0%,
+            rgba(255, 255, 255, var(--nav-gradient-bottom-alpha, 0))
+              var(--nav-gradient-stop, 5%),
+            rgba(255, 255, 255, var(--nav-gradient-bottom-alpha, 0)) 100%
+          );
+          background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, var(--nav-gradient-top-alpha, 0.15)) 0%,
+            rgba(255, 255, 255, var(--nav-gradient-bottom-alpha, 0))
+              var(--nav-gradient-stop, 5%),
+            rgba(255, 255, 255, var(--nav-gradient-bottom-alpha, 0)) 100%
+          );
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, var(--nav-glass-line-alpha, 0.22)),
+            inset 0 -1px 0 rgba(255, 255, 255, calc(var(--nav-glass-line-alpha, 0.22) * 0.35));
         }
 
         .main-nav__brand {
           display: inline-flex;
           align-items: center;
           margin: 0;
-        }
-
-        .main-nav__merge-sheet {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 100%;
-          z-index: 0;
-          background: rgba(255, 255, 255, 0.97);
-          opacity: calc(var(--nav-links-progress, 0) * 0.96);
-          box-shadow: 0 10px 34px rgba(0, 0, 0, calc(var(--nav-links-progress, 0) * 0.12));
-          will-change: opacity;
-          pointer-events: none;
         }
 
         .main-nav__logo {
@@ -280,16 +298,24 @@ export default function Navigation() {
 
         #main-nav {
           --nav-progress: 0;
-          --nav-base-alpha: 0.08;
           --nav-links-progress: 0;
+          --nav-gradient-top-alpha: 0.15;
+          --nav-gradient-bottom-alpha: 0;
+          --nav-gradient-stop: 5%;
+          --nav-glass-alpha: 0.12;
+          --nav-glass-line-alpha: 0.22;
+          --nav-glass-shadow-alpha: 0.08;
           --nav-docked-opacity: 0;
           --nav-floating-opacity: 0;
           --nav-floating-x: 50vw;
           --nav-floating-y: -200px;
-          background: rgba(255, 255, 255, calc(var(--nav-base-alpha) + var(--nav-progress) * 0.08));
-          box-shadow: 0 2px 20px rgba(0, 0, 0, calc(var(--nav-progress) * 0.14));
-          backdrop-filter: blur(calc(var(--nav-progress) * 11px));
-          -webkit-backdrop-filter: blur(calc(var(--nav-progress) * 11px));
+          background: transparent;
+          box-shadow:
+            0 12px 36px rgba(15, 23, 42, var(--nav-glass-shadow-alpha, 0.08)),
+            0 2px 16px rgba(255, 255, 255, calc(var(--nav-glass-line-alpha, 0.22) * 0.2));
+          backdrop-filter: blur(calc(14px + var(--nav-progress) * 10px)) saturate(calc(1.05 + var(--nav-progress) * 0.45));
+          -webkit-backdrop-filter: blur(calc(14px + var(--nav-progress) * 10px)) saturate(calc(1.05 + var(--nav-progress) * 0.45));
+          border-bottom: 1px solid rgba(255, 255, 255, calc(var(--nav-glass-line-alpha, 0.22) * 0.7));
           opacity: 0;
           transform: translateY(-12px);
           pointer-events: none;
