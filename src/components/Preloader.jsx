@@ -10,9 +10,9 @@ export default function Preloader() {
 
     const timing = {
       step: 550, // Tiempo entre cada imagen (1 a 5)
-      fade: 800, // Fade de las imagenes normales
-      shrink: 520, // Duracion del shrink (lo dejamos como estaba)
-      fillMax: 500, // Velocidad del fill final (imagen 6 a pantalla completa)
+      fade: 600, // Fade de las imagenes normales
+      shrink: 650, // Duracion del shrink (lo dejamos como estaba)
+      fillMax: 850, // Velocidad del fill final (imagen 6 a pantalla completa)
       preloadTimeout: 1800, // Arranque forzado maximo mientras cargan imagenes
     };
     const step = timing.step;
@@ -72,10 +72,14 @@ export default function Preloader() {
     const startSequence = () => {
       if (started) return;
       started = true;
+      preloader?.style.setProperty(
+        "--final-fade-duration",
+        `${finalFadeDuration}ms`
+      );
 
-      const removeOtherImages = () => {
+      const removeOtherImages = (keepIndexes = new Set([lastIndex])) => {
         imageList.forEach((img, idx) => {
-          if (idx === lastIndex) return;
+          if (keepIndexes.has(idx)) return;
           img.remove();
         });
       };
@@ -84,15 +88,8 @@ export default function Preloader() {
         const start = index === lastIndex ? lastImageStart : index * step;
         timers.push(
           window.setTimeout(() => {
-            const animationName =
-              index === lastIndex ? "fadeInOnly" : "fadeInScale";
-            const duration =
-              index === lastIndex ? finalFadeDuration : fadeDuration;
-            const easing =
-              index === lastIndex
-                ? "cubic-bezier(0.2, 0.65, 0.2, 1)"
-                : "cubic-bezier(0.2, 0.7, 0.2, 1)";
-            img.style.animation = `${animationName} ${duration}ms ${easing} forwards`;
+            if (index === lastIndex) return;
+            img.style.animation = `fadeInScale ${fadeDuration}ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards`;
           }, start)
         );
         if (index === lastIndex) {
@@ -111,6 +108,8 @@ export default function Preloader() {
                 preloader.style.setProperty("--fade-duration", `${fadeDuration}ms`);
                 preloader.style.setProperty("--expand-duration", `${expandDuration}ms`);
                 preloader.style.setProperty("--overlay-fade", `${overlayFade}ms`);
+                removeOtherImages(new Set([lastIndex]));
+                preloader.classList.add("preloader--final-visible");
                 preloader.classList.add("preloader--expand");
               }
               const lastSrc = img.getAttribute("src");
@@ -133,12 +132,6 @@ export default function Preloader() {
               imageContainer?.addEventListener("transitionend", onExpandEnd);
             }, expandStart)
           );
-          timers.push(
-            window.setTimeout(() => {
-              removeOtherImages();
-            }, expandStart + settleDelay)
-          );
-
         }
       });
 
@@ -195,32 +188,32 @@ export default function Preloader() {
             style={{ "--scale-end": "0.988" }}
           />
           <img
-            src="/images/preloader/Preload_3_def_upscaled_2x.png"
-            alt="Cargando 3"
-            class="preloader-img absolute opacity-0"
-            style={{ "--scale-end": "0.976" }}
-          />
-          <img
             src="/images/preloader/Preload_Archivo.png"
             alt="Cargando archivo"
             class="preloader-img absolute opacity-0"
-            style={{ "--scale-end": "0.964" }}
+            style={{ "--scale-end": "0.976" }}
           />
           <img
             src="/images/preloader/Preload_4_def_upscaled_2x.png"
             alt="Cargando 4"
             class="preloader-img absolute opacity-0"
-            style={{ "--scale-end": "0.952" }}
+            style={{ "--scale-end": "0.964" }}
           />
           <img
             src="/images/preloader/Preload_5_def_upscaled_2x.png"
             alt="Cargando 5"
             class="preloader-img preloader-img--shrink-trigger absolute opacity-0"
+            style={{ "--scale-end": "0.952" }}
+          />
+          <img
+            src="/images/preloader/Preload_3_def_upscaled_2x.png"
+            alt="Cargando 6"
+            class="preloader-img absolute opacity-0"
             style={{ "--scale-end": "0.94" }}
           />
           <img
             src="/images/preloader/Preload_6_def_upscaled_2x.png"
-            alt="Cargando 6"
+            alt="Cargando 3"
             class="preloader-img preloader-img--final absolute opacity-0"
             style={{ "--scale-end": "1" }}
           />
@@ -262,6 +255,8 @@ export default function Preloader() {
           width: 100vw;
           height: 100vh;
           overflow: visible;
+          isolation: isolate;
+          contain: paint;
           transform: scale(var(--stack-scale));
           transform-origin: center;
           transition: transform var(--stack-duration) var(--stack-ease);
@@ -289,6 +284,7 @@ export default function Preloader() {
           object-position: center;
           filter: brightness(0.95);
           will-change: transform, opacity;
+          backface-visibility: hidden;
           transition: transform var(--img-transform-duration, var(--expand-duration, 120ms))
               var(--ease-smooth),
             opacity var(--fade-duration, 120ms) var(--ease-soft);
@@ -297,8 +293,14 @@ export default function Preloader() {
 
         .preloader-img--final {
           transform: scale(1);
-          transition: opacity var(--fade-duration, 120ms) var(--ease-soft);
+          opacity: 0;
+          transition: opacity var(--final-fade-duration, 120ms) var(--ease-soft);
           will-change: opacity;
+          z-index: 2;
+        }
+
+        #preloader.preloader--final-visible .preloader-img--final {
+          opacity: 1;
         }
 
         #preloader.preloader--expand .preloader-img:not(.preloader-img--final) {

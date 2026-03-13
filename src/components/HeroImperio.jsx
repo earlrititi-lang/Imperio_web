@@ -3,7 +3,9 @@ import LogoImperio from "./LogoImperio";
 import LatinLayers from "./LatinLayers";
 import { NAV_ITEMS } from "../config/navigation";
 
-const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/preload-6-def.png";
+// Usamos exactamente el mismo asset que el preloader final para evitar
+// un cambio de bitmap en el relevo y eliminar el flicker visual.
+const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/Preload_6_def_upscaled_2x.png";
 
 // Ajustes rapidos por bloque (posicion y estado visual)
 const LAYER_STATE = {
@@ -117,7 +119,7 @@ export default function HeroImperio() {
       <section class="hero-imperio relative min-h-screen flex flex-col justify-between overflow-hidden bg-black">
         <div class="hero-background absolute inset-0" aria-hidden="true">
           <img
-            src="/images/preloader/preload-6-def.png"
+            src="/images/preloader/Preload_6_def_upscaled_2x.png"
             alt=""
             class="hero-background__img"
           />
