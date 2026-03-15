@@ -200,7 +200,6 @@ export default function HeroImperio() {
           opacity: 0;
         }
 
-        body.preloader-handoff .hero-background,
         body.preloader-done .hero-background {
           opacity: 1;
         }

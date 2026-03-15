@@ -1,62 +1,67 @@
 import { useEffect } from "preact/hooks";
 
+const TIMING = {
+  step: 550,
+  fade: 600,
+  shrink: 900,
+  grow: 4200,
+  preloadTimeout: 1800,
+};
+
+const SEQUENCE_FRAME_SCALE = 0.88;
+const SHRINK_FRAME_SCALE = 0.66;
+const FINAL_LAYER_START_SCALE = 0.88;
+const FINAL_IMAGE_ENTRY_SCALE = 0.58;
+const FINAL_IMAGE_START_SCALE = 0.72;
+const FINAL_OVERLAP_RATIO = 0.82;
+const GROW_DELAY_RATIO = 0.28;
+const DONE_DELAY_MS = 120;
+
 export default function Preloader() {
   useEffect(() => {
     const preloader = document.getElementById("preloader");
-    const imageList = Array.from(
-      document.querySelectorAll(".preloader-img")
+    const sequenceImages = Array.from(
+      preloader?.querySelectorAll(".preloader-sequence-img") ?? []
     );
-    const imageContainer = document.querySelector(".preloader-images");
+    const finalLayer = preloader?.querySelector(".preloader-final-layer");
+    const shrinkImage = preloader?.querySelector(".preloader-img--shrink-trigger");
+    const finalImage = preloader?.querySelector(".preloader-img--final");
 
-    const timing = {
-      step: 550, // Tiempo entre cada imagen (1 a 5)
-      fade: 600, // Fade de las imagenes normales
-      shrink: 650, // Duracion del shrink (lo dejamos como estaba)
-      fillMax: 850, // Velocidad del fill final (imagen 6 a pantalla completa)
-      preloadTimeout: 1800, // Arranque forzado maximo mientras cargan imagenes
-    };
-    const step = timing.step;
-    const fadeDuration = timing.fade;
-    const finalFadeDuration = Math.round(timing.fillMax * 0.72);
-    const shrinkDuration = timing.shrink;
-    const shrinkHold = Math.round(timing.step * 0.18);
-    const expandDuration = timing.fillMax;
-    const overlayFade = Math.round(timing.fade * 0.72);
-    const holdDuration = Math.round(timing.fillMax * 0.15);
-    const settleDelay = Math.round(timing.fillMax * 0.2);
-    const lastIndex = imageList.length - 1;
-    const shrinkIndex = imageList.findIndex((img) =>
-      img.classList.contains("preloader-img--shrink-trigger")
-    );
-    const shrinkTriggerIndex = shrinkIndex >= 0 ? shrinkIndex : Math.max(lastIndex - 1, 0);
-    const shrinkStart = shrinkTriggerIndex * step + fadeDuration;
-    const shrinkEnd = shrinkStart + shrinkDuration;
-    const lastImageStart = shrinkEnd + shrinkHold;
-    const expandStart = lastImageStart + holdDuration;
-    const finalEnd = expandStart + expandDuration + settleDelay;
+    if (!preloader || !finalLayer || !shrinkImage || !finalImage || sequenceImages.length === 0) {
+      return undefined;
+    }
+
+    const finalEntryDuration = Math.round(TIMING.fade * 1.25);
+    const shrinkIndex = sequenceImages.indexOf(shrinkImage);
+    const shrinkStart = shrinkIndex * TIMING.step + TIMING.fade;
+    const finalRevealStart = shrinkStart + Math.round(TIMING.shrink * FINAL_OVERLAP_RATIO);
+    const finalGrowStart = finalRevealStart + Math.round(TIMING.grow * GROW_DELAY_RATIO);
+    const fallbackFinish = finalGrowStart + TIMING.grow + DONE_DELAY_MS;
     const timers = [];
     let done = false;
     let started = false;
-    const doneDelay = 120;
+    let removeGrowListener = () => {};
+
+    const queue = (callback, delay) => {
+      timers.push(window.setTimeout(callback, delay));
+    };
 
     const finalizePreloader = () => {
       if (done) return;
       done = true;
-      if (preloader) {
-        preloader.classList.add("preloader--done");
-      }
-      timers.push(window.setTimeout(() => {
-        if (preloader) {
-          preloader.style.display = "none";
-        }
+      // Cuando la 6 ya esta a pantalla completa, intercambiamos al hero.
+      // Como usan el mismo asset, el cambio de una capa a otra es invisible.
+      document.body.classList.add("preloader-done");
+      window.dispatchEvent(new Event("preloader:done"));
+      window.requestAnimationFrame(() => {
+        preloader.style.display = "none";
         document.body.classList.remove("preloader-handoff");
-        document.body.classList.add("preloader-done");
-        window.dispatchEvent(new Event("preloader:done"));
         document.body.style.overflow = "auto";
-      }, overlayFade));
+      });
     };
 
-    const finalizeNextFrame = () => {
+    const finishPreloader = () => {
+      if (done) return;
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => {
           finalizePreloader();
@@ -64,85 +69,85 @@ export default function Preloader() {
       });
     };
 
-    const finishPreloader = () => {
-      if (done) return;
-      finalizeNextFrame();
-    };
-
     const startSequence = () => {
       if (started) return;
       started = true;
-      preloader?.style.setProperty(
-        "--final-fade-duration",
-        `${finalFadeDuration}ms`
-      );
+      preloader.style.setProperty("--fade-duration", `${TIMING.fade}ms`);
+      preloader.style.setProperty("--shrink-duration", `${TIMING.shrink}ms`);
+      preloader.style.setProperty("--grow-duration", `${TIMING.grow}ms`);
+      preloader.style.setProperty("--final-entry-duration", `${finalEntryDuration}ms`);
 
-      const removeOtherImages = (keepIndexes = new Set([lastIndex])) => {
-        imageList.forEach((img, idx) => {
-          if (keepIndexes.has(idx)) return;
-          img.remove();
-        });
-      };
-
-      imageList.forEach((img, index) => {
-        const start = index === lastIndex ? lastImageStart : index * step;
-        timers.push(
-          window.setTimeout(() => {
-            if (index === lastIndex) return;
-            img.style.animation = `fadeInScale ${fadeDuration}ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards`;
-          }, start)
-        );
-        if (index === lastIndex) {
-          timers.push(
-            window.setTimeout(() => {
-              if (!preloader) return;
-              preloader.style.setProperty("--shrink-duration", `${shrinkDuration}ms`);
-              preloader.classList.add("preloader--shrink");
-            }, shrinkStart)
-          );
-
-          timers.push(
-            window.setTimeout(() => {
-              document.body.classList.add("preloader-handoff");
-              if (preloader) {
-                preloader.style.setProperty("--fade-duration", `${fadeDuration}ms`);
-                preloader.style.setProperty("--expand-duration", `${expandDuration}ms`);
-                preloader.style.setProperty("--overlay-fade", `${overlayFade}ms`);
-                removeOtherImages(new Set([lastIndex]));
-                preloader.classList.add("preloader--final-visible");
-                preloader.classList.add("preloader--expand");
-              }
-              const lastSrc = img.getAttribute("src");
-              if (lastSrc) {
-                window.dispatchEvent(
-                  new CustomEvent("preloader:last-image", {
-                    detail: { src: lastSrc },
-                  })
-                );
-              }
-              img.classList.add("preloader-img--expand");
-
-              const onExpandEnd = (event) => {
-                if (event.propertyName !== "transform") return;
-                imageContainer?.removeEventListener("transitionend", onExpandEnd);
-                timers.push(window.setTimeout(() => {
-                  finishPreloader();
-                }, doneDelay));
-              };
-              imageContainer?.addEventListener("transitionend", onExpandEnd);
-            }, expandStart)
-          );
-        }
+      // 1. Mostramos la secuencia base imagen a imagen.
+      sequenceImages.forEach((img, index) => {
+        queue(() => {
+          img.style.animation = `fadeInScale ${TIMING.fade}ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards`;
+        }, index * TIMING.step);
       });
 
-      timers.push(window.setTimeout(() => {
-        timers.push(window.setTimeout(() => {
-          finishPreloader();
-        }, doneDelay));
-      }, finalEnd));
+      // 2. La imagen 5 empieza a encoger.
+      queue(() => {
+        preloader.classList.add("preloader--handoff");
+        preloader.classList.add("preloader--shrink");
+      }, shrinkStart);
+
+      // 3. La imagen 6 aparece mientras la 5 sigue encogiendo.
+      queue(() => {
+        preloader.classList.add("preloader--final-visible");
+        finalImage.style.transition = [
+          `transform ${finalEntryDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+          `opacity ${finalEntryDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+        ].join(", ");
+        finalImage.style.transform = `scale(${FINAL_IMAGE_START_SCALE})`;
+        finalImage.style.opacity = "1";
+        const finalSrc = finalImage.getAttribute("src");
+        if (finalSrc) {
+          window.dispatchEvent(
+            new CustomEvent("preloader:last-image", {
+              detail: { src: finalSrc },
+            })
+          );
+        }
+      }, finalRevealStart);
+
+      // 4. A partir de ahi la 6 crece hasta llenar el viewport.
+      queue(() => {
+        const onGrowEnd = (event) => {
+          if (event.propertyName !== "transform") return;
+          finalImage.removeEventListener("transitionend", onGrowEnd);
+          removeGrowListener = () => {};
+          queue(() => {
+            finishPreloader();
+          }, DONE_DELAY_MS);
+        };
+
+        removeGrowListener = () => {
+          finalImage.removeEventListener("transitionend", onGrowEnd);
+        };
+
+        finalLayer.style.transition = `transform ${TIMING.grow}ms cubic-bezier(0.2, 0.55, 0.24, 1)`;
+        finalImage.style.transition = [
+          `transform ${TIMING.grow}ms cubic-bezier(0.2, 0.55, 0.24, 1)`,
+          `opacity ${finalEntryDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+        ].join(", ");
+
+        finalImage.addEventListener("transitionend", onGrowEnd);
+
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            preloader.classList.add("preloader--expand");
+            finalLayer.style.transform = "scale(1)";
+            finalImage.style.transform = "scale(1)";
+          });
+        });
+      }, finalGrowStart);
+
+      // 5. Fallback por si el navegador no lanza transitionend.
+      queue(() => {
+        finishPreloader();
+      }, fallbackFinish);
     };
 
-    const preloadPromises = imageList.map((img) => {
+    const preloadPromises = [...sequenceImages, finalImage].map((img) => {
       if (img.complete) return Promise.resolve();
       if (img.decode) {
         return img.decode().catch(() => undefined);
@@ -153,7 +158,7 @@ export default function Preloader() {
       });
     });
 
-    const preloadTimeout = window.setTimeout(startSequence, timing.preloadTimeout);
+    const preloadTimeout = window.setTimeout(startSequence, TIMING.preloadTimeout);
     Promise.all(preloadPromises).then(() => {
       window.clearTimeout(preloadTimeout);
       startSequence();
@@ -164,6 +169,7 @@ export default function Preloader() {
     return () => {
       window.clearTimeout(preloadTimeout);
       timers.forEach((id) => window.clearTimeout(id));
+      removeGrowListener();
       document.body.style.overflow = "auto";
     };
   }, []);
@@ -178,44 +184,46 @@ export default function Preloader() {
           <img
             src="/images/preloader/Preload_1_def_upscaled_2x.png"
             alt="Cargando 1"
-            class="preloader-img absolute opacity-0"
+            class="preloader-img preloader-sequence-img absolute opacity-0"
             style={{ "--scale-end": "1" }}
           />
           <img
             src="/images/preloader/Preload_2_def_upscaled_2x.png"
             alt="Cargando 2"
-            class="preloader-img absolute opacity-0"
+            class="preloader-img preloader-sequence-img absolute opacity-0"
             style={{ "--scale-end": "0.988" }}
           />
           <img
             src="/images/preloader/Preload_Archivo.png"
             alt="Cargando archivo"
-            class="preloader-img absolute opacity-0"
+            class="preloader-img preloader-sequence-img absolute opacity-0"
             style={{ "--scale-end": "0.976" }}
           />
           <img
             src="/images/preloader/Preload_4_def_upscaled_2x.png"
             alt="Cargando 4"
-            class="preloader-img absolute opacity-0"
+            class="preloader-img preloader-sequence-img absolute opacity-0"
             style={{ "--scale-end": "0.964" }}
           />
           <img
             src="/images/preloader/Preload_5_def_upscaled_2x.png"
             alt="Cargando 5"
-            class="preloader-img preloader-img--shrink-trigger absolute opacity-0"
+            class="preloader-img preloader-sequence-img preloader-img--shrink-trigger absolute opacity-0"
             style={{ "--scale-end": "0.952" }}
           />
           <img
             src="/images/preloader/Preload_3_def_upscaled_2x.png"
             alt="Cargando 6"
-            class="preloader-img absolute opacity-0"
+            class="preloader-img preloader-sequence-img absolute opacity-0"
             style={{ "--scale-end": "0.94" }}
           />
+        </div>
+
+        <div class="preloader-final-layer" aria-hidden="true">
           <img
             src="/images/preloader/Preload_6_def_upscaled_2x.png"
             alt="Cargando 3"
             class="preloader-img preloader-img--final absolute opacity-0"
-            style={{ "--scale-end": "1" }}
           />
         </div>
       </div>
@@ -245,33 +253,37 @@ export default function Preloader() {
           background: #ffffff;
         }
 
+        /* Recuperamos el encuadre con margen original.
+           El contenedor se ve algo mas pequeno al principio. */
         .preloader-images {
-          --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+          --ease-sequence: cubic-bezier(0.22, 1, 0.36, 1);
           --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
-          --ease-expand: cubic-bezier(0.28, 0.08, 0.22, 1);
-          --stack-scale: 0.88;
-          --stack-duration: var(--expand-duration, 180ms);
-          --stack-ease: var(--ease-smooth);
+          --ease-grow: cubic-bezier(0.2, 0.55, 0.24, 1);
           width: 100vw;
           height: 100vh;
           overflow: visible;
           isolation: isolate;
           contain: paint;
-          transform: scale(var(--stack-scale));
+          transform: scale(${SEQUENCE_FRAME_SCALE});
           transform-origin: center;
-          transition: transform var(--stack-duration) var(--stack-ease);
+          transition: transform var(--shrink-duration, 120ms) var(--ease-soft);
         }
 
         #preloader.preloader--shrink .preloader-images {
-          --stack-scale: 0.66;
-          --stack-duration: var(--shrink-duration, 120ms);
-          --stack-ease: var(--ease-soft);
+          transform: scale(${SHRINK_FRAME_SCALE});
         }
 
-        #preloader.preloader--expand .preloader-images {
-          --stack-scale: 1;
-          --stack-duration: var(--expand-duration, 120ms);
-          --stack-ease: var(--ease-expand);
+        /* La imagen final vive en una capa independiente a pantalla completa.
+           Asi su grow no depende del contenedor pequeno de la secuencia. */
+        .preloader-final-layer {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          pointer-events: none;
+          isolation: isolate;
+          transform: scale(${FINAL_LAYER_START_SCALE});
+          transform-origin: center;
+          transition: transform var(--grow-duration, 120ms) var(--ease-grow);
         }
 
         .preloader-img {
@@ -285,43 +297,50 @@ export default function Preloader() {
           filter: brightness(0.95);
           will-change: transform, opacity;
           backface-visibility: hidden;
-          transition: transform var(--img-transform-duration, var(--expand-duration, 120ms))
-              var(--ease-smooth),
-            opacity var(--fade-duration, 120ms) var(--ease-soft);
+          transition: opacity var(--fade-duration, 120ms) var(--ease-soft);
           z-index: 1;
         }
 
-        .preloader-img--final {
-          transform: scale(1);
-          opacity: 0;
-          transition: opacity var(--final-fade-duration, 120ms) var(--ease-soft);
-          will-change: opacity;
+        /* La 5 es la imagen puente: encoge para dejar paso a la 6. */
+        .preloader-img--shrink-trigger {
           z-index: 2;
+          transition:
+            transform var(--shrink-duration, 120ms) var(--ease-soft),
+            opacity var(--fade-duration, 120ms) var(--ease-soft);
         }
 
-        #preloader.preloader--final-visible .preloader-img--final {
-          opacity: 1;
+        #preloader.preloader--shrink .preloader-img--shrink-trigger {
+          transform: scale(0.66);
         }
 
-        #preloader.preloader--expand .preloader-img:not(.preloader-img--final) {
+        .preloader-img--final {
+          /* La 6 comparte el mismo acabado visual que el hero.
+             Asi no hay salto al pasar el testigo. */
+          transform: scale(${FINAL_IMAGE_ENTRY_SCALE});
           opacity: 0;
-        }
-
-        #preloader.preloader--expand .preloader-img--final {
-          transform: scale(1);
-          opacity: 1;
+          filter: brightness(0.75);
+          will-change: transform, opacity;
           z-index: 3;
         }
 
-        .preloader-img--final.preloader-img--expand {
-          transform: scale(1);
-          opacity: 1;
+        #preloader.preloader--final-visible .preloader-img--final {
+        }
+
+        /* En el handoff solo dejamos visibles la 5 y la 6. */
+        #preloader.preloader--handoff .preloader-img:not(.preloader-img--shrink-trigger):not(.preloader-img--final) {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+
+        /* Cuando la 6 empieza a crecer, la 5 ya desaparece. */
+        #preloader.preloader--expand .preloader-img--shrink-trigger {
+          opacity: 0;
+          visibility: hidden;
         }
 
         #preloader.preloader--done {
-          opacity: 0;
           pointer-events: none;
-          transition: opacity var(--overlay-fade, 120ms) var(--ease-soft);
         }
       `}</style>
     </>
