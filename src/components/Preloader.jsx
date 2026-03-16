@@ -4,7 +4,7 @@ const TIMING = {
   step: 550,
   fade: 600,
   shrink: 900,
-  grow: 4200,
+  grow: 1900,
   preloadTimeout: 1800,
 };
 
