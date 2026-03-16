@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer class="footer home-section home-section--tight bg-black text-white">
+    <footer class="footer home-section home-section--tight bg-white text-black">
       <div class="home-shell">
         <div class="grid md:grid-cols-4 gap-12 mb-12">
           <div>
@@ -14,7 +14,7 @@ export default function Footer() {
                 href="https://maps.google.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-white/70 hover:text-white transition-colors text-sm"
+                class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors text-sm"
               >
                 Calle Mayor, 1
                 <br />
@@ -28,7 +28,7 @@ export default function Footer() {
                 href="https://maps.google.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-white/70 hover:text-white transition-colors text-sm"
+                class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors text-sm"
               >
                 Plaza del Triunfo, 5
                 <br />
@@ -44,7 +44,7 @@ export default function Footer() {
 
             <div class="space-y-4">
               <div>
-                <p class="text-white/70 text-sm mb-1">Email</p>
+                <p class="text-black/70 text-sm mb-1">Email</p>
                 <a
                   href="mailto:info@elsigloespanol.com"
                   class="hover:text-[var(--color-red-accent)] transition-colors"
@@ -54,7 +54,7 @@ export default function Footer() {
               </div>
 
               <div>
-                <p class="text-white/70 text-sm mb-1">Telefono</p>
+                <p class="text-black/70 text-sm mb-1">Telefono</p>
                 <a
                   href="tel:+34912345678"
                   class="hover:text-[var(--color-red-accent)] transition-colors"
@@ -74,7 +74,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/estudio"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Estudio
                 </a>
@@ -82,7 +82,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/obras"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Obras
                 </a>
@@ -90,7 +90,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/diseno"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Diseno
                 </a>
@@ -98,7 +98,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/consultoria"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Consultoria
                 </a>
@@ -106,7 +106,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/equipo"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Equipo
                 </a>
@@ -114,7 +114,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/noticias"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Noticias
                 </a>
@@ -122,7 +122,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/contacto"
-                  class="text-white/70 hover:text-white transition-colors"
+                  class="text-black/70 hover:text-[var(--color-red-accent)] transition-colors"
                 >
                   Contacto
                 </a>
@@ -140,7 +140,7 @@ export default function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                class="w-10 h-10 border border-black/20 rounded-full flex items-center justify-center hover:bg-[var(--color-red-accent)] hover:text-white transition-all"
                 aria-label="Instagram"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -152,7 +152,7 @@ export default function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                class="w-10 h-10 border border-black/20 rounded-full flex items-center justify-center hover:bg-[var(--color-red-accent)] hover:text-white transition-all"
                 aria-label="LinkedIn"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                class="w-10 h-10 border border-black/20 rounded-full flex items-center justify-center hover:bg-[var(--color-red-accent)] hover:text-white transition-all"
                 aria-label="Facebook"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -175,22 +175,22 @@ export default function Footer() {
           </div>
         </div>
 
-        <div class="border-t border-white/10 pt-8 mt-8">
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/70">
+        <div class="border-t border-black/10 pt-8 mt-8">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-black/70">
             <p>© El Siglo Espanol {new Date().getFullYear()}.</p>
 
             <div class="flex gap-6">
-              <a href="/terminos" class="hover:text-white transition-colors">
+              <a href="/terminos" class="hover:text-[var(--color-red-accent)] transition-colors">
                 Terminos de Uso
               </a>
-              <a href="/privacidad" class="hover:text-white transition-colors">
+              <a href="/privacidad" class="hover:text-[var(--color-red-accent)] transition-colors">
                 Politica de Privacidad
               </a>
             </div>
 
             <p class="text-xs">
               Sitio web por{" "}
-              <a href="#" class="hover:text-white transition-colors">
+              <a href="#" class="hover:text-[var(--color-red-accent)] transition-colors">
                 El Siglo Espanol
               </a>
             </p>

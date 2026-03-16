@@ -1,7 +1,7 @@
 export default function ProjectsGrid() {
   return (
     <>
-      <section class="projects-section home-section bg-[var(--color-white-off)]">
+      <section class="projects-section home-section bg-white">
         <div class="home-shell">
           <div class="section-header mb-16 flex flex-col md:flex-row justify-between items-end gap-6">
             <h2 class="text-5xl md:text-7xl font-bold">Proyectos</h2>
@@ -23,7 +23,7 @@ export default function ProjectsGrid() {
 
           <div class="projects-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-[var(--color-white-off)] mb-6">
+              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
                 <img
                   src="/images/projects/project-1.jpg"
                   alt="Palacio de los Marqueses"
@@ -48,7 +48,7 @@ export default function ProjectsGrid() {
             </article>
 
             <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-[var(--color-white-off)] mb-6">
+              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
                 <img
                   src="/images/projects/project-2.jpg"
                   alt="Casa de la Condesa"
@@ -73,7 +73,7 @@ export default function ProjectsGrid() {
             </article>
 
             <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-[var(--color-white-off)] mb-6">
+              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
                 <img
                   src="/images/projects/project-3.jpg"
                   alt="Convento de San Francisco"
@@ -98,7 +98,7 @@ export default function ProjectsGrid() {
             </article>
 
             <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-[var(--color-white-off)] mb-6">
+              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
                 <img
                   src="/images/projects/project-4.jpg"
                   alt="Plaza de las Cortes"
@@ -123,7 +123,7 @@ export default function ProjectsGrid() {
             </article>
 
             <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-[var(--color-white-off)] mb-6">
+              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
                 <img
                   src="/images/projects/project-5.jpg"
                   alt="Biblioteca Real"
@@ -148,7 +148,7 @@ export default function ProjectsGrid() {
             </article>
 
             <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-[var(--color-white-off)] mb-6">
+              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
                 <img
                   src="/images/projects/project-6.jpg"
                   alt="Hacienda Andaluza"

@@ -4,13 +4,29 @@ export default function Services() {
       <section class="services-section home-section bg-white">
         <div class="home-shell">
           <div class="section-header mb-20 text-center fade-in-up">
-            <h2 class="text-5xl md:text-7xl font-bold mb-6">
-              Plataforma de Diseno-Fundamental
+            <h2 class="services-title font-rosa-black mb-6 text-center">
+              <span class="block">DUE&Ntilde;OS DEL MAR</span>
+              <span class="block">SE&Ntilde;ORES DEL MUNDO</span>
             </h2>
+            <div class="services-army-swap">
+              <img
+                src="/images/ejercito-blanco.png"
+                alt="Formacion historica del ejercito"
+                class="services-army-image services-army-image--default"
+                loading="lazy"
+                decoding="async"
+              />
+              <img
+                src="/images/ejercito-rojo.png"
+                alt=""
+                aria-hidden="true"
+                class="services-army-image services-army-image--hover"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
             <p class="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed text-black/70">
-              El diseno es nuestra plataforma, sustentando nuestra practica.
-              Nuestros servicios principales se adaptan a cada oportunidad de
-              proyecto.
+              Aqui te dejamos acceso a nuestro pdf fundacional, con todas las claves
             </p>
           </div>
 
@@ -141,6 +157,56 @@ export default function Services() {
         .service-number {
           font-variant-numeric: lining-nums;
           letter-spacing: 0.1em;
+        }
+
+        .services-title {
+          color: var(--color-black-pure);
+          font-size: var(--services-title-size);
+          letter-spacing: 0.01em;
+          line-height: 1;
+          transition: color 0.35s ease;
+        }
+
+        .services-title span + span {
+          margin-top: 0.16em;
+        }
+
+        .services-army-swap {
+          position: relative;
+          width: min(100%, 980px);
+          margin: 0 auto 2rem;
+        }
+
+        .services-army-image {
+          display: block;
+          width: 100%;
+          height: auto;
+        }
+
+        .services-army-image--default,
+        .services-army-image--hover {
+          transition: opacity 0.3s ease;
+        }
+
+        .services-army-image--hover {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .section-header:hover .services-army-image--default,
+        .services-army-swap:hover .services-army-image--default {
+          opacity: 0;
+        }
+
+        .section-header:hover .services-army-image--hover,
+        .services-army-swap:hover .services-army-image--hover {
+          opacity: 1;
+        }
+
+        .services-title:hover {
+          color: var(--color-red-spanish);
         }
       `}</style>
     </>

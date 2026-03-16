@@ -27,6 +27,7 @@
   --font-rosa-black: "FS Rosa Black", "Inter", "Segoe UI", sans-serif;
   --font-display: "Inter", "Segoe UI", sans-serif;
   --font-body: "Inter", "Segoe UI", sans-serif;
+  --services-title-size: clamp(2.75rem, 6.5vw, 8.5rem);
   --home-max-width: 1600px;
   --home-gutter-mobile: 16px;
   --home-gutter-desktop: 32px;
@@ -213,6 +214,7 @@ h3 {
   --home-nav-logo-x: 4px;
   --home-nav-logo-y: 5px;
   --home-nav-logo-opacity: 0.74;
+  background: var(--color-white-pure);
 }
 
 .home-shell {
