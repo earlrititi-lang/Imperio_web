@@ -16,6 +16,7 @@ const FINAL_IMAGE_START_SCALE = 0.72;
 const FINAL_OVERLAP_RATIO = 0.82;
 const GROW_DELAY_RATIO = 0.28;
 const DONE_DELAY_MS = 120;
+const VIEW_TRANSITION_NAME = "imperio-preloader-hero";
 
 export default function Preloader() {
   useEffect(() => {
@@ -41,6 +42,9 @@ export default function Preloader() {
     let done = false;
     let started = false;
     let removeGrowListener = () => {};
+    const supportsViewTransition =
+      typeof document.startViewTransition === "function" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const queue = (callback, delay) => {
       timers.push(window.setTimeout(callback, delay));
@@ -49,14 +53,36 @@ export default function Preloader() {
     const finalizePreloader = () => {
       if (done) return;
       done = true;
-      // Cuando la 6 ya esta a pantalla completa, intercambiamos al hero.
-      // Como usan el mismo asset, el cambio de una capa a otra es invisible.
-      document.body.classList.add("preloader-done");
-      window.dispatchEvent(new Event("preloader:done"));
-      window.requestAnimationFrame(() => {
+      const applyHandoffState = () => {
+        // Cuando la 6 ya esta a pantalla completa, intercambiamos al hero.
+        // Como usan el mismo asset, el cambio de una capa a otra es invisible.
+        document.body.classList.add("preloader-done");
+        preloader.classList.add("preloader--done");
+        window.dispatchEvent(new Event("preloader:done"));
+      };
+
+      const cleanupPreloader = () => {
         preloader.style.display = "none";
         document.body.classList.remove("preloader-handoff");
         document.body.style.overflow = "auto";
+      };
+
+      if (supportsViewTransition) {
+        const transition = document.startViewTransition(() => {
+          applyHandoffState();
+        });
+
+        transition.finished
+          .catch(() => undefined)
+          .finally(() => {
+            cleanupPreloader();
+          });
+        return;
+      }
+
+      applyHandoffState();
+      window.requestAnimationFrame(() => {
+        cleanupPreloader();
       });
     };
 
@@ -340,7 +366,31 @@ export default function Preloader() {
         }
 
         #preloader.preloader--done {
+          opacity: 0;
+          visibility: hidden;
           pointer-events: none;
+        }
+
+        @supports (view-transition-name: ${VIEW_TRANSITION_NAME}) {
+          body:not(.preloader-done) .preloader-img--final {
+            view-transition-name: ${VIEW_TRANSITION_NAME};
+          }
+
+          ::view-transition-old(root),
+          ::view-transition-new(root) {
+            animation-duration: 720ms;
+            animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+          }
+
+          ::view-transition-old(${VIEW_TRANSITION_NAME}),
+          ::view-transition-new(${VIEW_TRANSITION_NAME}) {
+            animation-duration: 1100ms;
+            animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+          }
+
+          ::view-transition-image-pair(${VIEW_TRANSITION_NAME}) {
+            isolation: auto;
+          }
         }
       `}</style>
     </>

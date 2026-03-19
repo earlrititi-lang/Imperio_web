@@ -6,6 +6,7 @@ import { NAV_ITEMS } from "../config/navigation";
 // Usamos exactamente el mismo asset que el preloader final para evitar
 // un cambio de bitmap en el relevo y eliminar el flicker visual.
 const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/Preload_6_def_upscaled_2x.png";
+const VIEW_TRANSITION_NAME = "imperio-preloader-hero";
 
 // Ajustes rapidos por bloque (posicion y estado visual)
 const LAYER_STATE = {
@@ -220,6 +221,12 @@ export default function HeroImperio() {
           object-fit: fill;
           object-position: center;
           will-change: transform;
+        }
+
+        @supports (view-transition-name: ${VIEW_TRANSITION_NAME}) {
+          body.preloader-done .hero-background__img {
+            view-transition-name: ${VIEW_TRANSITION_NAME};
+          }
         }
 
         .hero-imperio__lockup {
