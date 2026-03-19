@@ -95,12 +95,12 @@ export default function Navigation() {
           position: relative;
           z-index: 1;
           width: 100%;
-          min-height: 64px;
+          min-height: calc(var(--space-unit) * 8);
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding-inline: var(--home-nav-logo-x, 16px);
-          padding-block: 8px;
+          padding-block: var(--space-1);
         }
 
         .main-nav__fx {

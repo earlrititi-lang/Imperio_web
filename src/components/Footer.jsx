@@ -2,14 +2,14 @@ export default function Footer() {
   return (
     <footer class="footer home-section home-section--tight bg-white text-black">
       <div class="home-shell">
-        <div class="grid md:grid-cols-4 gap-12 mb-12">
+        <div class="footer__grid grid md:grid-cols-4 gap-12 mb-12">
           <div>
-            <h3 class="text-sm uppercase tracking-wide font-semibold mb-6">
+            <h3 class="footer__section-title text-sm uppercase tracking-wide font-semibold mb-6">
               Estudios
             </h3>
 
-            <div class="mb-8">
-              <p class="font-semibold mb-2">Madrid</p>
+            <div class="footer__address-group mb-8">
+              <p class="footer__address-label font-semibold mb-2">Madrid</p>
               <a
                 href="https://maps.google.com"
                 target="_blank"
@@ -23,7 +23,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <p class="font-semibold mb-2">Sevilla</p>
+              <p class="footer__address-label font-semibold mb-2">Sevilla</p>
               <a
                 href="https://maps.google.com"
                 target="_blank"
@@ -38,13 +38,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 class="text-sm uppercase tracking-wide font-semibold mb-6">
+            <h3 class="footer__section-title text-sm uppercase tracking-wide font-semibold mb-6">
               Contacto
             </h3>
 
-            <div class="space-y-4">
+            <div class="footer__stack-md space-y-4">
               <div>
-                <p class="text-black/70 text-sm mb-1">Email</p>
+                <p class="footer__eyebrow text-black/70 text-sm mb-1">Email</p>
                 <a
                   href="mailto:info@elsigloespanol.com"
                   class="hover:text-[var(--color-red-accent)] transition-colors"
@@ -54,7 +54,7 @@ export default function Footer() {
               </div>
 
               <div>
-                <p class="text-black/70 text-sm mb-1">Telefono</p>
+                <p class="footer__eyebrow text-black/70 text-sm mb-1">Telefono</p>
                 <a
                   href="tel:+34912345678"
                   class="hover:text-[var(--color-red-accent)] transition-colors"
@@ -66,11 +66,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 class="text-sm uppercase tracking-wide font-semibold mb-6">
+            <h3 class="footer__section-title text-sm uppercase tracking-wide font-semibold mb-6">
               Navegacion
             </h3>
 
-            <ul class="space-y-3 text-sm">
+            <ul class="footer__nav-list space-y-3 text-sm">
               <li>
                 <a
                   href="/estudio"
@@ -131,11 +131,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 class="text-sm uppercase tracking-wide font-semibold mb-6">
+            <h3 class="footer__section-title text-sm uppercase tracking-wide font-semibold mb-6">
               Siguenos
             </h3>
 
-            <div class="flex gap-4">
+            <div class="footer__social flex gap-4">
               <a
                 href="https://instagram.com"
                 target="_blank"
@@ -175,11 +175,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <div class="border-t border-black/10 pt-8 mt-8">
+        <div class="footer__bottom border-t border-black/10 pt-8 mt-8">
           <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-black/70">
             <p>© El Siglo Espanol {new Date().getFullYear()}.</p>
 
-            <div class="flex gap-6">
+            <div class="footer__legal flex gap-6">
               <a href="/terminos" class="hover:text-[var(--color-red-accent)] transition-colors">
                 Terminos de Uso
               </a>
@@ -197,6 +197,47 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        .footer__grid {
+          gap: var(--space-6);
+          margin-bottom: var(--space-6);
+        }
+
+        .footer__section-title {
+          margin-bottom: var(--space-3);
+        }
+
+        .footer__address-group {
+          margin-bottom: var(--space-4);
+        }
+
+        .footer__address-label,
+        .footer__eyebrow {
+          margin-bottom: var(--space-1);
+        }
+
+        .footer__stack-md > :not([hidden]) ~ :not([hidden]) {
+          margin-top: var(--space-2);
+        }
+
+        .footer__nav-list > :not([hidden]) ~ :not([hidden]) {
+          margin-top: calc(var(--space-unit) * 1.5);
+        }
+
+        .footer__social {
+          gap: var(--space-2);
+        }
+
+        .footer__bottom {
+          padding-top: var(--space-4);
+          margin-top: var(--space-4);
+        }
+
+        .footer__legal {
+          gap: var(--space-3);
+        }
+      `}</style>
     </footer>
   );
 }

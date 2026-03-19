@@ -23,16 +23,27 @@
   --accent-quiet: var(--color-red-spanish);
   --line: rgba(0, 0, 0, 0.12);
   --shadow: 0 24px 60px -40px rgba(0, 0, 0, 0.35);
-  --radius: 20px;
+  --space-unit: 8px;
+  --space-1: calc(var(--space-unit) * 1);
+  --space-2: calc(var(--space-unit) * 2);
+  --space-3: calc(var(--space-unit) * 3);
+  --space-4: calc(var(--space-unit) * 4);
+  --space-6: calc(var(--space-unit) * 6);
+  --space-8: calc(var(--space-unit) * 8);
+  --space-10: calc(var(--space-unit) * 10);
+  --space-12: calc(var(--space-unit) * 12);
+  --space-16: calc(var(--space-unit) * 16);
+  --radius: calc(var(--space-unit) * 2.5);
   --font-rosa-black: "FS Rosa Black", "Inter", "Segoe UI", sans-serif;
   --font-display: "Inter", "Segoe UI", sans-serif;
   --font-body: "Inter", "Segoe UI", sans-serif;
-  --services-title-size: clamp(2.75rem, 6.5vw, 8.5rem);
+  --services-title-size: clamp(4.75rem, 6.5vw, 8.5rem);
+  --services-title-offset-y: 0rem;
   --home-max-width: 1600px;
-  --home-gutter-mobile: 16px;
-  --home-gutter-desktop: 32px;
-  --home-section-space-mobile: clamp(4rem, 10vw, 6.5rem);
-  --home-section-space-desktop: clamp(5rem, 8vw, 8rem);
+  --home-gutter-mobile: var(--space-2);
+  --home-gutter-desktop: var(--space-4);
+  --home-section-space-mobile: var(--space-8);
+  --home-section-space-desktop: var(--space-12);
   --custom-scrollbar-track-top: #ecf1f6;
   --custom-scrollbar-track-mid: #d8e0e8;
   --custom-scrollbar-track-bottom: #bcc7d2;
@@ -41,7 +52,7 @@
   --custom-scrollbar-thumb-mid: #f03c3c;
   --custom-scrollbar-thumb-bottom: #b80f0f;
   --custom-scrollbar-thumb-glow: rgba(255, 43, 43, 0.52);
-  --nav-links-band-height: 72px;
+  --nav-links-band-height: calc(var(--space-unit) * 9);
 }
 
 *,
@@ -153,7 +164,7 @@ body::before {
 }
 
 main {
-  padding: 72px 20px 96px;
+  padding: var(--space-10) calc(var(--space-unit) * 2.5) var(--space-12);
 }
 
 img {
@@ -170,7 +181,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(1.25rem, 1.8vw, 2rem);
+  gap: clamp(var(--space-2), 1.8vw, var(--space-4));
   width: max-content;
   max-width: min(72vw, 1100px);
   margin: 0 auto;
@@ -195,7 +206,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-2);
   letter-spacing: 0.02em;
 }
 
@@ -228,7 +239,7 @@ h3 {
 }
 
 .home-section--tight {
-  padding-block: calc(var(--home-section-space) * 0.7);
+  padding-block: calc(var(--home-section-space) * 0.75);
 }
 
 .site-header {
@@ -246,8 +257,8 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
-  gap: 24px;
+  padding: calc(var(--space-unit) * 2.25) calc(var(--space-unit) * 2.5);
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
@@ -266,7 +277,7 @@ h3 {
 
 .nav {
   display: flex;
-  gap: 18px;
+  gap: calc(var(--space-unit) * 2.25);
   flex-wrap: wrap;
   font-size: 0.95rem;
   color: rgba(246, 239, 230, 0.75);
@@ -279,7 +290,7 @@ h3 {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: calc(var(--space-unit) * 1.75);
   flex-wrap: wrap;
 }
 
@@ -319,9 +330,9 @@ h3 {
   position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 36px;
+  gap: calc(var(--space-unit) * 4.5);
   align-items: center;
-  padding: 90px 0 60px;
+  padding: calc(var(--space-unit) * 11.25) 0 calc(var(--space-unit) * 7.5);
 }
 
 .hero h1 {
@@ -331,7 +342,7 @@ h3 {
 
 .hero-card {
   background: rgba(12, 6, 4, 0.6);
-  padding: 28px;
+  padding: calc(var(--space-unit) * 3.5);
   border-radius: var(--radius);
   border: 1px solid rgba(255, 235, 210, 0.2);
   box-shadow: var(--shadow);
@@ -352,12 +363,12 @@ h3 {
 
 .grid {
   display: grid;
-  gap: 24px;
+  gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .card {
-  padding: 22px;
+  padding: calc(var(--space-unit) * 2.75);
   background: rgba(12, 6, 4, 0.6);
   border-radius: 16px;
   border: 1px solid rgba(255, 235, 210, 0.2);
@@ -389,23 +400,23 @@ h3 {
 
 .meta {
   display: flex;
-  gap: 12px;
+  gap: calc(var(--space-unit) * 1.5);
   align-items: center;
   flex-wrap: wrap;
   color: var(--ink-soft);
   font-size: 0.9rem;
-  margin-bottom: 20px;
+  margin-bottom: calc(var(--space-unit) * 2.5);
 }
 
 .notice {
-  padding: 18px;
+  padding: calc(var(--space-unit) * 2.25);
   border-radius: 14px;
   border: 1px dashed rgba(255, 235, 210, 0.35);
   background: rgba(12, 6, 4, 0.55);
 }
 
 .section {
-  padding: 56px 0;
+  padding: var(--space-8) 0;
   opacity: 0;
   transform: translateY(18px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -420,7 +431,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .muted {
@@ -430,7 +441,7 @@ h3 {
 
 .site-footer {
   border-top: 1px solid rgba(255, 235, 210, 0.2);
-  padding: 40px 20px 24px;
+  padding: var(--space-6) calc(var(--space-unit) * 2.5) var(--space-3);
   background: rgba(12, 6, 4, 0.7);
 }
 
@@ -439,7 +450,7 @@ h3 {
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 .footer-links {
@@ -451,10 +462,10 @@ h3 {
 
 .site-footer__bottom {
   max-width: 1100px;
-  margin: 24px auto 0;
+  margin: var(--space-3) auto 0;
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
@@ -498,7 +509,7 @@ h3 {
 
 .hero-meta {
   display: grid;
-  gap: 18px;
+  gap: calc(var(--space-unit) * 2.25);
   font-size: 0.9rem;
 }
 
@@ -551,7 +562,7 @@ h3 {
 
 .hero-stack {
   display: grid;
-  gap: 18px;
+  gap: calc(var(--space-unit) * 2.25);
 }
 
 .preloader {
@@ -578,13 +589,13 @@ h3 {
   border: 1px solid rgba(255, 235, 210, 0.2);
   background: rgba(12, 6, 4, 0.65);
   overflow: hidden;
-  padding: 14px 0;
+  padding: calc(var(--space-unit) * 1.75) 0;
 }
 
 .carousel__track {
   display: flex;
-  gap: 48px;
-  padding: 0 24px;
+  gap: var(--space-6);
+  padding: 0 var(--space-3);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   animation: ticker 16s linear infinite;

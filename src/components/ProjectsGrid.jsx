@@ -3,7 +3,7 @@ export default function ProjectsGrid() {
     <>
       <section class="projects-section home-section bg-white">
         <div class="home-shell">
-          <div class="section-header mb-16 flex flex-col md:flex-row justify-between items-end gap-6">
+          <div class="section-header projects-section__header flex flex-col md:flex-row justify-between items-end gap-6">
             <h2 class="text-5xl md:text-7xl font-bold">Proyectos</h2>
             <a
               href="/obras"
@@ -193,6 +193,23 @@ export default function ProjectsGrid() {
 
         .project-card:hover {
           transform: translateY(-8px);
+        }
+
+        .projects-section__header {
+          gap: var(--space-3);
+          margin-bottom: var(--space-8);
+        }
+
+        .projects-grid {
+          gap: var(--space-4);
+        }
+
+        .project-image {
+          margin-bottom: var(--space-3);
+        }
+
+        .project-info h3 {
+          margin-bottom: var(--space-1);
         }
       `}</style>
     </>

@@ -3,8 +3,8 @@ export default function Services() {
     <>
       <section class="services-section home-section bg-white">
         <div class="home-shell">
-          <div class="section-header mb-20 text-center fade-in-up">
-            <h2 class="services-title font-rosa-black mb-6 text-center">
+          <div class="section-header services-section__header text-center fade-in-up">
+            <h2 class="services-title font-rosa-black text-center">
               <span class="block">DUE&Ntilde;OS DEL MAR</span>
               <span class="block">SE&Ntilde;ORES DEL MUNDO</span>
             </h2>
@@ -30,7 +30,7 @@ export default function Services() {
             </p>
           </div>
 
-          <div class="services-grid space-y-32">
+          <div class="services-grid">
             <div class="service-item grid md:grid-cols-2 gap-12 items-center fade-in-up">
               <div class="service-content">
                 <span class="service-number text-[var(--color-red-spanish)] text-xl font-bold mb-4 block">
@@ -157,6 +157,7 @@ export default function Services() {
         .service-number {
           font-variant-numeric: lining-nums;
           letter-spacing: 0.1em;
+          margin-bottom: var(--space-2);
         }
 
         .services-title {
@@ -164,6 +165,8 @@ export default function Services() {
           font-size: var(--services-title-size);
           letter-spacing: 0.01em;
           line-height: 1;
+          margin-bottom: var(--space-3);
+          margin-top: var(--services-title-offset-y);
           transition: color 0.35s ease;
         }
 
@@ -171,10 +174,27 @@ export default function Services() {
           margin-top: 0.16em;
         }
 
+        .services-section__header {
+          margin-bottom: var(--space-10);
+        }
+
+        .services-grid {
+          display: grid;
+          gap: var(--space-16);
+        }
+
         .services-army-swap {
           position: relative;
           width: min(100%, 980px);
-          margin: 0 auto 2rem;
+          margin: 0 auto var(--space-4);
+        }
+
+        .service-item {
+          gap: var(--space-6);
+        }
+
+        .service-content h3 {
+          margin-bottom: var(--space-3);
         }
 
         .services-army-image {

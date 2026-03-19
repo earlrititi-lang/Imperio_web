@@ -126,29 +126,36 @@ export default function HeroImperio() {
         </div>
 
         <div class="hero-content hero-imperio__content flex-1 flex flex-col items-center justify-center relative z-10 px-6">
-          <div class="hero-imperio__headline" style={LAYER_VARS}>
-            <h1 class="hero-imperio__title">
-              <LogoImperio
-                width={720}
-                className="hero-imperio__wordmark"
-                title="Imperio Espanol"
-                classes={{
-                  corona: "hero-imperio__corona-part",
-                  imperio: "hero-imperio__imperio-part",
-                  espanol: "hero-imperio__espanol-part",
-                }}
-              />
-            </h1>
-
-            <div class="hero-imperio__latin-block" aria-hidden="true">
-              <LatinLayers
-                src="/images/Letras_latin.svg"
-                className="hero-imperio__latin-layers"
-                layers={LATIN_LAYER_SEQUENCE}
-                animation={LATIN_LAYER_ANIM}
-              />
+          <div class="hero-imperio__lockup" style={LAYER_VARS}>
+            <div class="hero-imperio__headline">
+              <h1 class="hero-imperio__title">
+                <LogoImperio
+                  width={720}
+                  className="hero-imperio__wordmark"
+                  title="Imperio Espanol"
+                  classes={{
+                    corona: "hero-imperio__corona-part",
+                    imperio: "hero-imperio__imperio-part",
+                    espanol: "hero-imperio__espanol-part",
+                  }}
+                />
+              </h1>
             </div>
 
+            <div class="hero-imperio__latin-wrap">
+              <div
+                class="hero-imperio__latin-block"
+                data-part="latin"
+                aria-hidden="true"
+              >
+                <LatinLayers
+                  src="/images/Letras_latin.svg"
+                  className="hero-imperio__latin-layers"
+                  layers={LATIN_LAYER_SEQUENCE}
+                  animation={LATIN_LAYER_ANIM}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -215,7 +222,7 @@ export default function HeroImperio() {
           will-change: transform;
         }
 
-        .hero-imperio__headline {
+        .hero-imperio__lockup {
           --wordmark-w: min(70vw, 450px);
           --imperio-x: 0px;
           --imperio-y: 0px;
@@ -230,12 +237,16 @@ export default function HeroImperio() {
           left: 50%;
           top: 58%;
           transform: translate(-50%, -50%);
-          text-align: center;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1.1rem;
+          gap: calc(var(--space-unit) * 1.4);
           z-index: 2;
+        }
+
+        .hero-imperio__headline {
+          width: var(--wordmark-w);
+          text-align: center;
         }
 
         .hero-imperio__title {
@@ -286,15 +297,21 @@ export default function HeroImperio() {
           transition-delay: 520ms;
         }
 
-        .hero-imperio__latin-block {
+        .hero-imperio__latin-wrap {
           width: var(--wordmark-w);
-          margin-top: 0.65rem;
-          transform: translate(var(--latin-x), var(--latin-y));
-          opacity: var(--latin-opacity);
-          pointer-events: none;
           display: flex;
           justify-content: center;
           align-items: center;
+        }
+
+        .hero-imperio__latin-block {
+          width: var(--wordmark-w);
+          transform: translate(var(--latin-x), var(--latin-y));
+          opacity: var(--latin-opacity);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
         }
 
         .hero-imperio__latin-layers {
@@ -306,7 +323,7 @@ export default function HeroImperio() {
 
         .hero-imperio__nav {
           opacity: 0;
-          transform: translateY(72px);
+          transform: translateY(var(--space-10));
           will-change: transform, opacity;
           transition: transform 1.15s cubic-bezier(0.2, 0.9, 0.22, 1),
             opacity 0.85s ease;
@@ -406,7 +423,7 @@ export default function HeroImperio() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0 14px;
+          padding: 0 calc(var(--space-unit) * 1.75);
         }
 
         .nav-link::before,
@@ -436,19 +453,19 @@ export default function HeroImperio() {
         }
 
         @media (max-width: 768px) {
-          .hero-imperio__headline {
+          .hero-imperio__lockup {
             --wordmark-w: min(86vw, 520px);
             left: 50%;
             top: 58%;
             transform: translate(-50%, -50%);
           }
 
-          .hero-imperio__latin-block {
-            margin-top: 0.85rem;
+          .hero-imperio__lockup {
+            gap: var(--space-2);
           }
 
           .hero-nav ul {
-            gap: 1rem;
+            gap: var(--space-2);
           }
 
           .nav-link {

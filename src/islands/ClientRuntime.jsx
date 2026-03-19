@@ -29,8 +29,7 @@ export default function ClientRuntime() {
     const menuIconMiddleLine = mobileMenuBtn?.querySelector(".menu-icon__line--middle");
     const menuIconBottomLine = mobileMenuBtn?.querySelector(".menu-icon__line--bottom");
 
-    // Para los alumnos:
-    // Esta animacion solo usa un linear-gradient.
+      // Esta animacion solo usa un linear-gradient.
     // Medimos la distancia entre el navbar y la barra de letras.
     // Esa distancia se convierte en un progreso de 0 a 1.
     // Con ese progreso aumentamos:
@@ -41,7 +40,7 @@ export default function ClientRuntime() {
     const NAV_FALLBACK_SCROLL_PX = 220;
     const NAV_MIN_TRIGGER_DISTANCE_PX = 120;
     const NAV_MAX_TRIGGER_DISTANCE_PX = 520;
-    const HERO_OVERLAY_DOCK_OFFSET_Y = 1;
+    const HERO_OVERLAY_DOCK_OFFSET_Y = 3;
     const MENU_OPEN_ANIM_MS = 760;
     const MENU_CLOSE_ANIM_MS = 760;
     const clamp01 = (value) => Math.min(1, Math.max(0, value));
@@ -735,32 +734,6 @@ export default function ClientRuntime() {
       revealObserver.observe(el);
     });
 
-    const carouselSection = document.querySelector(".fast-carousel-section");
-    const carouselTrack =
-      carouselSection?.querySelector(".carousel-track") || null;
-    let carouselObserver;
-    if (carouselSection && carouselTrack) {
-      carouselObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (reducedMotion) {
-              carouselTrack.style.animationPlayState = "paused";
-              return;
-            }
-            carouselTrack.style.animationPlayState = entry.isIntersecting
-              ? "running"
-              : "paused";
-          });
-        },
-        { threshold: 0.1 }
-      );
-      carouselObserver.observe(carouselSection);
-    }
-
-    if (reducedMotion && carouselTrack) {
-      carouselTrack.style.animationPlayState = "paused";
-    }
-
     return () => {
       document.body.style.overflow = "auto";
       if (navFxRafId) {
@@ -783,7 +756,6 @@ export default function ClientRuntime() {
         onCustomThumbPointerDown
       );
       revealObserver.disconnect();
-      carouselObserver?.disconnect();
     };
   }, []);
 
