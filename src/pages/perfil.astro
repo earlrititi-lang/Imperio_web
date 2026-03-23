@@ -1,20 +1,19 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Perfil | Imperioes"
+<PageShell
+  title="Perfil"
   description="Preferencias y perfil."
+  eyebrow="Perfil"
+  heading="Preferencias"
+  summary="Gestiona tu nombre publico y acceso a Discord."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Perfil</span>
-      <h1>Preferencias</h1>
-      <p class="muted">ASUNCION: perfil editable en Sprint 3.</p>
-      <div class="card">
-        <p>Gestiona tu nombre publico y acceso a Discord.</p>
-      </div>
-    </section>
-  </div>
-</Layout>
-
+  <Fragment slot="header">
+    <p class="muted">ASUNCION: perfil editable en Sprint 3.</p>
+    <div class="card">
+      <p>Gestiona tu nombre publico y acceso a Discord.</p>
+    </div>
+  </Fragment>
+</PageShell>

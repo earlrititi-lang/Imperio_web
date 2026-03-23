@@ -1,20 +1,19 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Cookies | Imperioes"
+<PageShell
+  title="Cookies"
   description="Politica de cookies de Imperioes."
+  eyebrow="Cookies"
+  heading="Politica de cookies"
+  summary="Tipos de cookies, finalidad y gestion de consentimiento."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Cookies</span>
-      <h1>Politica de cookies</h1>
-      <p class="muted">ASUNCION: texto final se agrega antes de publicar.</p>
-      <div class="card">
-        <p>Tipos de cookies, finalidad y gestion de consentimiento.</p>
-      </div>
-    </section>
-  </div>
-</Layout>
-
+  <Fragment slot="header">
+    <p class="muted">ASUNCION: texto final se agrega antes de publicar.</p>
+    <div class="card">
+      <p>Tipos de cookies, finalidad y gestion de consentimiento.</p>
+    </div>
+  </Fragment>
+</PageShell>

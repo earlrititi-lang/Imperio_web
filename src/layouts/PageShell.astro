@@ -1,0 +1,41 @@
+---
+// Shared shell for internal pages so metadata, spacing, and intro blocks stay consistent.
+import Layout from "./Layout.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  eyebrow?: string;
+  heading: string;
+  summary?: string;
+  summaryMuted?: boolean;
+  narrow?: boolean;
+  mainClass?: string;
+}
+
+const {
+  title,
+  description,
+  eyebrow,
+  heading,
+  summary,
+  summaryMuted = false,
+  narrow = false,
+  mainClass = "",
+} = Astro.props as Props;
+---
+
+<Layout title={title} description={description}>
+  <main class:list={["page-shell", mainClass]}>
+    <div class="container">
+      <section class:list={["section", "page-shell__intro", narrow && "content"]}>
+        <slot name="meta" />
+        {eyebrow && <span class="pill">{eyebrow}</span>}
+        <h1>{heading}</h1>
+        {summary && <p class:list={["page-shell__summary", summaryMuted && "muted"]}>{summary}</p>}
+        <slot name="header" />
+      </section>
+      <slot />
+    </div>
+  </main>
+</Layout>

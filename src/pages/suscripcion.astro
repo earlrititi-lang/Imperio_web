@@ -1,27 +1,26 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Suscripcion | Imperioes"
+<PageShell
+  title="Suscripcion"
   description="Gestiona tu suscripcion."
+  eyebrow="Suscripcion"
+  heading="Tu nivel"
+  summary="Gestiona tu suscripcion."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Suscripcion</span>
-      <h1>Tu nivel</h1>
-      <p class="muted">ASUNCION: integracion Stripe/Members en Sprint 3.</p>
-      <div class="grid">
-        <div class="card">
-          <h3>Estado</h3>
-          <p>Rodelero / Piquero / Arcabucero.</p>
-        </div>
-        <div class="card">
-          <h3>Facturacion</h3>
-          <p>Metodo y facturas.</p>
-        </div>
+  <Fragment slot="header">
+    <p class="muted">ASUNCION: integracion Stripe/Members en Sprint 3.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Estado</h3>
+        <p>Rodelero / Piquero / Arcabucero.</p>
       </div>
-    </section>
-  </div>
-</Layout>
-
+      <div class="card">
+        <h3>Facturacion</h3>
+        <p>Metodo y facturas.</p>
+      </div>
+    </div>
+  </Fragment>
+</PageShell>

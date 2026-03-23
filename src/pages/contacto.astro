@@ -1,20 +1,16 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Contacto | Imperioes"
+<PageShell
+  title="Contacto"
   description="Contacto y soporte editorial."
+  eyebrow="Contacto"
+  heading="Escribenos"
+  summary="Para colaboraciones, soporte o prensa, escribe a:"
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Contacto</span>
-      <h1>Escribenos</h1>
-      <p>Para colaboraciones, soporte o prensa, escribe a:</p>
-      <div class="card">
-        <p><strong>hola@imperioes.com</strong></p>
-      </div>
-    </section>
+  <div slot="header" class="card">
+    <p><strong>hola@imperioes.com</strong></p>
   </div>
-</Layout>
-
+</PageShell>

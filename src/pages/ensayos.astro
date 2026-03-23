@@ -1,35 +1,32 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import CollectionCard from "../components/CollectionCard.astro";
+import PageShell from "../layouts/PageShell.astro";
 import { getCollection } from "astro:content";
+import { sortEntriesByDateDesc } from "../utils/content";
 
-const entries = await getCollection("articles");
-const list = entries
-  .filter((entry) => entry.data.category === "ensayo")
-  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const list = sortEntriesByDateDesc(await getCollection("articles")).filter(
+  (entry) => entry.data.category === "ensayo"
+);
 ---
 
-<Layout
-  title="Ensayos | Imperioes"
+<PageShell
+  title="Ensayos"
   description="Ensayos sobrios para comprender sin ideologia."
+  eyebrow="Ensayos"
+  heading="Lecturas largas"
+  summary="Analisis en profundidad con ritmo semanal."
 >
-  <div class="container">
-    <section class="section">
-      <span class="pill">Ensayos</span>
-      <h1>Lecturas largas</h1>
-      <p>Analisis en profundidad con ritmo semanal.</p>
-    </section>
-    <section class="section">
-      <div class="grid">
-        {list.map((entry) => (
-          <article class="card">
-            <p class="muted">{entry.data.date}</p>
-            <h3>{entry.data.title}</h3>
-            <p>{entry.data.summary}</p>
-            <a class="btn btn-ghost" href={`/biblioteca/${entry.slug}`}>Leer</a>
-          </article>
-        ))}
-      </div>
-    </section>
-  </div>
-</Layout>
-
+  <section class="section">
+    <div class="grid">
+      {list.map((entry) => (
+        <CollectionCard
+          meta={entry.data.date}
+          title={entry.data.title}
+          summary={entry.data.summary}
+          href={`/biblioteca/${entry.slug}`}
+          ctaLabel="Leer"
+        />
+      ))}
+    </div>
+  </section>
+</PageShell>

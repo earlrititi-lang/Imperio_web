@@ -1,21 +1,19 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Registro | Imperioes"
+<PageShell
+  title="Registro"
   description="Registro para Imperioes."
+  eyebrow="Registro"
+  heading="Crear cuenta"
+  summary="Completa tu email para recibir acceso."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Registro</span>
-      <h1>Crear cuenta</h1>
-      <p class="muted">ASUNCION: alta real en Sprint 3.</p>
-      <div class="card">
-        <p>Completa tu email para recibir acceso.</p>
-        <a class="btn btn-primary" href="/contacto">Solicitar acceso</a>
-      </div>
-    </section>
-  </div>
-</Layout>
-
+  <Fragment slot="header">
+    <p class="muted">ASUNCION: alta real en Sprint 3.</p>
+    <div class="card">
+      <a class="btn btn-primary" href="/contacto">Solicitar acceso</a>
+    </div>
+  </Fragment>
+</PageShell>

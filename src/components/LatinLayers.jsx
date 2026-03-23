@@ -417,7 +417,7 @@ export default function LatinLayers({
         const keyframeName = `latin-glyph-cycle-l${mappedIndex}-g${glyphIndex}`;
 
         cssRules.push(
-          `.latin-layers--ready .${glyphClass}{animation:${keyframeName} var(--latin-cycle-ms) linear infinite both;animation-delay:var(--latin-start-delay-ms);}`
+          `.hero-imperio--latin-ready .latin-layers--ready .${glyphClass}{animation:${keyframeName} var(--latin-cycle-ms) linear infinite both;animation-delay:var(--latin-start-delay-ms);}`
         );
         cssRules.push(
           `@keyframes ${keyframeName}{0%,${inStartPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}${safeInPreviewOnPct}%{opacity:${inPreviewOpacity};filter:blur(var(--latin-max-blur-px));}${safeInBlurEndPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInFadeStartPct}%{opacity:${inPreviewOpacity};filter:blur(0);}${safeInEndPct}%{opacity:1;filter:blur(0);}${safeOutStartPct}%{opacity:1;filter:blur(0);}${safeOutFadeStartPct}%{opacity:1;filter:blur(var(--latin-max-blur-px));}${safeOutEndPct}%{opacity:0;filter:blur(var(--latin-max-blur-px));}100%{opacity:0;filter:blur(var(--latin-max-blur-px));}}`
@@ -496,9 +496,6 @@ export default function LatinLayers({
           will-change: opacity, filter;
         }
 
-        .latin-layers--ready .latin-glyph {
-          animation-play-state: running;
-        }
       `}</style>
       {glyphAnimationCss && <style>{glyphAnimationCss}</style>}
     </div>

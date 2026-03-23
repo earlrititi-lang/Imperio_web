@@ -1,3 +1,5 @@
+import { PROJECTS_ITEMS } from "../config/home";
+
 export default function ProjectsGrid() {
   return (
     <>
@@ -22,171 +24,35 @@ export default function ProjectsGrid() {
           </div>
 
           <div class="projects-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
-                <img
-                  src="/images/projects/project-1.jpg"
-                  alt="Palacio de los Marqueses"
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-semibold uppercase tracking-wide">
-                    Ver Proyecto
-                  </span>
+            {PROJECTS_ITEMS.map((project) => (
+              <article class="project-card group cursor-pointer fade-in-up" key={project.title}>
+                <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
+                  <img
+                    src={project.imageSrc}
+                    alt={project.imageAlt}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                    <span class="text-white text-lg font-semibold uppercase tracking-wide">
+                      Ver Proyecto
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div class="project-info">
-                <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
-                  Palacio de los Marqueses
-                </h3>
-                <p class="text-black/60 uppercase text-sm tracking-wide">
-                  Sevilla • Restauracion Integral
-                </p>
-              </div>
-            </article>
-
-            <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
-                <img
-                  src="/images/projects/project-2.jpg"
-                  alt="Casa de la Condesa"
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-semibold uppercase tracking-wide">
-                    Ver Proyecto
-                  </span>
+                <div class="project-info">
+                  <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
+                    {project.title}
+                  </h3>
+                  <p class="text-black/60 uppercase text-sm tracking-wide">{project.location}</p>
                 </div>
-              </div>
-              <div class="project-info">
-                <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
-                  Casa de la Condesa
-                </h3>
-                <p class="text-black/60 uppercase text-sm tracking-wide">
-                  Granada • Interiores Historicos
-                </p>
-              </div>
-            </article>
-
-            <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
-                <img
-                  src="/images/projects/project-3.jpg"
-                  alt="Convento de San Francisco"
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-semibold uppercase tracking-wide">
-                    Ver Proyecto
-                  </span>
-                </div>
-              </div>
-              <div class="project-info">
-                <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
-                  Convento de San Francisco
-                </h3>
-                <p class="text-black/60 uppercase text-sm tracking-wide">
-                  Toledo • Adaptive Reuse
-                </p>
-              </div>
-            </article>
-
-            <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
-                <img
-                  src="/images/projects/project-4.jpg"
-                  alt="Plaza de las Cortes"
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-semibold uppercase tracking-wide">
-                    Ver Proyecto
-                  </span>
-                </div>
-              </div>
-              <div class="project-info">
-                <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
-                  Plaza de las Cortes
-                </h3>
-                <p class="text-black/60 uppercase text-sm tracking-wide">
-                  Madrid • Urbanismo Historico
-                </p>
-              </div>
-            </article>
-
-            <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
-                <img
-                  src="/images/projects/project-5.jpg"
-                  alt="Biblioteca Real"
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-semibold uppercase tracking-wide">
-                    Ver Proyecto
-                  </span>
-                </div>
-              </div>
-              <div class="project-info">
-                <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
-                  Biblioteca Real
-                </h3>
-                <p class="text-black/60 uppercase text-sm tracking-wide">
-                  El Escorial • Patrimonio Cultural
-                </p>
-              </div>
-            </article>
-
-            <article class="project-card group cursor-pointer fade-in-up">
-              <div class="project-image relative overflow-hidden aspect-[4/5] bg-white mb-6">
-                <img
-                  src="/images/projects/project-6.jpg"
-                  alt="Hacienda Andaluza"
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div class="project-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-semibold uppercase tracking-wide">
-                    Ver Proyecto
-                  </span>
-                </div>
-              </div>
-              <div class="project-info">
-                <h3 class="text-2xl font-bold mb-2 group-hover:text-[var(--color-red-accent)] transition-colors">
-                  Hacienda Andaluza
-                </h3>
-                <p class="text-black/60 uppercase text-sm tracking-wide">
-                  Cordoba • Diseno Contemporaneo
-                </p>
-              </div>
-            </article>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       <style>{`
-        .fade-in-up {
-          opacity: 0;
-          transform: translateY(60px);
-          transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .fade-in-up.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
         .project-card {
           transition: transform 0.3s ease;
         }

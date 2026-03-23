@@ -1,29 +1,27 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import CollectionCard from "../../components/CollectionCard.astro";
+import PageShell from "../../layouts/PageShell.astro";
 import { getCollection } from "astro:content";
 
 const rutas = await getCollection("rutas");
 ---
 
-<Layout
-  title="Rutas | Imperioes"
+<PageShell
+  title="Rutas"
   description="Rutas tematicas para navegar el archivo."
+  eyebrow="Rutas"
+  heading="Rutas tematicas"
+  summary="Lecturas guiadas para recorrer el archivo sin perder el hilo."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Rutas</span>
-      <h1>Rutas tematicas</h1>
-      <p>Lecturas guiadas para recorrer el archivo sin perder el hilo.</p>
-      <div class="grid">
-        {rutas.map((ruta) => (
-          <article class="card">
-            <h3>{ruta.data.title}</h3>
-            <p>{ruta.data.summary}</p>
-            <a class="btn btn-ghost" href={`/rutas/${ruta.slug}`}>Ver ruta</a>
-          </article>
-        ))}
-      </div>
-    </section>
+  <div slot="header" class="grid">
+    {rutas.map((ruta) => (
+      <CollectionCard
+        title={ruta.data.title}
+        summary={ruta.data.summary}
+        href={`/rutas/${ruta.slug}`}
+        ctaLabel="Ver ruta"
+      />
+    ))}
   </div>
-</Layout>
-
+</PageShell>

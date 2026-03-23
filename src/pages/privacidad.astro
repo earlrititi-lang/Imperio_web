@@ -1,20 +1,19 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Privacidad | Imperioes"
+<PageShell
+  title="Privacidad"
   description="Politica de privacidad de Imperioes."
+  eyebrow="Privacidad"
+  heading="Politica de privacidad"
+  summary="Datos, finalidades, y derechos del usuario."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Privacidad</span>
-      <h1>Politica de privacidad</h1>
-      <p class="muted">ASUNCION: texto final se agrega antes de publicar.</p>
-      <div class="card">
-        <p>Datos, finalidades, y derechos del usuario.</p>
-      </div>
-    </section>
-  </div>
-</Layout>
-
+  <Fragment slot="header">
+    <p class="muted">ASUNCION: texto final se agrega antes de publicar.</p>
+    <div class="card">
+      <p>Datos, finalidades, y derechos del usuario.</p>
+    </div>
+  </Fragment>
+</PageShell>

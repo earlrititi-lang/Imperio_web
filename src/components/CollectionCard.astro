@@ -1,0 +1,28 @@
+---
+// Generic content card for collection and archive listings.
+interface Props {
+  meta?: string;
+  title: string;
+  summary: string;
+  href: string;
+  ctaLabel?: string;
+  ctaVariant?: "ghost" | "primary";
+}
+
+const {
+  meta,
+  title,
+  summary,
+  href,
+  ctaLabel = "Ver",
+  ctaVariant = "ghost",
+} = Astro.props as Props;
+---
+
+<article class="card collection-card">
+  {meta && <p class="muted">{meta}</p>}
+  <h3>{title}</h3>
+  <p>{summary}</p>
+  <slot />
+  <a class={`btn btn-${ctaVariant}`} href={href}>{ctaLabel}</a>
+</article>

@@ -1,11 +1,16 @@
 import { useEffect } from "preact/hooks";
+import {
+  HERO_IMAGE_DEFAULT_SRC,
+  HERO_VIEW_TRANSITION_NAME,
+  PRELOADER_SEQUENCE_IMAGES,
+} from "../config/hero";
 
 const TIMING = {
-  step: 550,
-  fade: 600,
-  shrink: 900,
-  grow: 1900,
-  preloadTimeout: 1800,
+  step: 460,
+  fade: 520,
+  shrink: 760,
+  grow: 1600,
+  preloadTimeout: 1500,
 };
 
 const SEQUENCE_FRAME_SCALE = 0.88;
@@ -16,8 +21,6 @@ const FINAL_IMAGE_START_SCALE = 0.72;
 const FINAL_OVERLAP_RATIO = 0.82;
 const GROW_DELAY_RATIO = 0.28;
 const DONE_DELAY_MS = 120;
-const VIEW_TRANSITION_NAME = "imperio-preloader-hero";
-
 export default function Preloader() {
   useEffect(() => {
     const preloader = document.getElementById("preloader");
@@ -110,13 +113,13 @@ export default function Preloader() {
         }, index * TIMING.step);
       });
 
-      // 2. La imagen 5 empieza a encoger.
+      // 2. La ultima imagen de la secuencia empieza a encoger.
       queue(() => {
         preloader.classList.add("preloader--handoff");
         preloader.classList.add("preloader--shrink");
       }, shrinkStart);
 
-      // 3. La imagen 6 aparece mientras la 5 sigue encogiendo.
+      // 3. La imagen 6 aparece mientras la ultima imagen visible sigue encogiendo.
       queue(() => {
         preloader.classList.add("preloader--final-visible");
         finalImage.style.transition = [
@@ -166,7 +169,6 @@ export default function Preloader() {
           });
         });
       }, finalGrowStart);
-
       // 5. Fallback por si el navegador no lanza transitionend.
       queue(() => {
         finishPreloader();
@@ -207,47 +209,28 @@ export default function Preloader() {
         class="fixed inset-0 z-[9999] bg-white flex items-center justify-center"
       >
         <div class="preloader-images relative">
-          <img
-            src="/images/preloader/Preload_1_def_upscaled_2x.png"
-            alt="Cargando 1"
-            class="preloader-img preloader-sequence-img absolute opacity-0"
-            style={{ "--scale-end": "1" }}
-          />
-          <img
-            src="/images/preloader/Preload_2_def_upscaled_2x.png"
-            alt="Cargando 2"
-            class="preloader-img preloader-sequence-img absolute opacity-0"
-            style={{ "--scale-end": "0.988" }}
-          />
-          <img
-            src="/images/preloader/Preload_Archivo.png"
-            alt="Cargando archivo"
-            class="preloader-img preloader-sequence-img absolute opacity-0"
-            style={{ "--scale-end": "0.976" }}
-          />
-          <img
-            src="/images/preloader/Preload_4_def_upscaled_2x.png"
-            alt="Cargando 4"
-            class="preloader-img preloader-sequence-img absolute opacity-0"
-            style={{ "--scale-end": "0.964" }}
-          />
-          <img
-            src="/images/preloader/Preload_5_def_upscaled_2x.png"
-            alt="Cargando 5"
-            class="preloader-img preloader-sequence-img preloader-img--shrink-trigger absolute opacity-0"
-            style={{ "--scale-end": "0.952" }}
-          />
-          <img
-            src="/images/preloader/Preload_3_def_upscaled_2x.png"
-            alt="Cargando 6"
-            class="preloader-img preloader-sequence-img absolute opacity-0"
-            style={{ "--scale-end": "0.94" }}
-          />
+          {PRELOADER_SEQUENCE_IMAGES.map((image) => (
+            <img
+              key={image.src}
+              src={image.src}
+              alt={image.alt}
+              class={[
+                "preloader-img",
+                "preloader-sequence-img",
+                image.shrinkTrigger && "preloader-img--shrink-trigger",
+                "absolute",
+                "opacity-0",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              style={{ "--scale-end": image.scaleEnd }}
+            />
+          ))}
         </div>
 
         <div class="preloader-final-layer" aria-hidden="true">
           <img
-            src="/images/preloader/Preload_6_def_upscaled_2x.png"
+            src={HERO_IMAGE_DEFAULT_SRC}
             alt="Cargando 3"
             class="preloader-img preloader-img--final absolute opacity-0"
           />
@@ -327,7 +310,7 @@ export default function Preloader() {
           z-index: 1;
         }
 
-        /* La 5 es la imagen puente: encoge para dejar paso a la 6. */
+        /* La ultima imagen de la secuencia es la puente: encoge para dejar paso a la 6. */
         .preloader-img--shrink-trigger {
           z-index: 2;
           transition:
@@ -352,18 +335,8 @@ export default function Preloader() {
         #preloader.preloader--final-visible .preloader-img--final {
         }
 
-        /* En el handoff solo dejamos visibles la 5 y la 6. */
-        #preloader.preloader--handoff .preloader-img:not(.preloader-img--shrink-trigger):not(.preloader-img--final) {
-          opacity: 0;
-          visibility: hidden;
-          pointer-events: none;
-        }
-
-        /* Cuando la 6 empieza a crecer, la 5 ya desaparece. */
-        #preloader.preloader--expand .preloader-img--shrink-trigger {
-          opacity: 0;
-          visibility: hidden;
-        }
+        /* Conservamos las capas previas bajo la 6 hasta que el fullscreen termina.
+           La capa final ya vive por encima, asi que no hace falta apagar la secuencia antes. */
 
         #preloader.preloader--done {
           opacity: 0;
@@ -371,9 +344,9 @@ export default function Preloader() {
           pointer-events: none;
         }
 
-        @supports (view-transition-name: ${VIEW_TRANSITION_NAME}) {
+        @supports (view-transition-name: ${HERO_VIEW_TRANSITION_NAME}) {
           body:not(.preloader-done) .preloader-img--final {
-            view-transition-name: ${VIEW_TRANSITION_NAME};
+            view-transition-name: ${HERO_VIEW_TRANSITION_NAME};
           }
 
           ::view-transition-old(root),
@@ -382,13 +355,13 @@ export default function Preloader() {
             animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
           }
 
-          ::view-transition-old(${VIEW_TRANSITION_NAME}),
-          ::view-transition-new(${VIEW_TRANSITION_NAME}) {
+          ::view-transition-old(${HERO_VIEW_TRANSITION_NAME}),
+          ::view-transition-new(${HERO_VIEW_TRANSITION_NAME}) {
             animation-duration: 1100ms;
             animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
           }
 
-          ::view-transition-image-pair(${VIEW_TRANSITION_NAME}) {
+          ::view-transition-image-pair(${HERO_VIEW_TRANSITION_NAME}) {
             isolation: auto;
           }
         }

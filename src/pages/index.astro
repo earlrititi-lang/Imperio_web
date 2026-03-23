@@ -1,17 +1,17 @@
-﻿---
-// src/pages/index.astro
-// PÃ¡gina principal completa integrando todos los componentes
-
-import Layout from '../layouts/Layout.astro';
-import Preloader from '../components/Preloader.jsx';
-import Navigation from '../components/Navigation.jsx';
-import HeroImperio from '../components/HeroImperio.jsx';
-import Services from '../components/Services.jsx';
-import ProjectsGrid from '../components/ProjectsGrid.jsx';
-import Footer from '../components/Footer.jsx';
+---
+import Footer from "../components/Footer.jsx";
+import HeroImperio from "../components/HeroImperio.jsx";
+import Navigation from "../components/Navigation.jsx";
+import Preloader from "../components/Preloader.jsx";
+import ProjectsGrid from "../components/ProjectsGrid.jsx";
+import Services from "../components/Services.jsx";
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="El Siglo EspaÃ±ol - Arquitectura y DiseÃ±o">
+<Layout
+  title="El Siglo Espanol"
+  description="Arquitectura editorial y diseno visual para una portada sobria, rapida y mantenible."
+>
   <div class="home-page">
     <Preloader client:load />
     <Navigation />
@@ -21,5 +21,3 @@ import Footer from '../components/Footer.jsx';
     <Footer />
   </div>
 </Layout>
-
-

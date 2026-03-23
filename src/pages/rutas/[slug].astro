@@ -1,5 +1,6 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import CollectionCard from "../../components/CollectionCard.astro";
+import PageShell from "../../layouts/PageShell.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
@@ -14,34 +15,32 @@ const { entry } = Astro.props;
 const { Content } = await entry.render();
 ---
 
-<Layout
-  title={`${entry.data.title} | Imperioes`}
+<PageShell
+  title={entry.data.title}
   description={entry.data.seoDescription ?? entry.data.summary}
+  eyebrow="Ruta"
+  heading={entry.data.title}
+  summary={entry.data.intro}
+  summaryMuted
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Ruta</span>
-      <h1>{entry.data.title}</h1>
-      <p class="muted">{entry.data.intro}</p>
-      <div class="section">
-        <Content />
-      </div>
-      {entry.data.items && (
-        <div class="section">
-          <h3>Lecturas sugeridas</h3>
-          <div class="grid">
-            {entry.data.items.map((item) => (
-              <div class="card">
-                <p>{item.title}</p>
-                <a class="btn btn-ghost" href={`/biblioteca/${item.slug}`}>
-                  Leer
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </section>
-  </div>
-</Layout>
+  <section class="section content">
+    <Content />
+  </section>
 
+  {entry.data.items && (
+    <section class="section content">
+      <h3>Lecturas sugeridas</h3>
+      <div class="grid">
+        {entry.data.items.map((item) => (
+          <CollectionCard
+            title={item.title}
+            summary="Acceso directo desde la ruta."
+            href={`/biblioteca/${item.slug}`}
+            ctaLabel="Leer"
+          />
+        ))}
+      </div>
+    </section>
+  )}
+</PageShell>

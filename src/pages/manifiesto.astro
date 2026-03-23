@@ -1,44 +1,37 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Manifiesto | Imperioes"
+<PageShell
+  title="Manifiesto"
   description="La promesa editorial de Imperioes: claridad, disciplina y memoria viva."
+  eyebrow="Manifiesto gratis"
+  heading="Una promesa de sobriedad"
+  summary="Imperioes nace para leer la historia con metodo, sin ruido y sin ideologia. Nuestro trabajo es sostener un archivo vivo: textos breves y rigurosos que conectan memoria con presente."
 >
-  <div class="container">
-    <section class="section">
-      <span class="pill">Manifiesto gratis</span>
-      <h1>Una promesa de sobriedad</h1>
-      <p>
-        Imperioes nace para leer la historia con metodo, sin ruido y sin ideologia.
-        Nuestro trabajo es sostener un archivo vivo: textos breves y rigurosos que
-        conectan memoria con presente.
+  <Fragment slot="header">
+    <div class="grid">
+      <div class="card">
+        <h3>Ritmo constante</h3>
+        <p>Lunes efemeride, miercoles ensayo, viernes presente. Sin excusas.</p>
+      </div>
+      <div class="card">
+        <h3>Comunidad exigente</h3>
+        <p>Discord como plaza: preguntas, debate y criterio compartido.</p>
+      </div>
+      <div class="card">
+        <h3>Archivo util</h3>
+        <p>Buscador, rutas tematicas y dossier mensual para profundizar.</p>
+      </div>
+    </div>
+  </Fragment>
+  <section class="section">
+    <div class="hero-card">
+      <h2>Unete al manifiesto</h2>
+      <p class="muted">
+        Recibe el manifiesto y los primeros textos sin coste. Decide despues tu escalera.
       </p>
-      <div class="grid">
-        <div class="card">
-          <h3>Ritmo constante</h3>
-          <p>Lunes efemeride, miercoles ensayo, viernes presente. Sin excusas.</p>
-        </div>
-        <div class="card">
-          <h3>Comunidad exigente</h3>
-          <p>Discord como plaza: preguntas, debate y criterio compartido.</p>
-        </div>
-        <div class="card">
-          <h3>Archivo util</h3>
-          <p>Buscador, rutas tematicas y dossier mensual para profundizar.</p>
-        </div>
-      </div>
-      <div class="section">
-        <div class="hero-card">
-          <h2>Unete al manifiesto</h2>
-          <p class="muted">
-            Recibe el manifiesto y los primeros textos sin coste. Decide despues tu escalera.
-          </p>
-          <a class="btn btn-primary" href="/precios">Ver niveles</a>
-        </div>
-      </div>
-    </section>
-  </div>
-</Layout>
-
+      <a class="btn btn-primary" href="/precios">Ver niveles</a>
+    </div>
+  </section>
+</PageShell>

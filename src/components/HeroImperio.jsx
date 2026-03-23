@@ -1,65 +1,57 @@
 import { useEffect } from "preact/hooks";
 import LogoImperio from "./LogoImperio";
 import LatinLayers from "./LatinLayers";
-import { NAV_ITEMS } from "../config/navigation";
-
-// Usamos exactamente el mismo asset que el preloader final para evitar
-// un cambio de bitmap en el relevo y eliminar el flicker visual.
-const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/Preload_6_def_upscaled_2x.png";
-const VIEW_TRANSITION_NAME = "imperio-preloader-hero";
-
-// Ajustes rapidos por bloque (posicion y estado visual)
-const LAYER_STATE = {
-  imperio: { x: "0px", y: "0px", opacity: 1 },
-  espanol: { x: "0px", y: "0px", opacity: 1 },
-  latin: { x: "0px", y: "0px", opacity: 0.9 },
-};
-
-const LAYER_VARS = {
-  "--imperio-x": LAYER_STATE.imperio.x,
-  "--imperio-y": LAYER_STATE.imperio.y,
-  "--imperio-opacity": LAYER_STATE.imperio.opacity,
-  "--espanol-x": LAYER_STATE.espanol.x,
-  "--espanol-y": LAYER_STATE.espanol.y,
-  "--espanol-opacity": LAYER_STATE.espanol.opacity,
-  "--latin-x": LAYER_STATE.latin.x,
-  "--latin-y": LAYER_STATE.latin.y,
-  "--latin-opacity": LAYER_STATE.latin.opacity,
-};
-
-const LATIN_LAYER_SEQUENCE = [
-  { id: "Non_sufficit_orbis", label: "Non sufficit orbis" },
-  { id: "Plus_ultra", label: "Plus ultra" },
-  { id: "A_solis_ortu_usque_ad_occasum", label: "A solis ortu usque ad occasum", scale: 2 },
-  { id: "Fiat_justitia_et_pereat_mundus", label: "Fiat justitia et pereat mundus", scale: 2 },
-  { id: "Ante_ferit_quam_flamma_micet", label: "Ante ferit quam flamma micet", scale: 2 },
-  { id: "Nec_spe_nec_metu", label: "Nec spe nec metu", scale: 2 },
-  { id: "Iam_illvstrabit_omnia", label: "Iam illvstrabit omnia", scale: 2 },
-  { id: "Pace_mare_terraqve_composita", label: "Pace mare terraqve composita", scale: 2 },
-  { id: "Fidei_defensor", label: "Fidei defensor", scale: 2 },
-];
-
-const LATIN_LAYER_ANIM = {
-  startDelayMs: 420, // Espera tras preloader
-  revealMs: 1400, // Barrido de entrada izquierda -> derecha
-  glyphInMs: 2000, // Blur/Fade-in de cada glifo (mucho mas largo)
-  inFadeDelayRatio: 0.84, // Retrasa el fade-in para priorizar blur-in
-  inPreviewLeadRatio: 0.08, // Hace visible pronto el path con blur alto
-  inBlurEndRatio: 0.78, // Blur-in largo, termina antes del fade principal
-  inPreviewOpacity: 0.62, // Opacidad de previsualizacion para percibir claramente el blur
-  holdMs: 4000, // Tiempo visible a opacidad completa y sin blur
-  outSweepMs: 1400, // Barrido de salida izquierda -> derecha
-  glyphOutMs: 2000, // Blur/Fade-out de cada glifo (mucho mas largo)
-  outFadeDelayRatio: 0.9, // Delay del fade-out ~x2 frente al ajuste anterior
-  staggerMs: 10000, // Distancia temporal entre frases (10s)
-  loopPauseMs: 0, // Pausa completa al final del ciclo
-  maxBlurPx: 10,
-};
+import NavLinksList from "./NavLinksList";
+import {
+  HERO_ENTRANCE_SEQUENCE,
+  HERO_IMAGE_DEFAULT_SRC,
+  HERO_LAYER_VARS,
+  HERO_VIEW_TRANSITION_NAME,
+  LATIN_LAYER_ANIMATION,
+  LATIN_LAYER_SEQUENCE,
+} from "../config/hero";
 
 export default function HeroImperio() {
   useEffect(() => {
+    const heroSection = document.querySelector(".hero-imperio");
     const heroBackground = document.querySelector(".hero-background");
     const heroImage = heroBackground?.querySelector("img");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timers = [];
+
+    const queueStage = (callback, delay) => {
+      if (reducedMotion || delay <= 0) {
+        callback();
+        return;
+      }
+      timers.push(window.setTimeout(callback, delay));
+    };
+
+    const resetEntranceSequence = () => {
+      heroSection?.classList.remove(
+        "hero-imperio--wordmark-ready",
+        "hero-imperio--nav-ready",
+        "hero-imperio--latin-ready"
+      );
+    };
+
+    const startEntranceSequence = () => {
+      if (!heroSection) return;
+
+      resetEntranceSequence();
+      queueStage(
+        () => heroSection.classList.add("hero-imperio--wordmark-ready"),
+        HERO_ENTRANCE_SEQUENCE.wordmarkDelayMs
+      );
+      queueStage(
+        () => heroSection.classList.add("hero-imperio--nav-ready"),
+        HERO_ENTRANCE_SEQUENCE.navBandDelayMs
+      );
+      queueStage(
+        () => heroSection.classList.add("hero-imperio--latin-ready"),
+        HERO_ENTRANCE_SEQUENCE.latinDelayMs
+      );
+    };
 
     const onScroll = () => {
       if (!heroBackground) return;
@@ -101,14 +93,20 @@ export default function HeroImperio() {
 
     const onPreloaderDone = () => {
       onScroll();
+      startEntranceSequence();
     };
 
     window.addEventListener("preloader:last-image", onLastImage, { once: true });
     window.addEventListener("preloader:done", onPreloaderDone, { once: true });
     window.addEventListener("scroll", onScroll, { passive: true });
+    if (document.body.classList.contains("preloader-done")) {
+      startEntranceSequence();
+    }
     onScroll();
 
     return () => {
+      timers.forEach((timerId) => window.clearTimeout(timerId));
+      resetEntranceSequence();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("preloader:last-image", onLastImage);
       window.removeEventListener("preloader:done", onPreloaderDone);
@@ -120,14 +118,14 @@ export default function HeroImperio() {
       <section class="hero-imperio relative min-h-screen flex flex-col justify-between overflow-hidden bg-black">
         <div class="hero-background absolute inset-0" aria-hidden="true">
           <img
-            src="/images/preloader/Preload_6_def_upscaled_2x.png"
+            src={HERO_IMAGE_DEFAULT_SRC}
             alt=""
             class="hero-background__img"
           />
         </div>
 
         <div class="hero-content hero-imperio__content flex-1 flex flex-col items-center justify-center relative z-10 px-6">
-          <div class="hero-imperio__lockup" style={LAYER_VARS}>
+          <div class="hero-imperio__lockup" style={HERO_LAYER_VARS}>
             <div class="hero-imperio__headline">
               <h1 class="hero-imperio__title">
                 <LogoImperio
@@ -153,7 +151,7 @@ export default function HeroImperio() {
                   src="/images/Letras_latin.svg"
                   className="hero-imperio__latin-layers"
                   layers={LATIN_LAYER_SEQUENCE}
-                  animation={LATIN_LAYER_ANIM}
+                  animation={LATIN_LAYER_ANIMATION}
                 />
               </div>
             </div>
@@ -164,36 +162,21 @@ export default function HeroImperio() {
           <div class="hero-nav__surface">
             <div class="home-shell hero-nav__shell">
               <div class="hero-nav__links-wrap">
-                <ul class="hero-nav__links-list nav-links-cluster text-black text-sm md:text-base font-medium uppercase tracking-wider">
-                  {NAV_ITEMS.map((item) => (
-                    <li key={item.href}>
-                      <a
-                        href={item.href}
-                        class="nav-link hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <NavLinksList
+                  className="hero-nav__links-list nav-links-cluster text-black text-sm md:text-base font-medium uppercase tracking-wider"
+                  linkClassName="hover:text-[var(--color-red-accent)] transition-colors duration-300"
+                />
               </div>
             </div>
           </div>
         </nav>
         <div class="hero-nav__overlay hidden md:block">
           <div class="hero-nav__overlay-wrap">
-            <ul class="hero-nav__overlay-list nav-links-cluster text-black text-sm md:text-base font-medium uppercase tracking-wider">
-              {NAV_ITEMS.map((item) => (
-                <li key={`overlay-${item.href}`}>
-                  <a
-                    href={item.href}
-                    class="nav-link hover:text-[var(--color-red-accent)] transition-colors duration-300"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <NavLinksList
+              itemKeyPrefix="overlay-"
+              className="hero-nav__overlay-list nav-links-cluster text-black text-sm md:text-base font-medium uppercase tracking-wider"
+              linkClassName="hover:text-[var(--color-red-accent)] transition-colors duration-300"
+            />
           </div>
         </div>
       </section>
@@ -223,9 +206,9 @@ export default function HeroImperio() {
           will-change: transform;
         }
 
-        @supports (view-transition-name: ${VIEW_TRANSITION_NAME}) {
+        @supports (view-transition-name: ${HERO_VIEW_TRANSITION_NAME}) {
           body.preloader-done .hero-background__img {
-            view-transition-name: ${VIEW_TRANSITION_NAME};
+            view-transition-name: ${HERO_VIEW_TRANSITION_NAME};
           }
         }
 
@@ -324,7 +307,7 @@ export default function HeroImperio() {
         .hero-imperio__latin-layers {
           display: block;
           width: 100%;
-          opacity: 1;
+          opacity: 0;
           transition: opacity 0.35s ease;
         }
 
@@ -354,7 +337,7 @@ export default function HeroImperio() {
         .hero-nav__links-wrap {
           position: absolute;
           left: 50%;
-          top: 50%;
+          top: calc(50% + var(--nav-letters-offset-y, 0px));
           transform: translate(-50%, -50%);
         }
 
@@ -369,7 +352,13 @@ export default function HeroImperio() {
         .hero-nav__overlay-wrap {
           position: fixed;
           left: var(--hero-overlay-left, 50vw);
-          top: var(--hero-overlay-top, calc(100vh - (var(--nav-links-band-height, 72px) / 2)));
+          top: var(
+            --hero-overlay-top,
+            calc(
+              100vh - (var(--nav-links-band-height, 72px) / 2) +
+                var(--nav-letters-offset-y, 0px)
+            )
+          );
           width: max-content;
           transform: translate(-50%, -50%);
           pointer-events: none;
@@ -399,30 +388,29 @@ export default function HeroImperio() {
           pointer-events: none;
         }
 
-        body.preloader-done .hero-imperio__wordmark {
+        .hero-imperio--wordmark-ready .hero-imperio__wordmark {
           opacity: 1;
           transform: translateY(0);
         }
 
-        body.preloader-done .hero-imperio__imperio-part {
+        .hero-imperio--wordmark-ready .hero-imperio__imperio-part {
           opacity: var(--imperio-opacity);
           transform: translate(var(--imperio-x), var(--imperio-y));
         }
 
-        body.preloader-done .hero-imperio__espanol-part {
+        .hero-imperio--wordmark-ready .hero-imperio__espanol-part {
           opacity: var(--espanol-opacity);
           transform: translate(var(--espanol-x), var(--espanol-y));
           filter: none;
         }
 
-        body.preloader-done .hero-imperio__latin-layers {
+        .hero-imperio--latin-ready .hero-imperio__latin-layers {
           opacity: 1;
         }
 
-        body.preloader-done .hero-imperio__nav {
+        .hero-imperio--nav-ready .hero-imperio__nav {
           opacity: 1;
           transform: translateY(0);
-          transition-delay: 900ms;
         }
 
         .nav-link {

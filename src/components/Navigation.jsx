@@ -68,32 +68,52 @@ export default function Navigation() {
           </button>
         </div>
 
-        <div
-          id="mobile-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-hidden="true"
-          class="fixed inset-0 bg-black text-white transform translate-x-full transition-transform duration-500 md:hidden"
-        >
-          <div class="container mx-auto px-6 py-6">
-            <button id="close-menu" type="button" class="ml-auto block text-4xl" aria-label="Cerrar menu">
+      </nav>
+
+      <div
+        id="mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        class="side-bar"
+      >
+        <div class="side-bar__media" aria-hidden="true">
+          <img
+            src="/images/red_hamburguer.png"
+            alt=""
+            class="side-bar__media-image"
+          />
+        </div>
+        <div class="side-bar__veil" aria-hidden="true"></div>
+
+        <div class="side-bar__panel container mx-auto px-6 py-6">
+          <div class="side-bar__header">
+            <button
+              id="close-menu"
+              type="button"
+              class="side-bar__close"
+              aria-label="Cerrar menu"
+            >
               &times;
             </button>
-            <ul class="mt-16 space-y-6 text-3xl font-bold">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
-                  <a href={item.href}>{item.label}</a>
-                </li>
-              ))}
-            </ul>
           </div>
+
+          <ul class="side-bar__nav">
+            {NAV_ITEMS.map((item) => (
+              <li key={item.href}>
+                <a href={item.href} class="side-bar__link">
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-      </nav>
+      </div>
 
       <style>{`
         .main-nav__inner {
           position: relative;
-          z-index: 1;
+          z-index: 4;
           width: 100%;
           min-height: calc(var(--space-unit) * 8);
           display: flex;
@@ -114,7 +134,7 @@ export default function Navigation() {
              Solo cambiamos tres variables desde JS:
              1. la opacidad del blanco arriba,
              2. la opacidad del blanco abajo,
-             3. y hasta dónde "baja" el gradiente. */
+             3. y hasta donde "baja" el gradiente. */
           background:
             linear-gradient(
               135deg,
@@ -192,7 +212,7 @@ export default function Navigation() {
         .main-nav__links-wrap {
           position: absolute;
           left: 50%;
-          top: 50%;
+          top: calc(50% + var(--nav-letters-offset-y, 0px));
           z-index: 2;
           transform: translate(-50%, -50%);
         }
@@ -225,6 +245,8 @@ export default function Navigation() {
         }
 
         .menu-button {
+          position: relative;
+          z-index: 8;
           border: 1px solid transparent;
           background: transparent;
           padding: 0;
@@ -296,6 +318,129 @@ export default function Navigation() {
           border-radius: 8px;
         }
 
+        .side-bar {
+          position: fixed;
+          inset: calc(var(--space-unit) * 8 + (var(--space-1) * 2)) 0 0 0;
+          z-index: 45;
+          overflow: hidden;
+          color: #fff;
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+          background: #060606;
+          transition:
+            opacity 0.28s ease,
+            visibility 0s linear 0.28s;
+        }
+
+        .side-bar--open {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+          transition-delay: 0s;
+        }
+
+        .side-bar__media,
+        .side-bar__veil,
+        .side-bar__panel {
+          position: absolute;
+          inset: 0;
+        }
+
+        .side-bar__media {
+          z-index: 0;
+          overflow: hidden;
+        }
+
+        .side-bar__media-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          clip-path: inset(0 0 0 100%);
+          transition: clip-path 0.84s cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: clip-path;
+        }
+
+        .side-bar--open .side-bar__media-image {
+          clip-path: inset(0 0 0 0);
+        }
+
+        .side-bar__veil {
+          z-index: 1;
+          background:
+            linear-gradient(
+              180deg,
+              rgba(8, 8, 8, 0.22) 0%,
+              rgba(8, 8, 8, 0.3) 28%,
+              rgba(8, 8, 8, 0.5) 100%
+            );
+          opacity: 0;
+          transition: opacity 0.42s ease 0.08s;
+        }
+
+        .side-bar--open .side-bar__veil {
+          opacity: 1;
+        }
+
+        .side-bar__panel {
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .side-bar__header {
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        .side-bar__close {
+          border: 0;
+          background: transparent;
+          color: #fff;
+          font-size: 2.5rem;
+          line-height: 1;
+          padding: 0;
+        }
+
+        .side-bar__nav {
+          display: grid;
+          gap: clamp(1rem, 3.5vw, 1.5rem);
+          list-style: none;
+          margin: calc(var(--space-unit) * 8) 0 0;
+          padding: 0;
+          opacity: 0;
+          transform: translate3d(0, 22px, 0);
+          transition:
+            opacity 0.34s ease,
+            transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .side-bar--open .side-bar__nav {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+          transition-delay: 0.22s;
+        }
+
+        .side-bar__link {
+          display: inline-block;
+          color: #fff;
+          font-size: clamp(2rem, 6vw, 3.15rem);
+          font-weight: 700;
+          line-height: 0.94;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          text-decoration: none;
+          text-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .side-bar__link:hover,
+        .side-bar__link:focus-visible,
+        .side-bar__close:hover,
+        .side-bar__close:focus-visible {
+          color: rgba(255, 255, 255, 0.82);
+        }
+
         #main-nav {
           --nav-progress: 0;
           --nav-links-progress: 0;
@@ -338,6 +483,20 @@ export default function Navigation() {
           .main-nav__floating-links-layer,
           .main-nav__links-wrap {
             display: none;
+          }
+
+          .side-bar__panel {
+            padding-inline: clamp(1.5rem, 6vw, 2.25rem);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .side-bar,
+          .side-bar__media-image,
+          .side-bar__veil,
+          .side-bar__nav {
+            transition-duration: 0.01ms;
+            transition-delay: 0s;
           }
         }
       `}</style>

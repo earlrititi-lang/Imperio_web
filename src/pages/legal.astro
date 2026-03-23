@@ -1,20 +1,19 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PageShell from "../layouts/PageShell.astro";
 ---
 
-<Layout
-  title="Legal | Imperioes"
+<PageShell
+  title="Legal"
   description="Aviso legal y condiciones."
+  eyebrow="Legal"
+  heading="Aviso legal"
+  summary="Datos de la entidad, condiciones de uso y politica de privacidad."
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <span class="pill">Legal</span>
-      <h1>Aviso legal</h1>
-      <p class="muted">ASUNCION: texto legal completo se agrega en Sprint 4.</p>
-      <div class="card">
-        <p>Datos de la entidad, condiciones de uso y politica de privacidad.</p>
-      </div>
-    </section>
-  </div>
-</Layout>
-
+  <Fragment slot="header">
+    <p class="muted">ASUNCION: texto legal completo se agrega en Sprint 4.</p>
+    <div class="card">
+      <p>Datos de la entidad, condiciones de uso y politica de privacidad.</p>
+    </div>
+  </Fragment>
+</PageShell>

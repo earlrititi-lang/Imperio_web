@@ -1,5 +1,5 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import PageShell from "../../layouts/PageShell.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
@@ -14,41 +14,45 @@ const { entry } = Astro.props;
 const { Content } = await entry.render();
 ---
 
-<Layout
-  title={`${entry.data.title} | Imperioes`}
+<PageShell
+  title={entry.data.title}
   description={entry.data.seoDescription ?? entry.data.summary}
+  heading={entry.data.title}
+  summary={entry.data.summary}
+  summaryMuted
+  narrow
 >
-  <div class="container">
-    <section class="section content">
-      <div class="meta">
-        <span class="badge">{entry.data.status}</span>
-        <span>{entry.data.date}</span>
-      </div>
-      <h1>{entry.data.title}</h1>
-      <p class="muted">{entry.data.summary}</p>
-      <p><strong>{entry.data.price}</strong></p>
-      <div class="section">
-        <Content />
-      </div>
-      <div class="notice">
-        <strong>Checkout seguro con Stripe.</strong>
-        {entry.data.paymentLink ? (
-          <div>
-            <p class="muted">Pago directo en Stripe Checkout.</p>
-            <a class="btn btn-primary" href={entry.data.paymentLink}>
-              Comprar con Stripe
-            </a>
-          </div>
-        ) : (
-          <div>
-            <p class="muted">
-              ASUNCION: el enlace de pago se activa cuando el drop este listo.
-            </p>
-            <a class="btn btn-primary" href="/contacto">Avisame del drop</a>
-          </div>
-        )}
-      </div>
-    </section>
+  <div slot="meta" class="meta">
+    <span class="badge">{entry.data.status}</span>
+    <span>{entry.data.date}</span>
   </div>
-</Layout>
 
+  <div slot="header">
+    <p><strong>{entry.data.price}</strong></p>
+  </div>
+
+  <section class="section content">
+    <Content />
+  </section>
+
+  <section class="section content">
+    <div class="notice">
+      <strong>Checkout seguro con Stripe.</strong>
+      {entry.data.paymentLink ? (
+        <div>
+          <p class="muted">Pago directo en Stripe Checkout.</p>
+          <a class="btn btn-primary" href={entry.data.paymentLink}>
+            Comprar con Stripe
+          </a>
+        </div>
+      ) : (
+        <div>
+          <p class="muted">
+            ASUNCION: el enlace de pago se activa cuando el drop este listo.
+          </p>
+          <a class="btn btn-primary" href="/contacto">Avisame del drop</a>
+        </div>
+      )}
+    </div>
+  </section>
+</PageShell>
