@@ -87,17 +87,6 @@ export default function Navigation() {
         <div class="side-bar__veil" aria-hidden="true"></div>
 
         <div class="side-bar__panel container mx-auto px-6 py-6">
-          <div class="side-bar__header">
-            <button
-              id="close-menu"
-              type="button"
-              class="side-bar__close"
-              aria-label="Cerrar menu"
-            >
-              &times;
-            </button>
-          </div>
-
           <ul class="side-bar__nav">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
@@ -177,6 +166,7 @@ export default function Navigation() {
           display: inline-flex;
           align-items: center;
           margin: 0;
+          transition: opacity 0.28s ease;
         }
 
         .main-nav__logo {
@@ -193,6 +183,7 @@ export default function Navigation() {
           opacity: 0;
           pointer-events: none;
           will-change: opacity;
+          transition: opacity 0.28s ease;
         }
 
         .main-nav__floating-links-wrap {
@@ -215,6 +206,7 @@ export default function Navigation() {
           top: calc(50% + var(--nav-letters-offset-y, 0px));
           z-index: 2;
           transform: translate(-50%, -50%);
+          transition: opacity 0.28s ease;
         }
 
         .main-nav__links {
@@ -258,7 +250,7 @@ export default function Navigation() {
           align-items: center;
           justify-content: center;
           mix-blend-mode: difference;
-          transition: color 0.14s linear, mix-blend-mode 0s linear 0.14s;
+          transition: color 0.18s linear, mix-blend-mode 0s linear 0.18s;
         }
 
         #main-nav.main-nav--hamburger-dark .menu-button {
@@ -320,8 +312,8 @@ export default function Navigation() {
 
         .side-bar {
           position: fixed;
-          inset: calc(var(--space-unit) * 8 + (var(--space-1) * 2)) 0 0 0;
-          z-index: 45;
+          inset: 0;
+          z-index: 60;
           overflow: hidden;
           color: #fff;
           opacity: 0;
@@ -329,15 +321,18 @@ export default function Navigation() {
           pointer-events: none;
           background: #060606;
           transition:
-            opacity 0.28s ease,
-            visibility 0s linear 0.28s;
+            opacity 0.4s ease,
+            visibility 0s linear 0.4s;
         }
 
         .side-bar--open {
-          opacity: 1;
           visibility: visible;
           pointer-events: auto;
           transition-delay: 0s;
+        }
+
+        .side-bar--revealed {
+          opacity: 1;
         }
 
         .side-bar__media,
@@ -358,11 +353,11 @@ export default function Navigation() {
           object-fit: cover;
           object-position: center;
           clip-path: inset(0 0 0 100%);
-          transition: clip-path 0.84s cubic-bezier(0.22, 1, 0.36, 1);
+          transition: clip-path 1.05s cubic-bezier(0.22, 1, 0.36, 1);
           will-change: clip-path;
         }
 
-        .side-bar--open .side-bar__media-image {
+        .side-bar--revealed .side-bar__media-image {
           clip-path: inset(0 0 0 0);
         }
 
@@ -376,10 +371,10 @@ export default function Navigation() {
               rgba(8, 8, 8, 0.5) 100%
             );
           opacity: 0;
-          transition: opacity 0.42s ease 0.08s;
+          transition: opacity 0.58s ease 0.12s;
         }
 
-        .side-bar--open .side-bar__veil {
+        .side-bar--revealed .side-bar__veil {
           opacity: 1;
         }
 
@@ -389,37 +384,23 @@ export default function Navigation() {
           flex-direction: column;
         }
 
-        .side-bar__header {
-          display: flex;
-          justify-content: flex-end;
-        }
-
-        .side-bar__close {
-          border: 0;
-          background: transparent;
-          color: #fff;
-          font-size: 2.5rem;
-          line-height: 1;
-          padding: 0;
-        }
-
         .side-bar__nav {
           display: grid;
           gap: clamp(1rem, 3.5vw, 1.5rem);
           list-style: none;
-          margin: calc(var(--space-unit) * 8) 0 0;
+          margin: calc(var(--space-unit) * 12) 0 0;
           padding: 0;
           opacity: 0;
           transform: translate3d(0, 22px, 0);
           transition:
-            opacity 0.34s ease,
-            transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+            opacity 0.46s ease,
+            transform 0.66s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .side-bar--open .side-bar__nav {
+        .side-bar--revealed .side-bar__nav {
           opacity: 1;
           transform: translate3d(0, 0, 0);
-          transition-delay: 0.22s;
+          transition-delay: 0.3s;
         }
 
         .side-bar__link {
@@ -435,13 +416,12 @@ export default function Navigation() {
         }
 
         .side-bar__link:hover,
-        .side-bar__link:focus-visible,
-        .side-bar__close:hover,
-        .side-bar__close:focus-visible {
+        .side-bar__link:focus-visible {
           color: rgba(255, 255, 255, 0.82);
         }
 
         #main-nav {
+          z-index: 70;
           --nav-progress: 0;
           --nav-links-progress: 0;
           --nav-gradient-top-alpha: 0.15;
@@ -465,6 +445,20 @@ export default function Navigation() {
           transform: translateY(-12px);
           pointer-events: none;
           transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.2s linear;
+        }
+
+        #main-nav.main-nav--menu-open .main-nav__fx,
+        #main-nav.main-nav--menu-open .main-nav__brand,
+        #main-nav.main-nav--menu-open .main-nav__floating-links-layer,
+        #main-nav.main-nav--menu-open .main-nav__links-wrap {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        #main-nav.main-nav--menu-revealed .menu-button {
+          color: #fff;
+          mix-blend-mode: normal;
+          transition-delay: 0s;
         }
 
         body.preloader-done #main-nav {

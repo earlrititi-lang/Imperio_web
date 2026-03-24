@@ -1,5 +1,7 @@
-const MENU_OPEN_ANIM_MS = 760;
-const MENU_CLOSE_ANIM_MS = 760;
+const MENU_OPEN_ANIM_MS = 920;
+const MENU_CLOSE_ANIM_MS = 920;
+const SIDE_BAR_REVEAL_DELAY_MS = MENU_OPEN_ANIM_MS;
+const SIDE_BAR_HIDE_DELAY_MS = 1100;
 
 const MENU_POSE_OPEN = [
   {
@@ -135,6 +137,7 @@ const applyMenuPose = (elements, pose) => {
 };
 
 export const createMenuController = ({
+  nav,
   mobileMenuBtn,
   mobileMenu,
   closeMenuBtn,
@@ -150,6 +153,20 @@ export const createMenuController = ({
   };
 
   let menuIconAnimationFrameId = 0;
+  let sideBarRevealTimeoutId = 0;
+  let sideBarHideTimeoutId = 0;
+
+  const clearSideBarTimers = () => {
+    if (sideBarRevealTimeoutId) {
+      window.clearTimeout(sideBarRevealTimeoutId);
+      sideBarRevealTimeoutId = 0;
+    }
+
+    if (sideBarHideTimeoutId) {
+      window.clearTimeout(sideBarHideTimeoutId);
+      sideBarHideTimeoutId = 0;
+    }
+  };
 
   const setMenuButtonVisualState = (isOpen, animate = true) => {
     if (!mobileMenuBtn) return;
@@ -198,16 +215,49 @@ export const createMenuController = ({
   const setMenuOpen = (isOpen, options = {}) => {
     const { animate = true } = options;
 
-    mobileMenu?.classList.toggle("side-bar--open", isOpen);
-    mobileMenu?.setAttribute("aria-hidden", String(!isOpen));
+    clearSideBarTimers();
+
+    if (isOpen) {
+      nav?.classList.add("main-nav--menu-open");
+      mobileMenu?.classList.add("side-bar--open");
+      mobileMenu?.setAttribute("aria-hidden", "false");
+    } else {
+      mobileMenu?.classList.remove("side-bar--revealed");
+      nav?.classList.remove("main-nav--menu-revealed");
+      if (!animate) {
+        nav?.classList.remove("main-nav--menu-open");
+        mobileMenu?.classList.remove("side-bar--open");
+        mobileMenu?.setAttribute("aria-hidden", "true");
+        onMenuStateChange?.(false);
+      } else {
+        sideBarHideTimeoutId = window.setTimeout(() => {
+          nav?.classList.remove("main-nav--menu-open");
+          mobileMenu?.classList.remove("side-bar--open");
+          mobileMenu?.setAttribute("aria-hidden", "true");
+          onMenuStateChange?.(false);
+          sideBarHideTimeoutId = 0;
+        }, SIDE_BAR_HIDE_DELAY_MS);
+      }
+    }
+
     mobileMenuBtn?.setAttribute("aria-expanded", String(isOpen));
     mobileMenuBtn?.setAttribute("aria-label", isOpen ? "Cerrar menu" : "Abrir menu");
 
     setMenuButtonVisualState(isOpen, animate);
-    onMenuStateChange?.(isOpen);
 
     if (isOpen) {
-      closeMenuBtn?.focus();
+      onMenuStateChange?.(true);
+
+      if (!animate) {
+        nav?.classList.add("main-nav--menu-revealed");
+        mobileMenu?.classList.add("side-bar--revealed");
+      } else {
+        sideBarRevealTimeoutId = window.setTimeout(() => {
+          nav?.classList.add("main-nav--menu-revealed");
+          mobileMenu?.classList.add("side-bar--revealed");
+          sideBarRevealTimeoutId = 0;
+        }, SIDE_BAR_REVEAL_DELAY_MS);
+      }
     }
   };
 
@@ -229,6 +279,7 @@ export const createMenuController = ({
       }
     },
     cleanup() {
+      clearSideBarTimers();
       if (menuIconAnimationFrameId) {
         window.cancelAnimationFrame(menuIconAnimationFrameId);
       }
