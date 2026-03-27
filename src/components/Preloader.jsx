@@ -10,7 +10,7 @@ const TIMING = {
   fade: 520,
   shrink: 760,
   grow: 1600,
-  preloadTimeout: 1500,
+  preloadTimeout: 1350,
 };
 
 const SEQUENCE_FRAME_SCALE = 0.88;

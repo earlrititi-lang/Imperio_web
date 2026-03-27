@@ -82,6 +82,8 @@ export default function Navigation() {
             src="/images/red_hamburguer.png"
             alt=""
             class="side-bar__media-image"
+            decoding="async"
+            loading="eager"
           />
         </div>
         <div class="side-bar__veil" aria-hidden="true"></div>
@@ -313,26 +315,20 @@ export default function Navigation() {
         .side-bar {
           position: fixed;
           inset: 0;
-          z-index: 60;
+          z-index: 160;
+          width: 100vw;
+          height: 100dvh;
           overflow: hidden;
           color: #fff;
-          opacity: 0;
+          opacity: 1;
           visibility: hidden;
           pointer-events: none;
-          background: #060606;
-          transition:
-            opacity 0.4s ease,
-            visibility 0s linear 0.4s;
+          background: transparent;
         }
 
         .side-bar--open {
           visibility: visible;
           pointer-events: auto;
-          transition-delay: 0s;
-        }
-
-        .side-bar--revealed {
-          opacity: 1;
         }
 
         .side-bar__media,
@@ -343,53 +339,57 @@ export default function Navigation() {
         }
 
         .side-bar__media {
+          top: 0;
+          bottom: 0;
+          right: 0;
+          left: auto;
+          width: 0;
           z-index: 0;
           overflow: hidden;
+          background-color: #8e120d;
+          transition: width 1.55s cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: width;
+        }
+
+        .side-bar--revealed .side-bar__media {
+          width: 100%;
         }
 
         .side-bar__media-image {
-          width: 100%;
-          height: 100%;
+          position: absolute;
+          inset: 0;
+          display: block;
+          width: 100vw;
+          height: 100vh;
+          max-width: none;
           object-fit: cover;
           object-position: center;
-          clip-path: inset(0 0 0 100%);
-          transition: clip-path 1.05s cubic-bezier(0.22, 1, 0.36, 1);
-          will-change: clip-path;
-        }
-
-        .side-bar--revealed .side-bar__media-image {
-          clip-path: inset(0 0 0 0);
+          opacity: 1;
+          transform: scale(1.001);
         }
 
         .side-bar__veil {
           z-index: 1;
-          background:
-            linear-gradient(
-              180deg,
-              rgba(8, 8, 8, 0.22) 0%,
-              rgba(8, 8, 8, 0.3) 28%,
-              rgba(8, 8, 8, 0.5) 100%
-            );
-          opacity: 0;
-          transition: opacity 0.58s ease 0.12s;
-        }
-
-        .side-bar--revealed .side-bar__veil {
-          opacity: 1;
+          background: none;
         }
 
         .side-bar__panel {
           z-index: 2;
           display: flex;
           flex-direction: column;
+          justify-content: center;
+          align-items: flex-end;
         }
 
         .side-bar__nav {
           display: grid;
           gap: clamp(1rem, 3.5vw, 1.5rem);
           list-style: none;
-          margin: calc(var(--space-unit) * 12) 0 0;
+          width: min(38vw, 520px);
+          margin: 0;
           padding: 0;
+          justify-items: end;
+          text-align: right;
           opacity: 0;
           transform: translate3d(0, 22px, 0);
           transition:
@@ -400,16 +400,17 @@ export default function Navigation() {
         .side-bar--revealed .side-bar__nav {
           opacity: 1;
           transform: translate3d(0, 0, 0);
-          transition-delay: 0.3s;
+          transition-delay: 0.9s;
         }
 
         .side-bar__link {
           display: inline-block;
           color: #fff;
-          font-size: clamp(2rem, 6vw, 3.15rem);
-          font-weight: 700;
-          line-height: 0.94;
-          letter-spacing: 0.08em;
+          font-family: var(--font-rosa-black);
+          font-size: clamp(2.1rem, 4.1vw, 3.7rem);
+          font-weight: 900;
+          line-height: 0.88;
+          letter-spacing: 0.04em;
           text-transform: uppercase;
           text-decoration: none;
           text-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
@@ -421,7 +422,7 @@ export default function Navigation() {
         }
 
         #main-nav {
-          z-index: 70;
+          z-index: 170;
           --nav-progress: 0;
           --nav-links-progress: 0;
           --nav-gradient-top-alpha: 0.15;
@@ -480,12 +481,24 @@ export default function Navigation() {
           }
 
           .side-bar__panel {
+            align-items: stretch;
             padding-inline: clamp(1.5rem, 6vw, 2.25rem);
+          }
+
+          .side-bar__nav {
+            width: min(100%, 420px);
+            justify-items: start;
+            text-align: left;
+          }
+
+          .side-bar__link {
+            font-size: clamp(1.8rem, 7.2vw, 2.7rem);
           }
         }
 
         @media (prefers-reduced-motion: reduce) {
           .side-bar,
+          .side-bar__media,
           .side-bar__media-image,
           .side-bar__veil,
           .side-bar__nav {
