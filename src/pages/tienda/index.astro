@@ -21,7 +21,7 @@ const sorted = sortEntriesByDateDesc(await getCollection("drops"));
           meta={`${entry.data.status} - ${entry.data.date}`}
           title={entry.data.title}
           summary={entry.data.summary}
-          href={`/tienda/${entry.slug}`}
+          href={`/tienda/${entry.id}`}
           ctaLabel="Ver drop"
           ctaVariant="primary"
         >

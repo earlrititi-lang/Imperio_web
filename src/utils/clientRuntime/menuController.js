@@ -1,7 +1,8 @@
 const MENU_OPEN_ANIM_MS = 920;
 const MENU_CLOSE_ANIM_MS = 920;
-const SIDE_BAR_REVEAL_DELAY_MS = 620;
-const SIDE_BAR_HIDE_DELAY_MS = 1600;
+const SIDE_BAR_REVEAL_DELAY_MS = 120;
+const NAV_FADE_DELAY_MS = 700;
+const SIDE_BAR_HIDE_DELAY_MS = 1500;
 
 const MENU_POSE_OPEN = [
   {
@@ -154,12 +155,18 @@ export const createMenuController = ({
 
   let menuIconAnimationFrameId = 0;
   let sideBarRevealTimeoutId = 0;
+  let navFadeTimeoutId = 0;
   let sideBarHideTimeoutId = 0;
 
   const clearSideBarTimers = () => {
     if (sideBarRevealTimeoutId) {
       window.clearTimeout(sideBarRevealTimeoutId);
       sideBarRevealTimeoutId = 0;
+    }
+
+    if (navFadeTimeoutId) {
+      window.clearTimeout(navFadeTimeoutId);
+      navFadeTimeoutId = 0;
     }
 
     if (sideBarHideTimeoutId) {
@@ -224,6 +231,7 @@ export const createMenuController = ({
     } else {
       mobileMenu?.classList.remove("side-bar--revealed");
       nav?.classList.remove("main-nav--menu-revealed");
+      nav?.classList.remove("main-nav--menu-fading");
       if (!animate) {
         nav?.classList.remove("main-nav--menu-open");
         mobileMenu?.classList.remove("side-bar--open");
@@ -249,6 +257,7 @@ export const createMenuController = ({
       onMenuStateChange?.(true);
 
       if (!animate) {
+        nav?.classList.add("main-nav--menu-fading");
         nav?.classList.add("main-nav--menu-revealed");
         mobileMenu?.classList.add("side-bar--revealed");
       } else {
@@ -256,6 +265,11 @@ export const createMenuController = ({
           nav?.classList.add("main-nav--menu-revealed");
           mobileMenu?.classList.add("side-bar--revealed");
           sideBarRevealTimeoutId = 0;
+
+          navFadeTimeoutId = window.setTimeout(() => {
+            nav?.classList.add("main-nav--menu-fading");
+            navFadeTimeoutId = 0;
+          }, NAV_FADE_DELAY_MS);
         }, SIDE_BAR_REVEAL_DELAY_MS);
       }
     }

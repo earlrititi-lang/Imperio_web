@@ -33,9 +33,9 @@ export const GET: APIRoute = async () => {
 
   const urls = [
     ...staticRoutes.map(toUrl),
-    ...articles.map((entry) => toUrl(`/biblioteca/${entry.slug}`)),
-    ...drops.map((entry) => toUrl(`/tienda/${entry.slug}`)),
-    ...rutas.map((entry) => toUrl(`/rutas/${entry.slug}`)),
+    ...articles.map((entry) => toUrl(`/biblioteca/${entry.id}`)),
+    ...drops.map((entry) => toUrl(`/tienda/${entry.id}`)),
+    ...rutas.map((entry) => toUrl(`/rutas/${entry.id}`)),
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>

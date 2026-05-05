@@ -79,7 +79,7 @@ export default function Navigation() {
       >
         <div class="side-bar__media" aria-hidden="true">
           <img
-            src="/images/red_hamburguer.png"
+            src="/images/red_hamburguer_final.png"
             alt=""
             class="side-bar__media-image"
             decoding="async"
@@ -90,8 +90,12 @@ export default function Navigation() {
 
         <div class="side-bar__panel container mx-auto px-6 py-6">
           <ul class="side-bar__nav">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
+            {NAV_ITEMS.map((item, index) => (
+              <li
+                key={item.href}
+                class="side-bar__nav-item"
+                style={{ "--side-link-index": index }}
+              >
                 <a href={item.href} class="side-bar__link">
                   {item.label}
                 </a>
@@ -120,6 +124,7 @@ export default function Navigation() {
           z-index: 0;
           overflow: hidden;
           pointer-events: none;
+          transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1);
           /* Para los alumnos:
              Este fondo siempre es un linear-gradient vertical.
              Solo cambiamos tres variables desde JS:
@@ -168,7 +173,7 @@ export default function Navigation() {
           display: inline-flex;
           align-items: center;
           margin: 0;
-          transition: opacity 0.28s ease;
+          transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .main-nav__logo {
@@ -185,7 +190,7 @@ export default function Navigation() {
           opacity: 0;
           pointer-events: none;
           will-change: opacity;
-          transition: opacity 0.28s ease;
+          transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .main-nav__floating-links-wrap {
@@ -208,7 +213,7 @@ export default function Navigation() {
           top: calc(50% + var(--nav-letters-offset-y, 0px));
           z-index: 2;
           transform: translate(-50%, -50%);
-          transition: opacity 0.28s ease;
+          transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .main-nav__links {
@@ -357,15 +362,16 @@ export default function Navigation() {
 
         .side-bar__media-image {
           position: absolute;
-          inset: 0;
+          top: 0;
+          right: 0;
           display: block;
           width: 100vw;
-          height: 100vh;
+          height: 100dvh;
           max-width: none;
-          object-fit: cover;
-          object-position: center;
+          max-height: none;
+          object-fit: fill;
           opacity: 1;
-          transform: scale(1.001);
+          transform: none;
         }
 
         .side-bar__veil {
@@ -391,16 +397,26 @@ export default function Navigation() {
           justify-items: end;
           text-align: right;
           opacity: 0;
-          transform: translate3d(0, 22px, 0);
-          transition:
-            opacity 0.46s ease,
-            transform 0.66s cubic-bezier(0.22, 1, 0.36, 1);
+          transition: opacity 0.2s ease;
         }
 
         .side-bar--revealed .side-bar__nav {
           opacity: 1;
+          transition-delay: 0.72s;
+        }
+
+        .side-bar__nav-item {
+          opacity: 0;
+          transform: translate3d(-44px, 0, 0);
+          transition:
+            opacity 0.44s ease,
+            transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .side-bar--revealed .side-bar__nav-item {
+          opacity: 1;
           transform: translate3d(0, 0, 0);
-          transition-delay: 0.9s;
+          transition-delay: calc(0.78s + (var(--side-link-index, 0) * 120ms));
         }
 
         .side-bar__link {
@@ -418,7 +434,7 @@ export default function Navigation() {
 
         .side-bar__link:hover,
         .side-bar__link:focus-visible {
-          color: rgba(255, 255, 255, 0.82);
+          color: #000;
         }
 
         #main-nav {
@@ -445,13 +461,26 @@ export default function Navigation() {
           opacity: 0;
           transform: translateY(-12px);
           pointer-events: none;
-          transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.2s linear;
+          transition:
+            opacity 0.4s ease,
+            transform 0.4s ease,
+            box-shadow 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+            border-bottom-color 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+            backdrop-filter 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+            -webkit-backdrop-filter 0.72s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        #main-nav.main-nav--menu-open .main-nav__fx,
-        #main-nav.main-nav--menu-open .main-nav__brand,
-        #main-nav.main-nav--menu-open .main-nav__floating-links-layer,
-        #main-nav.main-nav--menu-open .main-nav__links-wrap {
+        #main-nav.main-nav--menu-fading {
+          box-shadow: none;
+          border-bottom-color: transparent;
+          backdrop-filter: blur(0px) saturate(1);
+          -webkit-backdrop-filter: blur(0px) saturate(1);
+        }
+
+        #main-nav.main-nav--menu-fading .main-nav__fx,
+        #main-nav.main-nav--menu-fading .main-nav__brand,
+        #main-nav.main-nav--menu-fading .main-nav__floating-links-layer,
+        #main-nav.main-nav--menu-fading .main-nav__links-wrap {
           opacity: 0;
           pointer-events: none;
         }
@@ -501,7 +530,8 @@ export default function Navigation() {
           .side-bar__media,
           .side-bar__media-image,
           .side-bar__veil,
-          .side-bar__nav {
+          .side-bar__nav,
+          .side-bar__nav-item {
             transition-duration: 0.01ms;
             transition-delay: 0s;
           }

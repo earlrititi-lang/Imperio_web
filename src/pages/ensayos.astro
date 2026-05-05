@@ -23,7 +23,7 @@ const list = sortEntriesByDateDesc(await getCollection("articles")).filter(
           meta={entry.data.date}
           title={entry.data.title}
           summary={entry.data.summary}
-          href={`/biblioteca/${entry.slug}`}
+          href={`/biblioteca/${entry.id}`}
           ctaLabel="Leer"
         />
       ))}

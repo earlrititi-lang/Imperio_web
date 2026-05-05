@@ -11,6 +11,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+tmp*.log
+tmp_*.log
+tmp_*.png
+tmp-*.png
 
 
 # environment variables
