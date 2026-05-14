@@ -1,8 +1,10 @@
+import { withBase } from "../utils/basePath";
+
 export const NAV_ITEMS = [
-  { href: "/sobre-nosotros", label: "Memorial" },
-  { href: "/articulos", label: "Papeles y Tratados" },
-  { href: "/biblioteca", label: "Libreria" },
-  { href: "/foro", label: "Mentidero" },
-  { href: "/tienda", label: "Casa de Mercaderias" },
-  { href: "/contacto", label: "Audiencia" },
+  { href: withBase("/sobre-nosotros"), label: "Memorial" },
+  { href: withBase("/articulos"), label: "Papeles y Tratados" },
+  { href: withBase("/biblioteca"), label: "Libreria" },
+  { href: withBase("/foro"), label: "Mentidero" },
+  { href: withBase("/tienda"), label: "Casa de Mercaderias" },
+  { href: withBase("/contacto"), label: "Audiencia" },
 ];

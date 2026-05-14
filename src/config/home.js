@@ -1,8 +1,10 @@
+import { withBase } from "../utils/basePath";
+
 export const SERVICES_ITEMS = [
   {
     id: "01",
     title: "Consultoria",
-    imageSrc: "/images/services/consultoria.jpg",
+    imageSrc: withBase("/images/services/consultoria.jpg"),
     imageAlt: "Consultoria",
     description:
       "Una vision audaz tiene el poder de alinear comunidades y crear impulso. Nuestro equipo de consultoria colabora con lideres y juntas directivas para guiar el pensamiento inicial y desarrollar consenso, acelerando en ultima instancia los resultados.",
@@ -10,7 +12,7 @@ export const SERVICES_ITEMS = [
   {
     id: "02",
     title: "Planificacion",
-    imageSrc: "/images/services/planificacion.jpg",
+    imageSrc: withBase("/images/services/planificacion.jpg"),
     imageAlt: "Planificacion",
     description:
       "Los servicios de planificacion traducen las necesidades y aspiraciones organizacionales en marcos flexibles que apoyan la toma de decisiones duradera y transparente. Nuestro enfoque interdisciplinario esta impulsado por datos y centrado en el programa.",
@@ -19,7 +21,7 @@ export const SERVICES_ITEMS = [
   {
     id: "03",
     title: "Arquitectura",
-    imageSrc: "/images/services/arquitectura.jpg",
+    imageSrc: withBase("/images/services/arquitectura.jpg"),
     imageAlt: "Arquitectura",
     description:
       "Un sentido perdurable de custodia para reforzar lugares especiales esta en el corazon de nuestra filosofia. Estamos comprometidos con composiciones unicas y atemporales que reflejan a nuestros clientes como individuos y organizaciones.",
@@ -27,7 +29,7 @@ export const SERVICES_ITEMS = [
   {
     id: "04",
     title: "Interiores",
-    imageSrc: "/images/services/interiores.jpg",
+    imageSrc: withBase("/images/services/interiores.jpg"),
     imageAlt: "Interiores",
     description:
       "Nuestra practica de diseno de interiores conecta arquitectura y atmosfera. Abordamos cada proyecto con una profunda sensibilidad hacia la proporcion, la materialidad y el uso, disenando espacios que reflejan tanto el caracter del cliente como las demandas del programa.",
@@ -39,37 +41,37 @@ export const PROJECTS_ITEMS = [
   {
     title: "Palacio de los Marqueses",
     location: "Sevilla - Restauracion Integral",
-    imageSrc: "/images/projects/project-1.jpg",
+    imageSrc: withBase("/images/projects/project-1.jpg"),
     imageAlt: "Palacio de los Marqueses",
   },
   {
     title: "Casa de la Condesa",
     location: "Granada - Interiores Historicos",
-    imageSrc: "/images/projects/project-2.jpg",
+    imageSrc: withBase("/images/projects/project-2.jpg"),
     imageAlt: "Casa de la Condesa",
   },
   {
     title: "Convento de San Francisco",
     location: "Toledo - Adaptive Reuse",
-    imageSrc: "/images/projects/project-3.jpg",
+    imageSrc: withBase("/images/projects/project-3.jpg"),
     imageAlt: "Convento de San Francisco",
   },
   {
     title: "Plaza de las Cortes",
     location: "Madrid - Urbanismo Historico",
-    imageSrc: "/images/projects/project-4.jpg",
+    imageSrc: withBase("/images/projects/project-4.jpg"),
     imageAlt: "Plaza de las Cortes",
   },
   {
     title: "Biblioteca Real",
     location: "El Escorial - Patrimonio Cultural",
-    imageSrc: "/images/projects/project-5.jpg",
+    imageSrc: withBase("/images/projects/project-5.jpg"),
     imageAlt: "Biblioteca Real",
   },
   {
     title: "Hacienda Andaluza",
     location: "Cordoba - Diseno Contemporaneo",
-    imageSrc: "/images/projects/project-6.jpg",
+    imageSrc: withBase("/images/projects/project-6.jpg"),
     imageAlt: "Hacienda Andaluza",
   },
 ];
@@ -88,13 +90,13 @@ export const FOOTER_STUDIOS = [
 ];
 
 export const FOOTER_NAV_ITEMS = [
-  { href: "/estudio", label: "Estudio" },
-  { href: "/obras", label: "Obras" },
-  { href: "/diseno", label: "Diseno" },
-  { href: "/consultoria", label: "Consultoria" },
-  { href: "/equipo", label: "Equipo" },
-  { href: "/noticias", label: "Noticias" },
-  { href: "/contacto", label: "Contacto" },
+  { href: withBase("/estudio"), label: "Estudio" },
+  { href: withBase("/obras"), label: "Obras" },
+  { href: withBase("/diseno"), label: "Diseno" },
+  { href: withBase("/consultoria"), label: "Consultoria" },
+  { href: withBase("/equipo"), label: "Equipo" },
+  { href: withBase("/noticias"), label: "Noticias" },
+  { href: withBase("/contacto"), label: "Contacto" },
 ];
 
 export const FOOTER_SOCIAL_LINKS = [
@@ -119,6 +121,6 @@ export const FOOTER_SOCIAL_LINKS = [
 ];
 
 export const FOOTER_LEGAL_LINKS = [
-  { href: "/terminos", label: "Terminos de Uso" },
-  { href: "/privacidad", label: "Politica de Privacidad" },
+  { href: withBase("/terminos"), label: "Terminos de Uso" },
+  { href: withBase("/privacidad"), label: "Politica de Privacidad" },
 ];

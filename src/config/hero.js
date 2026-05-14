@@ -1,5 +1,7 @@
+import { withBase } from "../utils/basePath";
+
 export const HERO_VIEW_TRANSITION_NAME = "imperio-preloader-hero";
-export const HERO_IMAGE_DEFAULT_SRC = "/images/preloader/Preload_6_def_upscaled_2x.png";
+export const HERO_IMAGE_DEFAULT_SRC = withBase("/images/preloader/Preload_6_def_upscaled_2x.png");
 
 export const HERO_LAYER_VARS = {
   "--imperio-x": "0px",
@@ -50,32 +52,32 @@ export const LATIN_LAYER_ANIMATION = {
 
 export const PRELOADER_SEQUENCE_IMAGES = [
   {
-    src: "/images/preloader/Preload_1_def_upscaled_2x.png",
+    src: withBase("/images/preloader/Preload_1_def_upscaled_2x.png"),
     alt: "Cargando 1",
     scaleEnd: "1",
   },
   {
-    src: "/images/preloader/Preload_2_def_upscaled_2x.png",
+    src: withBase("/images/preloader/Preload_2_def_upscaled_2x.png"),
     alt: "Cargando 2",
     scaleEnd: "0.988",
   },
   {
-    src: "/images/preloader/Preload_Archivo.png",
+    src: withBase("/images/preloader/Preload_Archivo.png"),
     alt: "Cargando archivo",
     scaleEnd: "0.976",
   },
   {
-    src: "/images/preloader/Preload_4_def_upscaled_2x.png",
+    src: withBase("/images/preloader/Preload_4_def_upscaled_2x.png"),
     alt: "Cargando 4",
     scaleEnd: "0.964",
   },
   {
-    src: "/images/preloader/Preload_5_def_upscaled_2x.png",
+    src: withBase("/images/preloader/Preload_5_def_upscaled_2x.png"),
     alt: "Cargando 5",
     scaleEnd: "0.952",
   },
   {
-    src: "/images/preloader/Preload_3_def_upscaled_2x.png",
+    src: withBase("/images/preloader/Preload_3_def_upscaled_2x.png"),
     alt: "Cargando 6",
     scaleEnd: "0.94",
     shrinkTrigger: true,

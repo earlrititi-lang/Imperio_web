@@ -3,6 +3,7 @@ import "../styles/global.css";
 import ClientRuntime from "../islands/ClientRuntime.jsx";
 import { ANALYTICS } from "../config/analytics";
 import { SITE } from "../config/site";
+import { withBase } from "../utils/basePath";
 
 interface Props {
   title?: string;
@@ -20,8 +21,11 @@ const {
 
 const pageTitle =
   title === SITE.name || title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
-const canonicalUrl = new URL(Astro.url.pathname, SITE.url).toString();
-const ogImageUrl = new URL(ogImage, SITE.url).toString();
+const isGitHubPagesBuild = import.meta.env.BASE_URL.startsWith("/Imperio_web");
+const deploymentOrigin =
+  isGitHubPagesBuild ? "https://earlrititi-lang.github.io" : SITE.url;
+const canonicalUrl = new URL(Astro.url.pathname, deploymentOrigin).toString();
+const ogImageUrl = new URL(withBase(ogImage), deploymentOrigin).toString();
 ---
 
 <!doctype html>

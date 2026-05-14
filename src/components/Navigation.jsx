@@ -1,4 +1,5 @@
 import { NAV_ITEMS } from "../config/navigation";
+import { withBase } from "../utils/basePath";
 
 export default function Navigation() {
   return (
@@ -26,12 +27,12 @@ export default function Navigation() {
 
         <div class="main-nav__inner">
           <a
-            href="/"
+            href={withBase("/")}
             aria-label="Ir al inicio"
             class="main-nav__brand text-2xl font-bold tracking-tight hover:text-[var(--color-red-accent)] transition-colors"
           >
             <img
-              src="/images/logo-redv2.png"
+              src={withBase("/images/logo-redv2.png")}
               alt="El Siglo Espanol"
               class="main-nav__logo"
             />
@@ -79,7 +80,7 @@ export default function Navigation() {
       >
         <div class="side-bar__media" aria-hidden="true">
           <img
-            src="/images/red_hamburguer_final.png"
+            src={withBase("/images/red_hamburguer_final.png")}
             alt=""
             class="side-bar__media-image"
             decoding="async"

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { withBase } from "../utils/basePath";
 
 const DEFAULT_LAYERS = [
   { id: "Non_sufficit_orbis", label: "Non sufficit orbis" },
@@ -46,7 +47,7 @@ const toNumber = (value, fallback = 0) => {
 };
 
 export default function LatinLayers({
-  src = "/images/Letras_latin.svg",
+  src = withBase("/images/Letras_latin.svg"),
   layers = DEFAULT_LAYERS,
   animation = DEFAULT_ANIMATION,
   className = "",

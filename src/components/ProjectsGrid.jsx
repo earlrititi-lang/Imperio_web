@@ -1,4 +1,5 @@
 import { PROJECTS_ITEMS } from "../config/home";
+import { withBase } from "../utils/basePath";
 
 export default function ProjectsGrid() {
   return (
@@ -8,7 +9,7 @@ export default function ProjectsGrid() {
           <div class="section-header projects-section__header flex flex-col md:flex-row justify-between items-end gap-6">
             <h2 class="text-5xl md:text-7xl font-bold">Proyectos</h2>
             <a
-              href="/obras"
+              href={withBase("/obras")}
               class="text-lg font-semibold uppercase tracking-wide hover:text-[var(--color-red-accent)] transition-colors flex items-center gap-2"
             >
               Ver todos los proyectos

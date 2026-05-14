@@ -1,4 +1,5 @@
 import { SERVICES_ITEMS } from "../config/home";
+import { withBase } from "../utils/basePath";
 
 const FOUNDATION_CARDS = [
   {
@@ -31,14 +32,14 @@ export default function Services() {
             <div class="services-army-swap">
               <div class="services-army-hitbox" aria-hidden="true"></div>
               <img
-                src="/images/ejercito-blanco_upscaled_2x.png"
+                src={withBase("/images/ejercito-blanco_upscaled_2x.png")}
                 alt="Formacion historica del ejercito"
                 class="services-army-image services-army-image--default"
                 loading="lazy"
                 decoding="async"
               />
               <img
-                src="/images/ejercito-rojo.png"
+                src={withBase("/images/ejercito-rojo.png")}
                 alt=""
                 aria-hidden="true"
                 class="services-army-image services-army-image--hover"

@@ -2,6 +2,7 @@ import { useEffect } from "preact/hooks";
 import LogoImperio from "./LogoImperio";
 import LatinLayers from "./LatinLayers";
 import NavLinksList from "./NavLinksList";
+import { withBase } from "../utils/basePath";
 import {
   HERO_ENTRANCE_SEQUENCE,
   HERO_IMAGE_DEFAULT_SRC,
@@ -148,7 +149,7 @@ export default function HeroImperio() {
                 aria-hidden="true"
               >
                 <LatinLayers
-                  src="/images/Letras_latin.svg"
+                  src={withBase("/images/Letras_latin.svg")}
                   className="hero-imperio__latin-layers"
                   layers={LATIN_LAYER_SEQUENCE}
                   animation={LATIN_LAYER_ANIMATION}
