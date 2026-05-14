@@ -35,6 +35,7 @@ export const createNavController = ({
   const resetNavMergeState = () => {
     if (!nav) return;
     nav.style.setProperty("--nav-links-progress", "0");
+    nav.classList.remove("main-nav--merged");
   };
 
   const getNavLettersRect = () =>
@@ -192,7 +193,9 @@ export const createNavController = ({
     if (!mobileBreakpoint.matches || !sourceRect || sourceRect.height <= 0) {
       resetNavMergeState();
     } else {
+      const hasMerged = navTargetProgress >= 0.995 || sourceRect.bottom <= navRect.bottom;
       nav.style.setProperty("--nav-links-progress", navTargetProgress.toFixed(3));
+      nav.classList.toggle("main-nav--merged", hasMerged);
     }
 
     updateHeroOverlayPosition(sourceRect);

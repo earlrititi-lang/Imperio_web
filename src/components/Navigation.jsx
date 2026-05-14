@@ -218,7 +218,7 @@ export default function Navigation() {
 
         .main-nav__links {
           color: #111;
-          opacity: 0;
+          opacity: var(--nav-links-progress, 0);
           will-change: opacity;
           pointer-events: none;
         }
