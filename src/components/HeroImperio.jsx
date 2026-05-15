@@ -415,11 +415,14 @@ export default function HeroImperio() {
         }
 
         .nav-link {
+          --nav-hover-mark-size: clamp(0.78em, 0.7em + 0.18vw, 1em);
+          --nav-hover-mark-gap: clamp(0.2rem, 0.34vw, 0.46rem);
+          --nav-hover-mark-offset: clamp(0.12rem, 0.22vw, 0.3rem);
           position: relative;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0 calc(var(--space-unit) * 1.75);
+          padding: 0 calc(var(--nav-hover-mark-gap) + var(--nav-hover-mark-size) * 0.55);
         }
 
         .nav-link::before,
@@ -427,25 +430,31 @@ export default function HeroImperio() {
           content: '[';
           position: absolute;
           top: 50%;
-          transform: translateY(-50%) translateX(-6px);
+          left: 0;
+          transform: translate(calc(var(--nav-hover-mark-offset) * -1), -50%);
           color: var(--color-red-accent);
           opacity: 0;
           transition: opacity 0.3s ease, transform 0.3s ease;
+          font-size: var(--nav-hover-mark-size);
           font-weight: 600;
           letter-spacing: 0.08em;
+          line-height: 1;
+          pointer-events: none;
         }
 
         .nav-link::after {
           content: ']';
           left: auto;
           right: 0;
-          transform: translateY(-50%) translateX(6px);
+          transform: translate(var(--nav-hover-mark-offset), -50%);
         }
 
         .nav-link:hover::before,
-        .nav-link:hover::after {
+        .nav-link:hover::after,
+        .nav-link:focus-visible::before,
+        .nav-link:focus-visible::after {
           opacity: 1;
-          transform: translateY(-50%) translateX(0);
+          transform: translate(0, -50%);
         }
 
         @media (max-width: 768px) {
