@@ -425,6 +425,11 @@ export default function HeroImperio() {
           padding: 0 calc(var(--nav-hover-mark-gap) + var(--nav-hover-mark-size) * 0.55);
         }
 
+        .nav-link:hover,
+        .nav-link:focus-visible {
+          color: var(--color-red-accent);
+        }
+
         .nav-link::before,
         .nav-link::after {
           content: '[';
