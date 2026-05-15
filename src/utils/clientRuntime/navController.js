@@ -24,25 +24,17 @@ export const createNavController = ({
   let navTargetProgress = 0;
   let navProgress = 0;
   let animationFrameId = 0;
-  let heroOverlayCaptured = false;
-  let heroOverlayCaptureX = 0;
-  let heroOverlayCaptureY = 0;
-  let heroOverlayCaptureScroll = 0;
   let heroOverlayDockX = 0;
   let heroOverlayDockY = 0;
-  let heroOverlayMergeDistance = 1;
 
-  const updateDockedLinksProgress = (progress) => {
+  const resetDockedLinks = () => {
     if (!nav) return;
-
-    const nextProgress = clamp01(progress);
-    nav.style.setProperty("--nav-links-progress", nextProgress.toFixed(3));
-    nav.classList.toggle("main-nav--merged", nextProgress >= 0.995);
+    nav.style.setProperty("--nav-links-progress", "0");
+    nav.classList.remove("main-nav--merged");
   };
 
   const resetNavMergeState = () => {
-    if (!nav) return;
-    updateDockedLinksProgress(0);
+    resetDockedLinks();
   };
 
   const getNavLettersRect = () =>
@@ -65,24 +57,17 @@ export const createNavController = ({
   };
 
   const releaseHeroOverlay = () => {
-    heroOverlayCaptured = false;
     resetNavMergeState();
     heroSection?.classList.remove("hero-imperio--nav-captured");
   };
 
-  const captureHeroOverlay = (sourceRect) => {
+  const pinHeroOverlay = (x, y) => {
     if (!heroSection) return;
 
-    heroOverlayCaptured = true;
-    heroOverlayCaptureX = sourceRect.left + sourceRect.width / 2;
-    heroOverlayCaptureY = sourceRect.top + sourceRect.height / 2;
-    heroOverlayCaptureScroll = window.scrollY;
-    heroOverlayMergeDistance = Math.max(1, heroOverlayCaptureY - heroOverlayDockY);
-
-    heroSection.style.setProperty("--hero-overlay-left", `${heroOverlayCaptureX.toFixed(2)}px`);
-    heroSection.style.setProperty("--hero-overlay-top", `${heroOverlayCaptureY.toFixed(2)}px`);
     heroSection.style.setProperty("--hero-overlay-opacity", "1");
-    updateDockedLinksProgress(0);
+    heroSection.style.setProperty("--hero-overlay-left", `${x.toFixed(2)}px`);
+    heroSection.style.setProperty("--hero-overlay-top", `${y.toFixed(2)}px`);
+    resetDockedLinks();
     heroSection.classList.add("hero-imperio--nav-captured");
   };
 
@@ -102,32 +87,22 @@ export const createNavController = ({
       return;
     }
 
-    if (!heroOverlayCaptured) {
-      if (navRect.bottom >= liveSourceRect.top) {
-        captureHeroOverlay(liveSourceRect);
-      } else {
-        releaseHeroOverlay();
-      }
-      return;
-    }
+    const sourceCenterX = liveSourceRect.left + liveSourceRect.width / 2;
+    const sourceCenterY = liveSourceRect.top + liveSourceRect.height / 2;
+    const hasNavbarContact =
+      navRect.bottom >= liveSourceRect.top && navRect.top <= liveSourceRect.bottom;
 
-    if (window.scrollY <= heroOverlayCaptureScroll && navRect.bottom < liveSourceRect.top) {
+    if (!hasNavbarContact && sourceCenterY > heroOverlayDockY) {
       releaseHeroOverlay();
       return;
     }
 
-    const rawProgress = clamp01(
-      (window.scrollY - heroOverlayCaptureScroll) / heroOverlayMergeDistance
-    );
-    const progress = easeOutCubic(rawProgress);
-    const currentX = heroOverlayCaptureX + (heroOverlayDockX - heroOverlayCaptureX) * progress;
-    const currentY = heroOverlayCaptureY + (heroOverlayDockY - heroOverlayCaptureY) * progress;
-    const overlayOpacity = 1 - progress;
+    if (sourceCenterY <= heroOverlayDockY) {
+      pinHeroOverlay(heroOverlayDockX, heroOverlayDockY);
+      return;
+    }
 
-    heroSection.style.setProperty("--hero-overlay-left", `${currentX.toFixed(2)}px`);
-    heroSection.style.setProperty("--hero-overlay-top", `${currentY.toFixed(2)}px`);
-    heroSection.style.setProperty("--hero-overlay-opacity", overlayOpacity.toFixed(3));
-    updateDockedLinksProgress(progress);
+    pinHeroOverlay(sourceCenterX, sourceCenterY);
   };
 
   const updateNavGradient = () => {

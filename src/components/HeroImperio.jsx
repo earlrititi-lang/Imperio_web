@@ -345,7 +345,7 @@ export default function HeroImperio() {
         .hero-nav__overlay {
           position: fixed;
           inset: 0;
-          z-index: 70;
+          z-index: 190;
           pointer-events: none;
           opacity: 0;
         }
