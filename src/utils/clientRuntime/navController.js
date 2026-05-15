@@ -49,11 +49,20 @@ export const createNavController = ({
         nav?.getBoundingClientRect?.() ??
         heroNav.getBoundingClientRect()
     );
+    const navRect = nav?.getBoundingClientRect?.();
 
-    if (!linksWrapRect || linksWrapRect.height <= 0 || linksWrapRect.width <= 0) return;
+    if (
+      !linksWrapRect ||
+      linksWrapRect.height <= 0 ||
+      linksWrapRect.width <= 0 ||
+      !navRect ||
+      navRect.height <= 0
+    ) {
+      return;
+    }
 
     heroOverlayDockX = linksWrapRect.left + linksWrapRect.width / 2;
-    heroOverlayDockY = linksWrapRect.top + linksWrapRect.height / 2;
+    heroOverlayDockY = Math.max(0, navRect.top) + navRect.height / 2;
   };
 
   const releaseHeroOverlay = () => {
