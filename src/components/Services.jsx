@@ -117,6 +117,7 @@ export default function Services() {
           line-height: 1;
           margin-bottom: 0;
           margin-top: var(--services-title-offset-y);
+          overflow-wrap: anywhere;
           transition: color 0.35s ease;
         }
 
@@ -140,7 +141,7 @@ export default function Services() {
 
         .services-grid {
           display: grid;
-          gap: var(--space-16);
+          gap: var(--space-8);
         }
 
         .services-foundation-grid {
@@ -212,7 +213,7 @@ export default function Services() {
         }
 
         .service-item {
-          gap: var(--space-6);
+          gap: var(--space-4);
         }
 
         .service-content h3 {
@@ -253,6 +254,14 @@ export default function Services() {
         }
 
         @media (min-width: 960px) {
+          .services-grid {
+            gap: var(--space-16);
+          }
+
+          .service-item {
+            gap: var(--space-6);
+          }
+
           .services-foundation-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
             margin-top: calc(var(--space-12) * -0.6);
@@ -266,6 +275,53 @@ export default function Services() {
           .services-army-swap {
             margin-top: calc(var(--space-4) * -0.4);
             margin-bottom: calc(var(--space-12) * -0.5);
+          }
+        }
+
+        @media (max-width: 767px) {
+          .services-section {
+            padding-block: var(--space-6) var(--space-8);
+          }
+
+          .services-section__header {
+            margin-bottom: var(--space-6);
+          }
+
+          .services-title {
+            letter-spacing: 0;
+          }
+
+          .services-army-swap {
+            width: min(112%, 520px);
+            margin: var(--space-2) -6% var(--space-2);
+          }
+
+          .services-foundation-grid {
+            margin-top: var(--space-2);
+            margin-bottom: var(--space-6);
+          }
+
+          .services-foundation-card {
+            padding: var(--space-3) 0 0;
+          }
+
+          .services-foundation-card__title {
+            font-size: clamp(1.6rem, 9vw, 2.2rem);
+          }
+
+          .services-foundation-card__copy {
+            max-width: 100%;
+            font-size: 1rem;
+            line-height: 1.42;
+          }
+
+          .service-content h3 {
+            font-size: clamp(2rem, 10vw, 2.75rem);
+            margin-bottom: var(--space-2);
+          }
+
+          .service-image img {
+            height: clamp(260px, 76vw, 360px);
           }
         }
       `}</style>

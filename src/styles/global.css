@@ -37,8 +37,8 @@
   --font-rosa-black: "FS Rosa Black", "Inter", "Segoe UI", sans-serif;
   --font-display: "Inter", "Segoe UI", sans-serif;
   --font-body: "Inter", "Segoe UI", sans-serif;
-  --services-title-primary-size: clamp(5.4rem, 7.4vw, 9.8rem);
-  --services-title-secondary-size: clamp(3.15rem, 4.5vw, 5.8rem);
+  --services-title-primary-size: clamp(3.05rem, 15vw, 5.4rem);
+  --services-title-secondary-size: clamp(2rem, 9.8vw, 3.15rem);
   --services-title-offset-y: 0rem;
   --home-max-width: 1600px;
   --home-gutter-mobile: var(--space-2);
@@ -523,6 +523,11 @@ h3 {
 }
 
 @media (min-width: 768px) {
+  :root {
+    --services-title-primary-size: clamp(5.4rem, 7.4vw, 9.8rem);
+    --services-title-secondary-size: clamp(3.15rem, 4.5vw, 5.8rem);
+  }
+
   .home-page {
     --home-gutter: var(--home-gutter-desktop);
     --home-section-space: var(--home-section-space-desktop);

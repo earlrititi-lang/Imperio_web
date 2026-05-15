@@ -202,7 +202,7 @@ export default function HeroImperio() {
           display: block;
           width: 100%;
           height: 100%;
-          object-fit: fill;
+          object-fit: cover;
           object-position: center;
           will-change: transform;
         }
@@ -449,10 +449,14 @@ export default function HeroImperio() {
         }
 
         @media (max-width: 768px) {
+          .hero-background__img {
+            object-position: 50% 50%;
+          }
+
           .hero-imperio__lockup {
-            --wordmark-w: min(86vw, 520px);
+            --wordmark-w: min(88vw, 420px);
             left: 50%;
-            top: 58%;
+            top: 56%;
             transform: translate(-50%, -50%);
           }
 
@@ -464,8 +468,19 @@ export default function HeroImperio() {
             gap: var(--space-2);
           }
 
+          .hero-imperio__nav,
+          .hero-nav__overlay {
+            display: none;
+          }
+
           .nav-link {
             font-size: 0.75rem;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .hero-background__img {
+            object-fit: fill;
           }
         }
 

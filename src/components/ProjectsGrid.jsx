@@ -65,6 +65,7 @@ export default function ProjectsGrid() {
         .projects-section__header {
           gap: var(--space-3);
           margin-bottom: var(--space-8);
+          align-items: flex-start;
         }
 
         .projects-grid {
@@ -77,6 +78,40 @@ export default function ProjectsGrid() {
 
         .project-info h3 {
           margin-bottom: var(--space-1);
+        }
+
+        @media (max-width: 767px) {
+          .projects-section {
+            padding-block: var(--space-8);
+          }
+
+          .projects-section__header {
+            margin-bottom: var(--space-5);
+          }
+
+          .projects-section__header h2 {
+            font-size: clamp(2.65rem, 14vw, 4rem);
+            line-height: 0.95;
+          }
+
+          .projects-section__header a {
+            font-size: 0.92rem;
+          }
+
+          .projects-grid {
+            gap: var(--space-6);
+          }
+
+          .project-image {
+            aspect-ratio: 5 / 6;
+            margin-bottom: var(--space-2);
+          }
+        }
+
+        @media (min-width: 768px) {
+          .projects-section__header {
+            align-items: flex-end;
+          }
         }
       `}</style>
     </>
