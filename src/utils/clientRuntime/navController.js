@@ -32,10 +32,17 @@ export const createNavController = ({
   let heroOverlayDockY = 0;
   let heroOverlayMergeDistance = 1;
 
+  const updateDockedLinksProgress = (progress) => {
+    if (!nav) return;
+
+    const nextProgress = clamp01(progress);
+    nav.style.setProperty("--nav-links-progress", nextProgress.toFixed(3));
+    nav.classList.toggle("main-nav--merged", nextProgress >= 0.995);
+  };
+
   const resetNavMergeState = () => {
     if (!nav) return;
-    nav.style.setProperty("--nav-links-progress", "0");
-    nav.classList.remove("main-nav--merged");
+    updateDockedLinksProgress(0);
   };
 
   const getNavLettersRect = () =>
@@ -59,6 +66,7 @@ export const createNavController = ({
 
   const releaseHeroOverlay = () => {
     heroOverlayCaptured = false;
+    resetNavMergeState();
     heroSection?.classList.remove("hero-imperio--nav-captured");
   };
 
@@ -73,6 +81,8 @@ export const createNavController = ({
 
     heroSection.style.setProperty("--hero-overlay-left", `${heroOverlayCaptureX.toFixed(2)}px`);
     heroSection.style.setProperty("--hero-overlay-top", `${heroOverlayCaptureY.toFixed(2)}px`);
+    heroSection.style.setProperty("--hero-overlay-opacity", "1");
+    updateDockedLinksProgress(0);
     heroSection.classList.add("hero-imperio--nav-captured");
   };
 
@@ -112,9 +122,12 @@ export const createNavController = ({
     const progress = easeOutCubic(rawProgress);
     const currentX = heroOverlayCaptureX + (heroOverlayDockX - heroOverlayCaptureX) * progress;
     const currentY = heroOverlayCaptureY + (heroOverlayDockY - heroOverlayCaptureY) * progress;
+    const overlayOpacity = 1 - progress;
 
     heroSection.style.setProperty("--hero-overlay-left", `${currentX.toFixed(2)}px`);
     heroSection.style.setProperty("--hero-overlay-top", `${currentY.toFixed(2)}px`);
+    heroSection.style.setProperty("--hero-overlay-opacity", overlayOpacity.toFixed(3));
+    updateDockedLinksProgress(progress);
   };
 
   const updateNavGradient = () => {
@@ -192,10 +205,6 @@ export const createNavController = ({
 
     if (!mobileBreakpoint.matches || !sourceRect || sourceRect.height <= 0) {
       resetNavMergeState();
-    } else {
-      const hasMerged = navTargetProgress >= 0.995 || sourceRect.bottom <= navRect.bottom;
-      nav.style.setProperty("--nav-links-progress", navTargetProgress.toFixed(3));
-      nav.classList.toggle("main-nav--merged", hasMerged);
     }
 
     updateHeroOverlayPosition(sourceRect);

@@ -376,7 +376,7 @@ export default function HeroImperio() {
         }
 
         .hero-imperio--nav-captured .hero-nav__overlay {
-          opacity: 1;
+          opacity: var(--hero-overlay-opacity, 1);
         }
 
         .hero-imperio--nav-captured .hero-nav__overlay-wrap {
